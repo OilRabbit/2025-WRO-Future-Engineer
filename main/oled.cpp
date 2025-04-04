@@ -1,4 +1,4 @@
-#include "displayhelper.h"
+#include "oled.h"
 
 void Display::oledClear(){
   MiniR4.OLED.clearDisplay();

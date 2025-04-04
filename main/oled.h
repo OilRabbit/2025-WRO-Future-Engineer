@@ -1,5 +1,5 @@
-#ifndef DISPLAYHELPER_H
-#define DISPLAYHELPER_H
+#ifndef OLED_H
+#define OLED_H
 
 #include <Arduino.h>
 #include <MatrixMiniR4.h>
@@ -11,6 +11,12 @@
 #define WIDTH_MAX 24
 #define TEXT_HEIGHT 8
 #define MAX_VTEXT WIDTH_MAX / TEXT_HEIGHT + 1
+
+typedef enum{
+  LEFT,
+  MID,
+  RIGHT
+}COLUMN;
 
 class Display
 {

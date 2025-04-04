@@ -1,15 +1,19 @@
 #include <MatrixMiniR4.h>
-#include "Timer.h"
+#include <Thread.h>
+#include <ThreadController.h>
 #include <string.h>
-#include "displayhelper.h"
+#include "Timer.h"
+#include "oled.h"
 #include "display.h"
 #include "battery.h"
 #include "timestamp.h"
-#include <Thread.h>
-#include <ThreadController.h>
+#include "steering.h"
+#include "laser.h"
+#include "OC1.h"
 
 // Define your threads here
 Thread displayThread = Thread();
+Thread OC1Thread = Thread();
 
 // Controller to manage all threads
 ThreadController controller = ThreadController();
@@ -17,25 +21,37 @@ ThreadController controller = ThreadController();
 void setup() {
   // Init
   Serial.begin(115200);
-  MiniR4.begin();
   internalClock.start();
+  MiniR4.begin();
   display.oledDisplayCenterln(1, 1, "Initializing...", true);
   MiniR4.PWR.setBattCell(2);  // 18650x2, two-cell (2S)
+  MiniR4.M2.begin();
   MiniR4.M2.setBrake(true);
+  steeringInit();
+  reset_steering();
+  laserInit(I2CPORT1);
+  laserInit(I2CPORT2);
   display.oledClear();
 
   // Follow this to create your own thread
   displayThread.onRun(displayData);
   displayThread.setInterval(1);
 
+  OC1Thread.onRun(OpenChallenge);
+  OC1Thread.setInterval(1);
+
   // Add the threads to the controller
   controller.add(&displayThread);
+  controller.add(&OC1Thread);
 
   display.oledDisplayCenterln(1, 1, "Starting...", true);
-  MiniR4.OLED.clearDisplay();
+  display.oledClear();
 }
 
 void loop() {
   // Start all the threads in this controller
   controller.run();
+  // steering(50);
+  // MiniR4.M2.setPower(100);
+
 }

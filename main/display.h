@@ -4,8 +4,9 @@
 #include <Arduino.h>
 #include <MatrixMiniR4.h>
 #include "battery.h"
-#include "displayhelper.h"
+#include "oled.h"
 #include "timestamp.h"
+#include "laser.h"
 
 void displayData();
 

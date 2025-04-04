@@ -1,7 +1,7 @@
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 
-#include "displayhelper.h"
+#include "oled.h"
 #include "Timer.h"
 
 void showInternalClock(bool clearDisplay);
