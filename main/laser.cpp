@@ -21,12 +21,44 @@ int getLaserDist(LASERPORT port){
   }
 }
 
-void showLaserDist(LASERPORT port, COLUMN column, int line_number, int size, bool clearDisplay){
+void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay){
+  static String laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
+  display.oledSetTextColour(BLACK);
   if (column == LEFT){
-    display.oledDisplayLeftln(line_number, size, "L" + String(port + 1) + ":" + String(getLaserDist(port)) + "mm", clearDisplay);
+    display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
+    display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
   } else if (column == MID) {
-    display.oledDisplayCenterln(line_number, size, "L" + String(port + 1) + ":" + String(getLaserDist(port)) + "mm", clearDisplay);
+    display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
+    display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
   } else {
-    display.oledDisplayRightln(line_number, size, "L" + String(port + 1) + ":" + String(getLaserDist(port)) + "mm", clearDisplay);
+    display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
+    display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
+  }
+}
+
+void showLaser2Dist(COLUMN column, int line_number, int size, bool clearDisplay){
+  static String laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
+  display.oledSetTextColour(BLACK);
+  if (column == LEFT){
+    display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
+    display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
+  } else if (column == MID) {
+    display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
+    display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
+  } else {
+    display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
+    display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
   }
 }

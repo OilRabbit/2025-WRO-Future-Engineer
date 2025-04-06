@@ -1,3 +1,7 @@
+#include <DFRobot_HuskyLens.h>
+#include <HUSKYLENS.h>
+#include <HUSKYLENSMindPlus.h>
+#include <HuskyLensProtocolCore.h>
 #include <MatrixMiniR4.h>
 #include <Thread.h>
 #include <ThreadController.h>
@@ -10,6 +14,8 @@
 #include "steering.h"
 #include "laser.h"
 #include "OC1.h"
+#include "huskylens.h"
+#include "imu.h"
 
 // Define your threads here
 Thread displayThread = Thread();
@@ -31,11 +37,13 @@ void setup() {
   reset_steering();
   laserInit(I2CPORT1);
   laserInit(I2CPORT2);
+  huskylensInit();
+  imuInit();
   display.oledClear();
 
   // Follow this to create your own thread
   displayThread.onRun(displayData);
-  displayThread.setInterval(1);
+  displayThread.setInterval(0);
 
   OC1Thread.onRun(OpenChallenge);
   OC1Thread.setInterval(1);
@@ -51,7 +59,7 @@ void setup() {
 void loop() {
   // Start all the threads in this controller
   controller.run();
+  // huskylensColorRegTest();
   // steering(50);
   // MiniR4.M2.setPower(100);
-
 }

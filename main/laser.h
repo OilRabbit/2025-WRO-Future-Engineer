@@ -12,6 +12,7 @@ typedef enum {
 
 void laserInit(LASERPORT port);
 int getLaserDist(LASERPORT port);
-void showLaserDist(LASERPORT port, COLUMN column, int line_number, int size, bool clearDisplay);
+void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay);
+void showLaser2Dist(COLUMN column, int line_number, int size, bool clearDisplay);
 
 #endif

@@ -1,7 +1,12 @@
+#include <sys/_stdint.h>
 #include "oled.h"
 
 void Display::oledClear(){
   MiniR4.OLED.clearDisplay();
+}
+
+void Display::oledSetTextColour(uint16_t colour){
+  MiniR4.OLED.setTextColor(colour);
 }
 
 void Display::oledDisplay(int x_pos, int y_pos, int size, const char text[], bool clearDisplay){
@@ -38,22 +43,22 @@ void Display::oledDisplayln(int x_pos, int line_number, int size, String &text, 
 
 void Display::oledDisplayLeft(int y_pos, int size, const char text[], bool clearDisplay){
   if(clearDisplay) MiniR4.OLED.clearDisplay();
-  oledDisplay(0, y_pos, size, text, clearDisplay);
+  oledDisplay(6, y_pos, size, text, clearDisplay);
 }
 
 void Display::oledDisplayLeft(int y_pos, int size, String &text, bool clearDisplay){
   if(clearDisplay) MiniR4.OLED.clearDisplay();
-  oledDisplay(0, y_pos, size, text, clearDisplay);
+  oledDisplay(6, y_pos, size, text, clearDisplay);
 }
 
 void Display::oledDisplayLeftln(int line_number, int size, const char text[], bool clearDisplay){
   if(clearDisplay) MiniR4.OLED.clearDisplay();
-  oledDisplayln(0, line_number, size, text, clearDisplay);
+  oledDisplayln(6, line_number, size, text, clearDisplay);
 }
 
 void Display::oledDisplayLeftln(int line_number, int size, String &text, bool clearDisplay){
   if(clearDisplay) MiniR4.OLED.clearDisplay();
-  oledDisplayln(0, line_number, size, text, clearDisplay);
+  oledDisplayln(6, line_number, size, text, clearDisplay);
 }
 
 void Display::oledDisplayCenter(int y_pos, int size, const char text[], bool clearDisplay){

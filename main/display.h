@@ -7,6 +7,8 @@
 #include "oled.h"
 #include "timestamp.h"
 #include "laser.h"
+#include "huskylens.h"
+#include "imu.h"
 
 void displayData();
 

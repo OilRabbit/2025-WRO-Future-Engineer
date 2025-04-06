@@ -1,0 +1,44 @@
+#ifndef HUSKYLENS_H
+#define HUSKYLENS_H
+
+#include <Arduino.h>
+#include <MatrixMiniR4.h>
+#include <DFRobot_HuskyLens.h>
+#include <HUSKYLENS.h>
+#include <HUSKYLENSMindPlus.h>
+#include <HuskyLensProtocolCore.h>
+#include <Wire.h>
+#include <movingAvg.h>
+#include "oled.h"
+
+typedef enum {
+  RED = 1,
+  GREEN,
+  MAGENTA,
+  NO_COLOUR = -1
+}COLOUR_BLOCK;
+
+typedef struct{
+  COLOUR_BLOCK colour;
+  int xpos;
+  int height;
+}COLOURED_OBJ;
+
+extern HUSKYLENS huskylens;
+extern movingAvg xCenter;
+
+void huskylensInit();
+void huskylensColorRegTest(COLUMN column, int line_number, int size, bool clearDisplay);
+int getHuskyResultID();
+int getHuskyXPos(COLOUR_BLOCK colour);
+int getHuskyHeight(COLOUR_BLOCK colour);
+void showHuskyRed(COLUMN column, int line_number, int size, bool clearDisplay);
+void showHuskyGreen(COLUMN column, int line_number, int size, bool clearDisplay);
+void showHuskyMagenta(COLUMN column, int line_number, int size, bool clearDisplay);
+void showHuskyRG(COLUMN column, int line_number, int size, bool clearDisplay);
+COLOURED_OBJ getNearestPillar();
+void showNearestPillar(COLUMN column, int line_number, int size, bool clearDisplay);
+COLOURED_OBJ getNearestColour();
+void showNearestColour(COLUMN column, int line_number, int size, bool clearDisplay);
+
+#endif

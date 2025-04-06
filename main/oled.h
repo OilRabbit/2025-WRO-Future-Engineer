@@ -22,6 +22,7 @@ class Display
 {
   public:
     void oledClear();
+    void oledSetTextColour(uint16_t colour);
     void oledDisplay(int x_pos, int y_pos, int size, const char text[], bool clearDisplay);
     void oledDisplay(int x_pos, int y_pos, int size, String &text, bool clearDisplay);
     void oledDisplayln(int line_number, int y_pos, int size, const char text[], bool clearDisplay);

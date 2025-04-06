@@ -1,0 +1,21 @@
+
+#ifndef IMU_H
+#define IMU_H
+
+#include <Arduino.h>
+#include <MatrixMiniR4.h>
+#include <Kalman.h>
+#include "oled.h"
+
+typedef enum{
+  IMU_ORIGIN,
+  IMU_KALMAN
+}IMU_METHOD;
+
+void imuInit();
+double unwrapAngle(double current_angle);
+double getIMU();
+double getIMUKalman();
+void showIMU(IMU_METHOD method, COLUMN column, int line_number, int size, bool clearDisplay);
+
+#endif
