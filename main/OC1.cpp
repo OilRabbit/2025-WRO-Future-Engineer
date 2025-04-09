@@ -11,7 +11,7 @@ void OpenChallenge(){
 }
 
 void showSteeringOC1(COLUMN column, int line_number, int size, bool clearDisplay){
-  static steering_text = "St: " + String(steering_percentage) + "%";
+  static String steering_text = "St: " + String(steering_percentage) + "%";
   display.oledSetTextColour(BLACK);
   if (column == LEFT){
     display.oledDisplayLeftln(line_number, size, steering_text, clearDisplay);

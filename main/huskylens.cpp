@@ -193,8 +193,8 @@ void showNearestColour(COLUMN column, int line_number, int size, bool clearDispl
     huskylens_textR = "R: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.height);
     huskylens_textG = "G: NA";
   } else if (nearest_colour.colour == GREEN){
-    huskylens_textR = "G: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.height);
-    huskylens_textG = "R: NA";
+    huskylens_textG = "G: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.height);
+    huskylens_textR = "R: NA";
   } else {
     huskylens_textR = "R: NA";
     huskylens_textG = "G: NA";
