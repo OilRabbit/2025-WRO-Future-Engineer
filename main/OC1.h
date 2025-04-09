@@ -7,6 +7,9 @@
 #include "steering.h"
 #include <algorithm>
 
+extern steering_percentage;
+
 void OpenChallenge();
+void showSteeringOC1(COLUMN column, int line_number, int size, bool clearDisplay);
 
 #endif

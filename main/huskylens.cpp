@@ -11,26 +11,26 @@ void huskylensInit(){
 }
 
 void huskylensColorRegTest(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String huskylens_text = "\0";
+  static String huskylens_textR = "\0";
 
   display.oledSetTextColour(BLACK);
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
   display.oledSetTextColour(WHITE);
 
-  if (!huskylens.request()) huskylens_text = "Failed to request";
-  else if (!huskylens.isLearned()) huskylens_text = "Not learned";
-  else if (!huskylens.available()) huskylens_text = "No obj";
+  if (!huskylens.request()) huskylens_textR = "Failed to request";
+  else if (!huskylens.isLearned()) huskylens_textR = "Not learned";
+  else if (!huskylens.available()) huskylens_textR = "No obj";
   else{
     HUSKYLENSResult result = huskylens.read();
     String block = (result.ID == RED) ? "R" : ((result.ID == GREEN) ? "G" : "M");
-    huskylens_text = block + "x: " + String(result.xCenter) + " h:" + String(result.height);
+    huskylens_textR = block + "x: " + String(result.xCenter) + " h:" + String(result.height);
   }
 
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 }
 
 int getHuskyResultID(){
@@ -54,51 +54,51 @@ int getHuskyHeight(COLOUR_BLOCK colour){
 }
 
 void showHuskyRed(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String huskylens_text = "\0";
+  static String huskylens_textR = "\0";
 
   display.oledSetTextColour(BLACK);
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 
   display.oledSetTextColour(WHITE);
-  if (getHuskyResultID() != RED) huskylens_text = "R: NA";
-  else huskylens_text = "R: " + String(getHuskyXPos(RED)) + ", " + String(getHuskyHeight(RED));
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (getHuskyResultID() != RED) huskylens_textR = "R: NA";
+  else huskylens_textR = "R: " + String(getHuskyXPos(RED)) + ", " + String(getHuskyHeight(RED));
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 }
 
 void showHuskyGreen(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String huskylens_text = "\0";
+  static String huskylens_textR = "\0";
 
   display.oledSetTextColour(BLACK);
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 
   display.oledSetTextColour(WHITE);
-  if (getHuskyResultID() != GREEN) huskylens_text = "G: NA";
-  else huskylens_text = "G: " + String(getHuskyXPos(GREEN)) + ", " + String(getHuskyHeight(GREEN));
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (getHuskyResultID() != GREEN) huskylens_textR = "G: NA";
+  else huskylens_textR = "G: " + String(getHuskyXPos(GREEN)) + ", " + String(getHuskyHeight(GREEN));
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 }
 
 void showHuskyMagenta(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String huskylens_text = "\0";
+  static String huskylens_textR = "\0";
 
   display.oledSetTextColour(BLACK);
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 
   display.oledSetTextColour(WHITE);
-  if (getHuskyResultID() != MAGENTA) huskylens_text = "M: NA";
-  else huskylens_text = "M: " + String(getHuskyXPos(MAGENTA)) + ", " + String(getHuskyHeight(MAGENTA));
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (getHuskyResultID() != MAGENTA) huskylens_textR = "M: NA";
+  else huskylens_textR = "M: " + String(getHuskyXPos(MAGENTA)) + ", " + String(getHuskyHeight(MAGENTA));
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 }
 
 COLOURED_OBJ getNearestPillar(){
@@ -129,20 +129,20 @@ COLOURED_OBJ getNearestPillar(){
 }
 
 void showNearestPillar(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String huskylens_text = "\0";
+  static String huskylens_textR = "\0";
 
   display.oledSetTextColour(BLACK);
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 
   display.oledSetTextColour(WHITE);
   COLOURED_OBJ nearest_pillar = getNearestPillar();
-  if (nearest_pillar.colour != NO_COLOUR) huskylens_text = ((nearest_pillar.colour == RED) ? "R: " : "G: ") + String(nearest_pillar.xpos) + ", " + String(nearest_pillar.height);
-  else huskylens_text = "None";
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (nearest_pillar.colour != NO_COLOUR) huskylens_textR = ((nearest_pillar.colour == RED) ? "R: " : "G: ") + String(nearest_pillar.xpos) + ", " + String(nearest_pillar.height);
+  else huskylens_textR = "None";
+  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+  else display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
 }
 
 COLOURED_OBJ getNearestColour(){
@@ -171,18 +171,43 @@ COLOURED_OBJ getNearestColour(){
 }
 
 void showNearestColour(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String huskylens_text = "\0";
+  static String huskylens_textR = "\0";
+  static String huskylens_textG = "\0";
 
   display.oledSetTextColour(BLACK);
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
-
+  if (column == LEFT){
+    display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+    display.oledDisplayLeftln(line_number + 1, 1, huskylens_textG, clearDisplay);
+  }
+  else if (column == MID){ 
+    display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+    display.oledDisplayCenterln(line_number + 1, 1, huskylens_textG, clearDisplay);
+  }
+  else {
+    display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
+    display.oledDisplayRightln(line_number + 1, 1, huskylens_textG, clearDisplay);
+  }
   display.oledSetTextColour(WHITE);
   COLOURED_OBJ nearest_colour = getNearestPillar();
-  if (nearest_colour.colour != NO_COLOUR) huskylens_text = ((nearest_colour.colour == RED) ? "R: " : ((nearest_colour.colour == GREEN) ? "G: ": "M: ")) + String(nearest_colour.xpos) + ", " + String(nearest_colour.height);
-  else huskylens_text = "None";
-  if (column == LEFT) display.oledDisplayLeftln(line_number, 1, huskylens_text, clearDisplay);
-  else if (column == MID) display.oledDisplayCenterln(line_number, 1, huskylens_text, clearDisplay);
-  else display.oledDisplayRightln(line_number, 1, huskylens_text, clearDisplay);
+  if (nearest_colour.colour == RED){
+    huskylens_textR = "R: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.height);
+    huskylens_textG = "G: NA";
+  } else if (nearest_colour.colour == GREEN){
+    huskylens_textR = "G: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.height);
+    huskylens_textG = "R: NA";
+  } else {
+    huskylens_textR = "R: NA";
+    huskylens_textG = "G: NA";
+  }
+  if (column == LEFT){
+    display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
+    display.oledDisplayLeftln(line_number + 1, 1, huskylens_textG, clearDisplay);
+  }
+  else if (column == MID){
+    display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
+    display.oledDisplayCenterln(line_number + 1, 1, huskylens_textG, clearDisplay);
+  } else{
+    display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
+    display.oledDisplayRightln(line_number + 1, 1, huskylens_textG, clearDisplay);
+  }
 }
