@@ -1,3 +1,4 @@
+#include <vector>
 #include "laser.h"
 
 void laserInit(LASERPORT port){
@@ -19,6 +20,40 @@ int getLaserDist(LASERPORT port){
       return MiniR4.I2C2.MXLaser.getDistance();
     }
   }
+}
+
+int getLaser1DistMean(int max_element){
+  static int sum = 0;
+  static std::vector<int> dist_arr;
+  int curr_dist = 0;
+  while (dist_arr.size() < max_element){
+    curr_dist = getLaserDist(I2CPORT1);
+    dist_arr.push_back(curr_dist);
+    sum += curr_dist;
+  }
+  sum -= dist_arr.at(0);
+  dist_arr.erase(dist_arr.begin());
+  curr_dist = getLaserDist(I2CPORT1);
+  sum += curr_dist
+  dist_arr.push_back(getLaserDist(I2CPORT1));
+  return sum / max_element;
+}
+
+int getLaser2DistMean(int max_element){
+  static int sum = 0;
+  static std::vector<int> dist_arr;
+  int curr_dist = 0;
+  while (dist_arr.size() < max_element){
+    curr_dist = getLaserDist(I2CPORT2);
+    dist_arr.push_back(curr_dist);
+    sum += curr_dist;
+  }
+  sum -= dist_arr.at(0);
+  dist_arr.erase(dist_arr.begin());
+  curr_dist = getLaserDist(I2CPORT2);
+  sum += curr_dist
+  dist_arr.push_back(getLaserDist(I2CPORT2));
+  return sum / max_element;
 }
 
 void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay){
