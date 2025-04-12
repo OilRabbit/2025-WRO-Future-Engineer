@@ -1,6 +1,9 @@
 #include <vector>
 #include "laser.h"
 
+double laser1Mean;
+double laser2Mean;
+
 void laserInit(LASERPORT port){
   if (port == I2CPORT1) MiniR4.I2C1.MXLaser.begin();
   else MiniR4.I2C2.MXLaser.begin();
@@ -34,7 +37,7 @@ int getLaser1DistMean(int max_element){
   sum -= dist_arr.at(0);
   dist_arr.erase(dist_arr.begin());
   curr_dist = getLaserDist(I2CPORT1);
-  sum += curr_dist
+  sum += curr_dist;
   dist_arr.push_back(getLaserDist(I2CPORT1));
   return sum / max_element;
 }
@@ -51,9 +54,14 @@ int getLaser2DistMean(int max_element){
   sum -= dist_arr.at(0);
   dist_arr.erase(dist_arr.begin());
   curr_dist = getLaserDist(I2CPORT2);
-  sum += curr_dist
+  sum += curr_dist;
   dist_arr.push_back(getLaserDist(I2CPORT2));
   return sum / max_element;
+}
+
+void getLasersDistMean(){
+  laser1Mean = getLaser1DistMean(20);
+  laser2Mean = getLaser2DistMean(20);
 }
 
 void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay){

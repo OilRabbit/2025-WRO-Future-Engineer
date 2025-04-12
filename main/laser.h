@@ -6,6 +6,9 @@
 #include <vector>
 #include "oled.h"
 
+extern double laser1Mean;
+extern double laser2Mean;
+
 typedef enum {
   I2CPORT1,
   I2CPORT2
@@ -15,6 +18,7 @@ void laserInit(LASERPORT port);
 int getLaserDist(LASERPORT port);
 int getLaser1DistMean(int max_element);
 int getLaser2DistMean(int max_element);
+void getLasersDistMean();
 void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay);
 void showLaser2Dist(COLUMN column, int line_number, int size, bool clearDisplay);
 

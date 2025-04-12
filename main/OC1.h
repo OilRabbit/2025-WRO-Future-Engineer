@@ -12,7 +12,8 @@
 
 extern float steering_percentage;
 
-void OpenChallenge();
+void OpenChallenge300();
+void OpenChallengeMeanDist();
 void showSteeringOC1(COLUMN column, int line_number, int size, bool clearDisplay);
 
 #endif
