@@ -5,6 +5,9 @@
 #include <MatrixMiniR4.h>
 #include "laser.h"
 #include "steering.h"
+#include "Timer.h"
+#include "imu.h"
+#include "timestamp.h"
 #include <algorithm>
 
 extern float steering_percentage;

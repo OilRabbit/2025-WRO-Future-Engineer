@@ -38,6 +38,8 @@ void setup() {
   laserInit(I2CPORT1);
   laserInit(I2CPORT2);
   huskylensInit();
+  display.oledDisplayCenterln(1, 1, "Initializing IMU", true);
+  delay(1000);
   imuInit();
   display.oledClear();
 
@@ -46,7 +48,7 @@ void setup() {
   displayThread.setInterval(0);
 
   OC1Thread.onRun(OpenChallenge);
-  OC1Thread.setInterval(1);
+  OC1Thread.setInterval(0);
 
   // Add the threads to the controller
   controller.add(&displayThread);

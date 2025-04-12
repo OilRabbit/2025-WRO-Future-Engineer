@@ -42,7 +42,7 @@ double unwrapAngle(double current_angle){
 }
 
 double getIMU(){
-  return unwrapAngle(MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw));
+  return unwrapAngle(MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw)) * -1;
 }
 
 double getIMUKalman(){
