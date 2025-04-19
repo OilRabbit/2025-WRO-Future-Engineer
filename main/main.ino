@@ -20,7 +20,8 @@
 // Define your threads here
 Thread displayThread = Thread();
 Thread OC1Thread = Thread();
-Thread LaserThread = Thread();
+Thread Laser1Thread = Thread();
+Thread Laser2Thread = Thread();
 
 // Controller to manage all threads
 ThreadController controller = ThreadController();
@@ -52,13 +53,17 @@ void setup() {
   // OC1Thread.onRun(OpenChallengeMeanDist);
   OC1Thread.setInterval(1);
 
-  LaserThread.onRun(getLasersDistMean);
-  LaserThread.setInterval(1);
+  Laser1Thread.onRun(getLaser1Distloop);
+  Laser1Thread.setInterval(0);
+
+  Laser2Thread.onRun(getLaser2Distloop);
+  Laser2Thread.setInterval(0);
 
   // Add the threads to the controller
   controller.add(&displayThread);
   controller.add(&OC1Thread);
-  controller.add(&LaserThread);
+  controller.add(&Laser1Thread);
+  controller.add(&Laser2Thread);
 
   display.oledDisplayCenterln(1, 1, "Starting...", true);
   display.oledClear();
