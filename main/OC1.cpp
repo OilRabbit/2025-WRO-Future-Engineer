@@ -84,7 +84,7 @@ void OpenChallengeMeanDist(){
     if (laser1Mean > 1200 && !dash_forward){
       turn_left = true;
       cal_tar_ang = true;
-    } else if (laser1Mean > 1200 && !dash_forward){
+    } else if (laser2Mean > 1200 && !dash_forward){
       turn_left = false;
       cal_tar_ang = true;
     } else {
