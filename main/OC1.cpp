@@ -10,7 +10,9 @@ float steering_percentage;
  * If this function is being used, the smart car will turn to the direction after one of the laser sensor detects a distance > 1700mm for 300ms
  * 
  */
-void OpenChallenge300(){
+void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int turn_time, int power){
+  LaserMode = laserMode;
+  LaserElemtents = laserMaxElements;
   static bool start_game = false;
   static bool prev_btn_state = false;
   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
@@ -18,9 +20,7 @@ void OpenChallenge300(){
     start_game = !start_game;
   }
   prev_btn_state = curr_btn_state;
-
   static bool end_game = false;
-  double right_ang = 88.58;
   static bool anticlockwise = false;
   static long milliseconds = 0;
   static long dash_timeZero = 0;
@@ -32,7 +32,6 @@ void OpenChallenge300(){
   static bool need_turn = false;
   static bool dash_forward = false;
   static int num_turn = 0;
-  static int speed = 0;
   if (!start_game){
     milliseconds = 0;
     dash_timeZero = 0;
@@ -44,17 +43,15 @@ void OpenChallenge300(){
     need_turn = false;
     dash_forward = false;
     num_turn = 0;
-    speed = 0;
-    MiniR4.M2.setPower(speed);
+    MiniR4.M2.setPower(0);
   } else {
-    speed = -100;
     if (!end_game){
       if (num_turn == 0){
-        if (laser1Mean > 1700 && !dash_forward){
+        if (laser1Dist > dist_threshold && !dash_forward){
           anticlockwise = true;
           is_left = true;
           cal_tar_ang = true;
-        } else if (laser2Mean > 1700 && !dash_forward){
+        } else if (laserDist > dist_threshold && !dash_forward){
           anticlockwise = false;
           is_left = false;
           cal_tar_ang = true;
@@ -63,14 +60,14 @@ void OpenChallenge300(){
         }
       } else {
         if (anticlockwise){
-          if (laser1Mean > 1700 && !dash_forward){
+          if (laser1Dist > dist_threshold && !dash_forward){
             is_left = true;
             cal_tar_ang = true;
           } else {
             cal_tar_ang = false;
           }
         } else {
-          if (laser2Mean > 1700 && !dash_forward){
+          if (laserDist > dist_threshold && !dash_forward){
             anticlockwise = false;
             is_left = false;
             cal_tar_ang = true;
@@ -79,7 +76,7 @@ void OpenChallenge300(){
           }
         }
       }
-      if (((internalClock.read() - milliseconds) > 300) && cal_tar_ang){
+      if (((internalClock.read() - milliseconds) > turn_time) && cal_tar_ang){
         // MiniR4.Buzzer.Tone(1000, 100);
         tar_ang += (is_left == true) ? -right_ang : right_ang; // 88.58
         cal_tar_ang = false;
@@ -99,7 +96,7 @@ void OpenChallenge300(){
           if ((internalClock.read() - dash_timeZero) < dash_time){
             steering_percentage = (getIMU() - tar_ang) * 6;
             steering(steering_percentage);
-            MiniR4.M2.setPower(speed);
+            MiniR4.M2.setPower(power);
           } else {
             dash_forward = false;
           }
@@ -116,7 +113,7 @@ void OpenChallenge300(){
         MiniR4.M2.setPower(0);
         end_game = true;
       } else {
-        MiniR4.M2.setPower(speed);
+        MiniR4.M2.setPower(power);
       }
     } else {
       MiniR4.M2.setPower(0);
@@ -129,7 +126,9 @@ void OpenChallenge300(){
  * If this function is being used, the smart car will turn to the direction immediately after one of the laser sensor detects a MEAN/MEDIAN distance > 1700mm
  * 
  */
-void OpenChallengeMeanDist(){
+void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int power){
+  LaserMode = MEANDIST;
+  LaserElemtents = laserMaxElements;
   static bool start_game = false;
   static bool prev_btn_state = false;
   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
@@ -139,7 +138,6 @@ void OpenChallengeMeanDist(){
   prev_btn_state = curr_btn_state;
 
   static bool end_game = false;
-  double right_ang = 88.58;
   static long dash_timeZero = 0;
   static long dash_time = 0;
   static double tar_ang = 0;
@@ -149,7 +147,6 @@ void OpenChallengeMeanDist(){
   static bool need_turn = false;
   static bool dash_forward = false;
   static int num_turn = 0;
-  static int speed = 0;
   if (!start_game){ 
     end_game = false;
     dash_timeZero = 0;
@@ -160,17 +157,15 @@ void OpenChallengeMeanDist(){
     need_turn = false;
     dash_forward = false;
     num_turn = 0;
-    speed = 0;
-    MiniR4.M2.setPower(speed);
+    MiniR4.M2.setPower(0);
   } else {
-    speed = -100;
     if (!end_game){
       if (num_turn == 0){
-        if (laser1Mean > 1700 && !dash_forward){
+        if (laser1Dist > dist_threshold && !dash_forward){
           anticlockwise = true;
           is_left = true;
           cal_tar_ang = true;
-        } else if (laser2Mean > 1700 && !dash_forward){
+        } else if (laserDist > dist_threshold && !dash_forward){
           anticlockwise = false;
           is_left = false;
           cal_tar_ang = true;
@@ -179,14 +174,14 @@ void OpenChallengeMeanDist(){
         }
       } else {
         if (anticlockwise){
-          if (laser1Mean > 1700 && !dash_forward){
+          if (laser1Dist > dist_threshold && !dash_forward){
             is_left = true;
             cal_tar_ang = true;
           } else {
             cal_tar_ang = false;
           }
         } else {
-          if (laser2Mean > 1700 && !dash_forward){
+          if (laserDist > dist_threshold && !dash_forward){
             anticlockwise = false;
             is_left = false;
             cal_tar_ang = true;
@@ -202,10 +197,6 @@ void OpenChallengeMeanDist(){
         need_turn = true;
         num_turn++;
       }
-      // if (num_turn == 4){
-      //   speed = 0;
-      //   MiniR4.M2.setPower(speed);
-      // }
       if ((abs(tar_ang - getIMU()) > 5) && (abs(tar_ang) > abs(getIMU())) && need_turn){
         steering_percentage = (tar_ang > 0) ? -100 : 100;
         steering(steering_percentage);
@@ -215,11 +206,11 @@ void OpenChallengeMeanDist(){
         need_turn = false;
         if (dash_forward){
           if (num_turn >= 12) dash_time = 1000;
-          else dash_time = 1500;
+          else dash_time = 2500;
           if ((internalClock.read() - dash_timeZero) < dash_time){
             steering_percentage = (getIMU() - tar_ang) * 3;
             steering(steering_percentage);
-            MiniR4.M2.setPower(speed);
+            MiniR4.M2.setPower(power);
           } else {
             dash_forward = false;
           }
@@ -236,12 +227,17 @@ void OpenChallengeMeanDist(){
         MiniR4.M2.setPower(0);
         end_game = true;
       } else {
-        MiniR4.M2.setPower(speed);
+        MiniR4.M2.setPower(power);
       }
     } else {
       MiniR4.M2.setPower(0);
     }
   }
+}
+
+void OC1main(){
+  OpenChallenge300(RAWDIST, 5, 88.58, 1500, 300, 100);
+  // OpenChallengeLaserFilter(MEANDIST, 5, 88.58, 1500, 100);
 }
 
 /**

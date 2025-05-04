@@ -2,8 +2,13 @@
 #include "laser.h"
 
 /* Global variables for storing the laser values */
-double laser1Mean;
-double laser2Mean;
+double laser1Dist;
+double laserDist;
+
+/* Global variables for storing the laser mode and number of elements */
+LASERMODE LaserMode = RAWDIST;
+int LaserElemtents = 5;
+
 
 /**
  * @brief Initialize the laser(s)
@@ -148,22 +153,42 @@ int getLaser2DistMedian(int max_element) {
 /**
  * @brief A threading function for getting the distance measured by Laser 1 (the one on the LHS)
  * 
+ * @param mode; (enum) LASERMODE; A enum defined in laser.h indicating which mode the laser should be used to get the distance
+ * @param max_element; int; The number of data taken everytime for calculating the mean distance value
  */
 void getLaser1Distloop(){
-  // laser1Mean = getLaser1DistMean(5);
-  laser1Mean = getLaser1DistMedian(5);
+  switch(LaserMode){
+    case MEANDIST:
+      laser1Dist = getLaser1DistMean(LaserElemtents);
+      break;
+    case MEDIANDIST:
+      laser1Dist = getLaser1DistMedian(LaserElemtents);
+      break;
+    default:
+      laser1Dist = getLaserDist(I2CPORT1);
+  }
 }
 
 /**
  * @brief A threading function for getting the distance measured by Laser 2 (the one on the RHS)
  * 
+ * @param mode; (enum) LASERMODE; A enum defined in laser.h indicating which mode the laser should be used to get the distance
+ * @param max_element; int; The number of data taken everytime for calculating the mean distance value
  */
 void getLaser2Distloop(){
-  // laser2Mean = getLaser2DistMean(5);
-  laser2Mean = getLaser2DistMedian(5);
+  switch(LaserMode){
+    case MEANDIST:
+      laser2Dist = getLaser2DistMean(LaserElemtents);
+      break;
+    case MEDIANDIST:
+      laser2Dist = getLaser2DistMedian(LaserElemtents);
+      break;
+    default:
+      laser2Dist = getLaserDist(I2CPORT2);
+  }
 }
 
- /**
+/**
   * @brief A function to put into display thread for showing the distance measured by Laser 1 (the one on the LHS)
   * 
  * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
@@ -172,31 +197,27 @@ void getLaser2Distloop(){
  * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
   */
 void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay){
-  // static String laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
-  static String laser_text = "L" + String(I2CPORT1 + 1) + "M:" + String(laser1Mean) + "mm";
+  static String laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(laser1Dist) + "mm";
   display.oledSetTextColour(BLACK);
   if (column == LEFT){
     display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
     display.oledSetTextColour(WHITE);
-    // laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
-    laser_text = "L" + String(I2CPORT1 + 1) + "M:" + String(laser1Mean) + "mm";
+    laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(laser1Dist) + "mm";
     display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
   } else if (column == MID) {
     display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
     display.oledSetTextColour(WHITE);
-    // laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
-    laser_text = "L" + String(I2CPORT1 + 1) + "M:" + String(laser1Mean) + "mm";
+    laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(laser1Dist) + "mm";
     display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
   } else {
     display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
     display.oledSetTextColour(WHITE);
-    // laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(getLaserDist(I2CPORT1)) + "mm";
-    laser_text = "L" + String(I2CPORT1 + 1) + "M:" + String(laser1Mean) + "mm";
+    laser_text = "L" + String(I2CPORT1 + 1) + ":" + String(laser1Dist) + "mm";
     display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
   }
 }
 
- /**
+/**
   * @brief A function to put into display thread for showing the distance measured by Laser 1 (the one on the RHS)
   * 
  * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
@@ -205,26 +226,22 @@ void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay)
  * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
   */
 void showLaser2Dist(COLUMN column, int line_number, int size, bool clearDisplay){
-  // static String laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
-  static String laser_text = "L" + String(I2CPORT2 + 1) + "M:" + String(laser2Mean) + "mm";
+  static String laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(laser2Dist) + "mm";
   display.oledSetTextColour(BLACK);
   if (column == LEFT){
     display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
     display.oledSetTextColour(WHITE);
-    // laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
-    laser_text = "L" + String(I2CPORT2 + 1) + "M:" + String(laser2Mean) + "mm";
+    laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(laser2Dist) + "mm";
     display.oledDisplayLeftln(line_number, size, laser_text, clearDisplay);
   } else if (column == MID) {
     display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
     display.oledSetTextColour(WHITE);
-    // laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
-    laser_text = "L" + String(I2CPORT2 + 1) + "M:" + String(laser2Mean) + "mm";
+    laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(laser2Dist) + "mm";
     display.oledDisplayCenterln(line_number, size, laser_text, clearDisplay);
   } else {
     display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
     display.oledSetTextColour(WHITE);
-    // laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(getLaserDist(I2CPORT2)) + "mm";
-    laser_text = "L" + String(I2CPORT2 + 1) + "M:" + String(laser2Mean) + "mm";
+    laser_text = "L" + String(I2CPORT2 + 1) + ":" + String(laser2Dist) + "mm";
     display.oledDisplayRightln(line_number, size, laser_text, clearDisplay);
   }
 }

@@ -3,6 +3,7 @@
         "*.ino": "cmake",
         "*.py": "python",
         "__locale": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "algorithm": "cpp"
     }
 }
