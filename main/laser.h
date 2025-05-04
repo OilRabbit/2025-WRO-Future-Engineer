@@ -10,6 +10,7 @@
 extern double laser1Mean;
 extern double laser2Mean;
 
+/* A enum storing the port number of Laser 1 and Laser 2 */
 typedef enum {
   I2CPORT1,
   I2CPORT2

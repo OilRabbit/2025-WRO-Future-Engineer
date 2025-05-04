@@ -1,5 +1,9 @@
 #include "display.h"
 
+/**
+ * @brief A threading function for displaying all the necessary data from different sensors.
+ * 
+ */
 void displayData(){
   // Put your display functions here. The first one MUST clear display, while those after that MUST NOT clear the display
   showBattPercentage(false);

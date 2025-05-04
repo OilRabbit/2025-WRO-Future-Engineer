@@ -7,6 +7,7 @@
 #include <Kalman.h>
 #include "oled.h"
 
+/* A enum storing the method to get the angle from IMU */
 typedef enum{
   IMU_ORIGIN,
   IMU_KALMAN

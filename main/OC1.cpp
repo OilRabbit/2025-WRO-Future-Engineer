@@ -2,8 +2,14 @@
 #include "Arduino.h"
 #include "OC1.h"
 
+/* Global variable for storing the steering angle percentage (-100% ~ 100%) */
 float steering_percentage;
 
+/**
+ * @brief The main function for OC1
+ * If this function is being used, the smart car will turn to the direction after one of the laser sensor detects a distance > 1700mm for 300ms
+ * 
+ */
 void OpenChallenge300(){
   static bool start_game = false;
   static bool prev_btn_state = false;
@@ -118,6 +124,11 @@ void OpenChallenge300(){
   }
 }
 
+/**
+ * @brief The main function for OC1
+ * If this function is being used, the smart car will turn to the direction immediately after one of the laser sensor detects a MEAN/MEDIAN distance > 1700mm
+ * 
+ */
 void OpenChallengeMeanDist(){
   static bool start_game = false;
   static bool prev_btn_state = false;
@@ -233,6 +244,14 @@ void OpenChallengeMeanDist(){
   }
 }
 
+/**
+ * @brief A function to put into display thread for showing the steering angle percentage
+ * 
+ * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
+ * @param line_number; int; The line number where the data should be displaced at (0 ~ 3)
+ * @param size; int; The size of the text being displaced (1 ~ 2)
+ * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
+ */
 void showSteeringOC1(COLUMN column, int line_number, int size, bool clearDisplay){
   static String steering_text = "St: " + String(steering_percentage) + "%";
   display.oledSetTextColour(BLACK);

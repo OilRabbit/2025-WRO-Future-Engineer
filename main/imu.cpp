@@ -3,14 +3,21 @@
 
 Kalman kalmanZ;
 
-double zeroValue[5] = { -200, 44, 660, 52.3, -18.5 }; // Calibration values
+/* Calibration values for Kalman filter */
+double zeroValue[5] = { -200, 44, 660, 52.3, -18.5 };
 
+/* Global variable for Kalman filter */
 double gyroZangle = 180;
 double compAngleZ = 180;
 double kalmanAngleZ = 180;
 
+/* Global variable for storing time */
 unsigned long timer;
 
+/**
+ * @brief Initialize the IMU
+ * 
+ */
 void imuInit(){
   MiniR4.Motion.resetIMUValues();
   long sum = 0;
@@ -22,6 +29,12 @@ void imuInit(){
   zeroValue[3] = sum / (double)samples;
 }
 
+/**
+ * @brief Convert angle in compass to angle in gyro (i.e. will not reset to 180 when < -180)
+ * 
+ * @param current_angle; double; Basically is the euler angle get from the IMU
+ * @return double; The angle in gyro
+ */
 double unwrapAngle(double current_angle){
   static double previous_angle = 0;
   static double accum_angle = 0;
@@ -41,10 +54,20 @@ double unwrapAngle(double current_angle){
   return accum_angle;
 }
 
+/**
+ * @brief Get the IMU value in gyro
+ * 
+ * @return double; The angle in gyro
+ */
 double getIMU(){
   return unwrapAngle(MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw)) * -1;
 }
 
+/**
+ * @brief (UNUSED) Get the IMU z-axis rotation angle with the use of Kalman filter
+ * 
+ * @return double; The IMU z-axis rotation angle after applying Kalman filter
+ */
 double getIMUKalman(){
   kalmanZ.setQangle(0.01);
   kalmanZ.setQbias(0.0007);
@@ -76,6 +99,15 @@ double getIMUKalman(){
   return kalmanAngleZ;
 }
 
+/**
+ * @brief A function to put into display thread for showing the z-axis rotation angle from the IMU
+ * 
+ * @param method; (enum) IMU_METHOD; The method used to get the angle
+ * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
+ * @param line_number; int; The line number where the data should be displaced at (0 ~ 3)
+ * @param size; int; The size of the text being displaced (1 ~ 2)
+ * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
+ */
 void showIMU(IMU_METHOD method, COLUMN column, int line_number, int size, bool clearDisplay){
   static String imu_text = "\0";
   display.oledSetTextColour(BLACK);

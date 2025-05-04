@@ -1,7 +1,13 @@
 #include "timestamp.h"
 
+/* Global variable of the internal clock. For time reading purpose only. Never reset while running. */
 Timer internalClock;
 
+/**
+ * @brief A function to put into display thread for showing the time elapsed from the start of the smart car
+ * 
+ * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
+ */
 void showInternalClock(bool clearDisplay){
   static long milliseconds = 0;
   static long seconds = 0;

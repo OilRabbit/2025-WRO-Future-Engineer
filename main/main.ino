@@ -72,6 +72,7 @@ void setup() {
 void loop() {
   // Start all the threads in this controller
   controller.run();
+  
   // huskylensColorRegTest();
   // steering(50);
   // MiniR4.M2.setPower(100);

@@ -11,6 +11,7 @@
 #include <movingAvg.h>
 #include "oled.h"
 
+/* A enum storing the ID of different colour */
 typedef enum {
   RED = 1,
   GREEN,
@@ -18,6 +19,7 @@ typedef enum {
   NO_COLOUR = -1
 }COLOUR_BLOCK;
 
+/* A struct for storing all the info of a coloured object detected */
 typedef struct{
   COLOUR_BLOCK colour;
   int xpos;

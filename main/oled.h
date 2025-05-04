@@ -12,12 +12,14 @@
 #define TEXT_HEIGHT 8
 #define MAX_VTEXT WIDTH_MAX / TEXT_HEIGHT + 1
 
+/* A enum storing the available column which text can be displayed at the OLED display */
 typedef enum{
   LEFT,
   MID,
   RIGHT
-}COLUMN;
+} COLUMN;
 
+/* The class of the display */
 class Display
 {
   public:
