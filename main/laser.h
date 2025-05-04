@@ -1,3 +1,4 @@
+#include <sys/_intsup.h>
 #ifndef LASER_H
 #define LASER_H
 
@@ -7,11 +8,8 @@
 #include <algorithm>
 #include "oled.h"
 
-extern double laser1Dist;
-extern double laserDist;
-
-extern LASERMODE LaserMode;
-extern int LaserElemtents;
+extern int laser1Dist;
+extern int laser2Dist;
 
 /* A enum storing the port number of Laser 1 and Laser 2 */
 typedef enum {
@@ -21,17 +19,29 @@ typedef enum {
 
 /* A enum storing the mode for the laser to return distance */
 typedef enum{
-  RAWDIST,
-  MEANDIST,
-  MEDIANDIST
+  RAW_DIST,
+  MEAN_DIST,
+  MEDIAN_DIST,
+  CISTERN_DIST,
+  FILTER_DIST,
+  EMA_DIST
 } LASERMODE;
+
+extern LASERMODE LaserMode;
+extern int LaserElements;
 
 void laserInit(LASERPORT port);
 int getLaserDist(LASERPORT port);
 int getLaser1DistMean(int max_element);
 int getLaser2DistMean(int max_element);
-void getLaser1Distloop(LASERMODE mode, int max_element);
-void getLaser2Distloop(LASERMODE mode, int max_element);
+int getLaser1DistMedian(int max_element);
+int getLaser2DistMedian(int max_element);
+int getLaser1DistCistern(int max_element, int dropCount);
+int getLaser2DistCistern(int max_element, int dropCount);
+int getFilteredLaser1Dist(int samples, int max_jump);
+int getFilteredLaser2Dist(int samples, int max_jump);
+void getLaser1Distloop();
+void getLaser2Distloop();
 void showLaser1Dist(COLUMN column, int line_number, int size, bool clearDisplay);
 void showLaser2Dist(COLUMN column, int line_number, int size, bool clearDisplay);
 

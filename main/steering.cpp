@@ -13,7 +13,7 @@ void steeringInit(){
  * 
  */
 void reset_steering(){
-  MiniR4.RC3.setAngle(90);
+  MiniR4.RC3.setAngle(88);
 }
 
 /**
@@ -22,5 +22,5 @@ void reset_steering(){
  * @param steering_percentage; int; Steering angle percentage (-100% ~ 100%)
  */
 void steering(int steering_percentage){
-  MiniR4.RC3.setAngle(int(90 + MAX_STEERING_ANGLE * -steering_percentage / 100));
+  MiniR4.RC3.setAngle(int(87 + MAX_STEERING_ANGLE * -steering_percentage / 100));
 }

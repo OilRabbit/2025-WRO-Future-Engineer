@@ -49,8 +49,7 @@ void setup() {
   displayThread.onRun(displayData);
   displayThread.setInterval(1);
 
-  OC1Thread.onRun(OpenChallenge300);
-  // OC1Thread.onRun(OpenChallengeMeanDist);
+  OC1Thread.onRun(OC1main);
   OC1Thread.setInterval(1);
 
   Laser1Thread.onRun(getLaser1Distloop);
@@ -72,7 +71,7 @@ void setup() {
 void loop() {
   // Start all the threads in this controller
   controller.run();
-  
+  Serial.println(laser1Dist);
   // huskylensColorRegTest();
   // steering(50);
   // MiniR4.M2.setPower(100);

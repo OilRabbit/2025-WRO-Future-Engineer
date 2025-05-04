@@ -12,7 +12,7 @@ float steering_percentage;
  */
 void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int turn_time, int power){
   LaserMode = laserMode;
-  LaserElemtents = laserMaxElements;
+  LaserElements = laserMaxElements;
   static bool start_game = false;
   static bool prev_btn_state = false;
   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
@@ -43,6 +43,7 @@ void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_an
     need_turn = false;
     dash_forward = false;
     num_turn = 0;
+    steering(0);
     MiniR4.M2.setPower(0);
   } else {
     if (!end_game){
@@ -51,7 +52,7 @@ void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_an
           anticlockwise = true;
           is_left = true;
           cal_tar_ang = true;
-        } else if (laserDist > dist_threshold && !dash_forward){
+        } else if (laser2Dist > dist_threshold && !dash_forward){
           anticlockwise = false;
           is_left = false;
           cal_tar_ang = true;
@@ -67,7 +68,7 @@ void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_an
             cal_tar_ang = false;
           }
         } else {
-          if (laserDist > dist_threshold && !dash_forward){
+          if (laser2Dist > dist_threshold && !dash_forward){
             anticlockwise = false;
             is_left = false;
             cal_tar_ang = true;
@@ -110,12 +111,14 @@ void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_an
       }
       if (num_turn >= 12 && !dash_forward){
         // MiniR4.Buzzer.Tone(1000, 100);
+        steering(0);
         MiniR4.M2.setPower(0);
         end_game = true;
       } else {
         MiniR4.M2.setPower(power);
       }
     } else {
+      steering(0);
       MiniR4.M2.setPower(0);
     }
   }
@@ -127,8 +130,8 @@ void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_an
  * 
  */
 void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int power){
-  LaserMode = MEANDIST;
-  LaserElemtents = laserMaxElements;
+  LaserMode = laserMode;
+  LaserElements = laserMaxElements;
   static bool start_game = false;
   static bool prev_btn_state = false;
   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
@@ -139,6 +142,7 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
 
   static bool end_game = false;
   static long dash_timeZero = 0;
+  static long dash_timeZero2 = 0;
   static long dash_time = 0;
   static double tar_ang = 0;
   static bool is_left = false;
@@ -147,9 +151,12 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
   static bool need_turn = false;
   static bool dash_forward = false;
   static int num_turn = 0;
+  static bool close_wall = false;
+  static long milliseconds = 0;
   if (!start_game){ 
     end_game = false;
     dash_timeZero = 0;
+    dash_timeZero2 = 0;
     dash_time = 0;
     tar_ang = 0;
     is_left = false;
@@ -157,6 +164,8 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
     need_turn = false;
     dash_forward = false;
     num_turn = 0;
+    close_wall = false;
+    steering(0);
     MiniR4.M2.setPower(0);
   } else {
     if (!end_game){
@@ -165,12 +174,13 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
           anticlockwise = true;
           is_left = true;
           cal_tar_ang = true;
-        } else if (laserDist > dist_threshold && !dash_forward){
+        } else if (laser2Dist > dist_threshold && !dash_forward){
           anticlockwise = false;
           is_left = false;
           cal_tar_ang = true;
         } else {
           cal_tar_ang = false;
+          milliseconds = internalClock.read();
         }
       } else {
         if (anticlockwise){
@@ -181,22 +191,26 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
             cal_tar_ang = false;
           }
         } else {
-          if (laserDist > dist_threshold && !dash_forward){
+          if (laser2Dist > dist_threshold && !dash_forward){
             anticlockwise = false;
             is_left = false;
             cal_tar_ang = true;
           } else {
             cal_tar_ang = false;
+            milliseconds = internalClock.read();
           }
         }
       }
-      if (cal_tar_ang){
+      if (((internalClock.read() - milliseconds) > 200) && cal_tar_ang){
         // MiniR4.Buzzer.Tone(1000, 100);
         tar_ang += (is_left == true) ? -right_ang : right_ang; // 88.58
         cal_tar_ang = false;
         need_turn = true;
+        close_wall = false;
         num_turn++;
+        // dash_timeZero2 = internalClock.read();
       }
+
       if ((abs(tar_ang - getIMU()) > 5) && (abs(tar_ang) > abs(getIMU())) && need_turn){
         steering_percentage = (tar_ang > 0) ? -100 : 100;
         steering(steering_percentage);
@@ -206,7 +220,8 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
         need_turn = false;
         if (dash_forward){
           if (num_turn >= 12) dash_time = 1000;
-          else dash_time = 2500;
+          else if (num_turn == 1) dash_time = 1500;
+          else dash_time = 1500;
           if ((internalClock.read() - dash_timeZero) < dash_time){
             steering_percentage = (getIMU() - tar_ang) * 3;
             steering(steering_percentage);
@@ -216,28 +231,53 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
           }
         } else {
           // MiniR4.Buzzer.Tone(1000, 100);
-          steering_percentage = (getIMU() - tar_ang) * 2;
-          steering(steering_percentage);
-          cal_tar_ang = true;
-          need_turn = false;
+          if (anticlockwise){
+            if (laser1Dist > 150 && num_turn > 0 && !close_wall){
+              steering_percentage = (laser1Dist - 150) * 0.1;
+              if (steering_percentage > 20) steering_percentage = 20;
+              steering(steering_percentage);
+            } else {
+              steering_percentage = (getIMU() - tar_ang) * 2;
+              steering(steering_percentage);
+              cal_tar_ang = true;
+              need_turn = false;
+              close_wall = true;
+            }
+          } else {
+            if (laser2Dist > 150 && num_turn > 0 && !close_wall){
+              steering_percentage = -(laser2Dist - 150) * 0.1;
+              if (steering_percentage < -30) steering_percentage = -30;
+              steering(steering_percentage);
+            } else {
+              steering_percentage = (getIMU() - tar_ang) * 2;
+              steering(steering_percentage);
+              cal_tar_ang = true;
+              need_turn = false;
+              close_wall = true;
+            }
+          }
         }
       }
       if (num_turn >= 12 && !dash_forward){
         // MiniR4.Buzzer.Tone(1000, 100);
+        steering(0);
         MiniR4.M2.setPower(0);
         end_game = true;
       } else {
         MiniR4.M2.setPower(power);
       }
     } else {
+      steering(0);
       MiniR4.M2.setPower(0);
     }
   }
 }
 
 void OC1main(){
-  OpenChallenge300(RAWDIST, 5, 88.58, 1500, 300, 100);
-  // OpenChallengeLaserFilter(MEANDIST, 5, 88.58, 1500, 100);
+  LaserMode = CISTERN_DIST;
+  LaserElements = 8;
+  // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
+  OpenChallengeLaserFilter(LaserMode, LaserElements, 90, 2500, -100);
 }
 
 /**
