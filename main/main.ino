@@ -16,12 +16,15 @@
 #include "OC1.h"
 #include "huskylens.h"
 #include "imu.h"
+#include "ultra.h"
 
 // Define your threads here
 Thread displayThread = Thread();
 Thread OC1Thread = Thread();
-Thread Laser1Thread = Thread();
-Thread Laser2Thread = Thread();
+Thread Ultra1Thread = Thread();
+Thread Ultra2Thread = Thread();
+// Thread Laser1Thread = Thread();
+// Thread Laser2Thread = Thread();
 
 // Controller to manage all threads
 ThreadController controller = ThreadController();
@@ -37,8 +40,10 @@ void setup() {
   MiniR4.M2.setBrake(true);
   steeringInit();
   reset_steering();
-  laserInit(I2CPORT1);
-  laserInit(I2CPORT2);
+  ultraInit(ultra1);
+  ultraInit(ultra2);
+  // laserInit(I2CPORT1);
+  // laserInit(I2CPORT2);
   huskylensInit();
   display.oledDisplayCenterln(1, 1, "Initializing IMU", true);
   delay(1000);
@@ -47,31 +52,38 @@ void setup() {
 
   // Follow this to create your own thread
   displayThread.onRun(displayData);
-  displayThread.setInterval(1);
+  displayThread.setInterval(2);
 
   OC1Thread.onRun(OC1main);
-  OC1Thread.setInterval(1);
+  OC1Thread.setInterval(0);
 
-  Laser1Thread.onRun(getLaser1Distloop);
-  Laser1Thread.setInterval(0);
+  Ultra1Thread.onRun(getultra1Distloop);
+  Ultra1Thread.setInterval(0);
+  Ultra2Thread.onRun(getultra2Distloop);
+  Ultra2Thread.setInterval(0);
 
-  Laser2Thread.onRun(getLaser2Distloop);
-  Laser2Thread.setInterval(0);
+  // Laser1Thread.onRun(getLaser1Distloop);
+  // Laser1Thread.setInterval(0);
+  // Laser2Thread.onRun(getLaser2Distloop);
+  // Laser2Thread.setInterval(0);
 
   // Add the threads to the controller
   controller.add(&displayThread);
   controller.add(&OC1Thread);
-  controller.add(&Laser1Thread);
-  controller.add(&Laser2Thread);
+  controller.add(&Ultra1Thread);
+  controller.add(&Ultra2Thread);
+  // controller.add(&Laser1Thread);
+  // controller.add(&Laser2Thread);
 
   display.oledDisplayCenterln(1, 1, "Starting...", true);
   display.oledClear();
 }
 
+float duration, distance;
 void loop() {
   // Start all the threads in this controller
   controller.run();
-  Serial.println(laser1Dist);
+  // Serial.println(laser1Dist);
   // huskylensColorRegTest();
   // steering(50);
   // MiniR4.M2.setPower(100);

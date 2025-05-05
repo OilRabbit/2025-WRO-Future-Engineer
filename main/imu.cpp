@@ -29,6 +29,10 @@ void imuInit(){
   zeroValue[3] = sum / (double)samples;
 }
 
+void resetIMU(){
+  MiniR4.Motion.resetIMUValues();
+}
+
 /**
  * @brief Convert angle in compass to angle in gyro (i.e. will not reset to 180 when < -180)
  * 

@@ -14,6 +14,7 @@ typedef enum{
 }IMU_METHOD;
 
 void imuInit();
+void resetIMU();
 double unwrapAngle(double current_angle);
 double getIMU();
 double getIMUKalman();

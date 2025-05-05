@@ -9,12 +9,15 @@
 #include "imu.h"
 #include "timestamp.h"
 #include <algorithm>
+#include "ultra.h"
 
 extern float steering_percentage;
 
-void OpenChallenge300(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int turn_time, int power);
+void OpenChallengeLaser300(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int turn_time, int power);
 void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int power);
+void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power);
 void OC1main();
 void showSteeringOC1(COLUMN column, int line_number, int size, bool clearDisplay);
+void showOC1Time(COLUMN column, int line_number, int size, bool clearDisplay);
 
 #endif

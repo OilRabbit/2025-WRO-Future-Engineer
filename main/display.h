@@ -10,6 +10,7 @@
 #include "huskylens.h"
 #include "imu.h"
 #include "OC1.h"
+#include "ultra.h"
 
 void displayData();
 
