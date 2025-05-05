@@ -273,6 +273,33 @@ void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double 
   }
 }
 
+/**
+ * @brief The main function for OC1
+ * If this function is being used, the smart car will move straight forward with gyro PID and it will turn left/right when the color sensor detects blue/orange lines.
+ * 
+ */
+void OpenChallengeCSMoving(){
+    static bool start_game = false;
+  static bool prev_btn_state = false;
+  bool curr_btn_state = MiniR4.BTN_DOWN.getState();
+  if (curr_btn_state && !prev_btn_state){
+    start_game = !start_game;
+  }
+  prev_btn_state = curr_btn_state;
+  static bool end_game = false;
+  static bool anticlockwise = false;
+  static long milliseconds = 0;
+  static long dash_timeZero = 0;
+  static long dash_time = 0;
+  static bool is_left = false;
+  static bool reset_timer = true;
+  static double tar_ang = 0;
+  static bool cal_tar_ang = false;
+  static bool need_turn = false;
+  static bool dash_forward = false;
+  static int num_turn = 0;
+}
+
 void OC1main(){
   LaserMode = CISTERN_DIST;
   LaserElements = 8;
