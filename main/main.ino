@@ -17,6 +17,7 @@
 #include "huskylens.h"
 #include "imu.h"
 #include "ultra.h"
+#include "color.h"
 
 // Define your threads here
 Thread displayThread = Thread();

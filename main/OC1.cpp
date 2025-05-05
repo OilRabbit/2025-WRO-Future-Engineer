@@ -437,6 +437,27 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
     }
   }
 }
+void OpenChallengeCSMoving(){
+  static bool start_game = false;
+static bool prev_btn_state = false;
+bool curr_btn_state = MiniR4.BTN_DOWN.getState();
+if (curr_btn_state && !prev_btn_state){
+  start_game = !start_game;
+}
+prev_btn_state = curr_btn_state;
+static bool end_game = false;
+static bool anticlockwise = false;
+static long milliseconds = 0;
+static long dash_timeZero = 0;
+static long dash_time = 0;
+static bool is_left = false;
+static bool reset_timer = true;
+static double tar_ang = 0;
+static bool cal_tar_ang = false;
+static bool need_turn = false;
+static bool dash_forward = false;
+static int num_turn = 0;
+}
 
 void OC1main(){
   LaserMode = CISTERN_DIST;
