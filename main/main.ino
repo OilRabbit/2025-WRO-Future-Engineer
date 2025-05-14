@@ -1,23 +1,4 @@
-#include <DFRobot_HuskyLens.h>
-#include <HUSKYLENS.h>
-#include <HUSKYLENSMindPlus.h>
-#include <HuskyLensProtocolCore.h>
-#include <MatrixMiniR4.h>
-#include <Thread.h>
-#include <ThreadController.h>
-#include <string.h>
-#include "Timer.h"
-#include "oled.h"
-#include "display.h"
-#include "battery.h"
-#include "timestamp.h"
-#include "steering.h"
-#include "laser.h"
-#include "OC1.h"
-#include "huskylens.h"
-#include "imu.h"
-#include "ultra.h"
-#include "color.h"
+#include "main.h"
 
 // Define your threads here
 Thread displayThread = Thread();
@@ -53,15 +34,15 @@ void setup() {
 
   // Follow this to create your own thread
   displayThread.onRun(displayData);
-  displayThread.setInterval(2);
+  displayThread.setInterval(0);
 
   OC1Thread.onRun(OC1main);
-  OC1Thread.setInterval(0);
+  OC1Thread.setInterval(10);
 
   Ultra1Thread.onRun(getultra1Distloop);
-  Ultra1Thread.setInterval(0);
+  Ultra1Thread.setInterval(10);
   Ultra2Thread.onRun(getultra2Distloop);
-  Ultra2Thread.setInterval(0);
+  Ultra2Thread.setInterval(10);
 
   // Laser1Thread.onRun(getLaser1Distloop);
   // Laser1Thread.setInterval(0);

@@ -10,6 +10,7 @@
 #include "timestamp.h"
 #include <algorithm>
 #include "ultra.h"
+#include "main.h"
 
 extern float steering_percentage;
 
