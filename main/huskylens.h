@@ -13,9 +13,9 @@
 
 /* A enum storing the ID of different colour */
 typedef enum {
-  RED = 1,
-  GREEN,
-  MAGENTA,
+  RED = 2,
+  GREEN = 1,
+  MAGENTA = 3,
   NO_COLOUR = -1
 }COLOUR_BLOCK;
 
@@ -24,6 +24,8 @@ typedef struct{
   COLOUR_BLOCK colour;
   int xpos;
   int height;
+  int width;
+  int area;
 }COLOURED_OBJ;
 
 extern HUSKYLENS huskylens;

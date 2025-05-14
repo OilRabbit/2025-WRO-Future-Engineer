@@ -3,6 +3,7 @@
 // Define your threads here
 Thread displayThread = Thread();
 Thread OC1Thread = Thread();
+Thread OC2Thread = Thread();
 Thread Ultra1Thread = Thread();
 Thread Ultra2Thread = Thread();
 // Thread Laser1Thread = Thread();
@@ -36,8 +37,11 @@ void setup() {
   displayThread.onRun(displayData);
   displayThread.setInterval(0);
 
-  OC1Thread.onRun(OC1main);
-  OC1Thread.setInterval(10);
+  // OC1Thread.onRun(OC1main);
+  // OC1Thread.setInterval(10);
+
+  OC2Thread.onRun(OC2main);
+  OC2Thread.setInterval(10);
 
   Ultra1Thread.onRun(getultra1Distloop);
   Ultra1Thread.setInterval(10);
@@ -51,7 +55,8 @@ void setup() {
 
   // Add the threads to the controller
   controller.add(&displayThread);
-  controller.add(&OC1Thread);
+  // controller.add(&OC1Thread);
+  controller.add(&OC2Thread);
   controller.add(&Ultra1Thread);
   controller.add(&Ultra2Thread);
   // controller.add(&Laser1Thread);

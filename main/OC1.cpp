@@ -1,4 +1,3 @@
-#include "Modules/MiniR4Buzzer.h"
 #include "Arduino.h"
 #include "OC1.h"
 
@@ -346,7 +345,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       reset_OC1 = false;
     }
     if (!end_game){
-      // Serial.println((internalClock.read() - dash_timeZero) < dash_time && ultra1Dist > dist_threshold && ultra2Dist > dist_threshold);
       displayThread.enabled = false;
       OC1_endtime = internalClock.read();
       if (num_turn == 0){
@@ -432,18 +430,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
             else steering_percentage = (ultra1Dist - 100) * 0.25;
             if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
             steering(steering_percentage);
-            // if (num_turn > 0 && !close_wall){ // && ultra1Dist > 150
-            //   if (num_turn < 2) steering_percentage = (ultra1Dist - 300) * 0.2;
-            //   else steering_percentage = (ultra1Dist - 230) * 0.2;
-            //   if (steering_percentage > 30) steering_percentage = 30;
-            //   steering(steering_percentage);
-            // } else {
-            //   steering_percentage = (getIMU() - tar_ang) * 2;
-            //   steering(steering_percentage);
-            //   cal_tar_ang = true;
-            //   need_turn = false;
-            //   close_wall = true;
-            // }
           } else {
             if (ultra2Dist < 100) steering_percentage = -(ultra2Dist - 100) * 0.7;
             else if (num_turn == 0) steering_percentage = 0; // (ultra1Dist - ultra2Dist) * 0.2;
@@ -451,18 +437,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
             else steering_percentage = -(ultra2Dist - 100) * 0.25;
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
-            // if (num_turn > 0 && !close_wall){ // && ultra2Dist > 150
-            //   if (num_turn < 2) steering_percentage = -(ultra2Dist - 300) * 0.2;
-            //   else steering_percentage = -(ultra2Dist - 230) * 0.2;
-            //   if (steering_percentage < -30) steering_percentage = -30;
-            //   steering(steering_percentage);
-            // } else {
-            //   steering_percentage = (getIMU() - tar_ang) * 2;
-            //   steering(steering_percentage);
-            //   cal_tar_ang = true;
-            //   need_turn = false;
-            //   close_wall = true;
-            // }
           }
         }
       }

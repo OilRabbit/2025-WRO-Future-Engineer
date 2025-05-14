@@ -17,6 +17,7 @@
 #include "steering.h"
 #include "laser.h"
 #include "OC1.h"
+#include "OC2.h"
 #include "huskylens.h"
 #include "imu.h"
 #include "ultra.h"
@@ -26,6 +27,7 @@
 extern ThreadController controller;
 extern Thread displayThread;
 extern Thread OC1Thread;
+extern Thread OC2Thread;
 extern Thread Ultra1Thread;
 extern Thread Ultra2Thread;
 

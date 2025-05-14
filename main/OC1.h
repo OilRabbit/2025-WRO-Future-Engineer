@@ -14,6 +14,7 @@
 
 extern float steering_percentage;
 
+int sign(float num);
 void OpenChallengeLaser300(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int turn_time, int power);
 void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int power);
 void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power);
