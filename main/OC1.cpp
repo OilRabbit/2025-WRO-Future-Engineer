@@ -311,6 +311,11 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static long milliseconds = 0;
   static bool reset_OC1 = false;
   static int turn_waittime = 150;
+  static int innerWall_dist = 75;
+  static bool wait_turn = false;
+  static int start_sector_starttime = 0;
+  static int start_sector_endtime = 0;
+  static bool last_turn_cali = true;
   if (!start_game){ 
     reset_OC1 = true;
     steering(0);
@@ -340,6 +345,11 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       close_wall = false;
       steering_percentage = 0;
       milliseconds = 0;
+      innerWall_dist = 75;
+      wait_turn = false;
+      start_sector_starttime = 0;
+      start_sector_endtime = 0;
+      last_turn_cali = true;
       OC1_starttime = internalClock.read();
       if (!first_run) resetIMU();
       reset_OC1 = false;
@@ -352,60 +362,74 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           anticlockwise = true;
           Ultra2Thread.enabled = false;
           is_left = true;
-          cal_tar_ang = true;
+          wait_turn = true;
         } else if (ultra2Dist > dist_threshold && !dash_forward){
           anticlockwise = false;
           Ultra1Thread.enabled = false;
           is_left = false;
-          cal_tar_ang = true;
+          wait_turn = true;
         } else {
-          cal_tar_ang = false;
+          wait_turn = false;
           milliseconds = internalClock.read();
         }
       } else {
         if (anticlockwise){
           if (ultra1Dist > dist_threshold && !dash_forward){
             is_left = true;
-            cal_tar_ang = true;
+            wait_turn = true;
           } else {
-            cal_tar_ang = false;
+            wait_turn = false;
           }
         } else {
           if (ultra2Dist > dist_threshold && !dash_forward){
             anticlockwise = false;
             is_left = false;
-            cal_tar_ang = true;
+            wait_turn = true;
           } else {
-            cal_tar_ang = false;
+            wait_turn = false;
             milliseconds = internalClock.read();
           }
         }
       }
       if (num_turn == 0) turn_waittime = 0;
-      else turn_waittime = 250;
-      if (cal_tar_ang && ((internalClock.read() - milliseconds) > turn_waittime)){ // && ((internalClock.read() - milliseconds) > 200)
+      else turn_waittime = 150;
+      if (wait_turn) {
+        if ((internalClock.read() - milliseconds) < turn_waittime) {
+        } else {
+          wait_turn = false;
+          cal_tar_ang = true;
+        }
+      }
+      if (cal_tar_ang){ // && ((internalClock.read() - milliseconds) > 200)
         // MiniR4.Buzzer.Tone(1000, 100);
         tar_ang += (is_left == true) ? -right_ang : right_ang; // 88.58
         cal_tar_ang = false;
         need_turn = true;
         close_wall = false;
+        if (num_turn == 4) start_sector_endtime = internalClock.read();
         num_turn++;
         // dash_timeZero2 = internalClock.read();
       }
 
-      if ((abs(tar_ang - getIMU()) > 10) && (abs(tar_ang) > abs(getIMU())) && need_turn){
+      if ((abs(tar_ang - getIMU()) > 15) && (abs(tar_ang) > abs(getIMU())) && need_turn){
         steering_percentage = (tar_ang > 0) ? -100 : 100;
         steering(steering_percentage);
         dash_forward = true;
         dash_timeZero = internalClock.read();
+        if (num_turn == 4) start_sector_starttime = internalClock.read();
       } else {
         need_turn = false;
         if (dash_forward){
-          if (num_turn >= 12) dash_time = 300;
+          if (num_turn >= 12) dash_time = (start_sector_endtime - start_sector_starttime) / 2;
           else if (num_turn == 1) dash_time = 1200;
           else dash_time = 50;
+
+          if (num_turn >= 12 && last_turn_cali) {
+            tar_ang += (is_left == true) ? 5 : -5;
+            last_turn_cali = false;
+          }
           if (anticlockwise){
-            if (ultra1Dist > dist_threshold || (internalClock.read() - dash_timeZero) < dash_time){ // && ultra2Dist > dist_threshold
+            if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
               steering_percentage = (getIMU() - tar_ang) * 3;
               steering(steering_percentage);
               MiniR4.M2.setPower(power);
@@ -413,7 +437,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
               dash_forward = false;
             }
           } else {
-            if (ultra2Dist > dist_threshold || (internalClock.read() - dash_timeZero) < dash_time){ // && ultra1Dist > dist_threshold
+            if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra2Dist > dist_threshold || && ultra1Dist > dist_threshold
               steering_percentage = (getIMU() - tar_ang) * 3;
               steering(steering_percentage);
               MiniR4.M2.setPower(power);
@@ -423,18 +447,20 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           }
         } else {
           // MiniR4.Buzzer.Tone(1000, 100);
+          if (num_turn == 1) innerWall_dist = 110;
+          else innerWall_dist = 90;
           if (anticlockwise){
-            if (ultra1Dist < 100) steering_percentage = (ultra1Dist - 100) * 0.7;
+            if (ultra1Dist < innerWall_dist) steering_percentage = (ultra1Dist - innerWall_dist) * 0.75;
             else if (num_turn == 0) steering_percentage = 0; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - 150) * 0.2;
-            else steering_percentage = (ultra1Dist - 100) * 0.25;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
+            else steering_percentage = (ultra1Dist - innerWall_dist) * 0.25;
             if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
             steering(steering_percentage);
           } else {
-            if (ultra2Dist < 100) steering_percentage = -(ultra2Dist - 100) * 0.7;
+            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.75;
             else if (num_turn == 0) steering_percentage = 0; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - 150) * 0.15;
-            else steering_percentage = -(ultra2Dist - 100) * 0.25;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.08;
+            else steering_percentage = -(ultra2Dist - innerWall_dist) * 0.25;
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
           }
@@ -458,6 +484,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
     }
   }
 }
+
 void OpenChallengeCSMoving(){
   static bool start_game = false;
 static bool prev_btn_state = false;

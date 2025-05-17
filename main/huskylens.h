@@ -30,6 +30,7 @@ typedef struct{
 
 extern HUSKYLENS huskylens;
 extern movingAvg xCenter;
+extern COLOURED_OBJ nearestPillarGlobal;
 
 void huskylensInit();
 void huskylensColorRegTest(COLUMN column, int line_number, int size, bool clearDisplay);
@@ -41,6 +42,7 @@ void showHuskyGreen(COLUMN column, int line_number, int size, bool clearDisplay)
 void showHuskyMagenta(COLUMN column, int line_number, int size, bool clearDisplay);
 void showHuskyRG(COLUMN column, int line_number, int size, bool clearDisplay);
 COLOURED_OBJ getNearestPillar();
+void getNearestPillarGlobal();
 void showNearestPillar(COLUMN column, int line_number, int size, bool clearDisplay);
 COLOURED_OBJ getNearestColour();
 void showNearestColour(COLUMN column, int line_number, int size, bool clearDisplay);

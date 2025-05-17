@@ -12,9 +12,15 @@
 #include "ultra.h"
 #include "main.h"
 #include "OC1.h"
+#include <cmath>
+#include "huskylens.h"
+
+#define CAM_MIDPOS 159
 
 extern float steering_percentage;
 
+int min_xpos_Gcase(int area);
+int min_xpos_Rcase(int area);
 void OC2Huskylens(double right_ang, int dist_threshold, int power);
 void OC2main();
 void showSteeringOC2(COLUMN column, int line_number, int size, bool clearDisplay);

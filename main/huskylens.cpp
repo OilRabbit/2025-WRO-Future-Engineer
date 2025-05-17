@@ -2,6 +2,7 @@
 
 HUSKYLENS huskylens;
 movingAvg xCenter(10);
+COLOURED_OBJ nearestPillarGlobal;
 
 /**
  * @brief Initialize the huskylens
@@ -242,6 +243,10 @@ COLOURED_OBJ getNearestColour() {
     }
   }
   return nearest_colour;
+}
+
+void getNearestPillarGlobal(){
+  nearestPillarGlobal = getNearestPillar();
 }
 
 /**

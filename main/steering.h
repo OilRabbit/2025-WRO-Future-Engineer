@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <MatrixMiniR4.h>
 
-#define MAX_STEERING_ANGLE 16
+#define MAX_STEERING_ANGLE 15
 
 void steeringInit();
 void reset_steering();
