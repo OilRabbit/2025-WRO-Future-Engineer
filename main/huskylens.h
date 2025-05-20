@@ -23,6 +23,7 @@ typedef enum {
 typedef struct{
   COLOUR_BLOCK colour;
   int xpos;
+  int ypos;
   int height;
   int width;
   int area;

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <MatrixMiniR4.h>
+#include <vector>
 #include "laser.h"
 #include "steering.h"
 #include "Timer.h"
@@ -15,7 +16,13 @@
 #include <cmath>
 #include "huskylens.h"
 
-#define CAM_MIDPOS 159
+#define CAM_MID_XPOS 152
+#define CAM_LOWEST_YPOS 220
+
+struct POINT {
+  float x;
+  float y;
+};
 
 extern float steering_percentage;
 

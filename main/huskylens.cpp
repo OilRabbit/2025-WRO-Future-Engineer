@@ -181,8 +181,8 @@ COLOURED_OBJ getNearestPillar() {
           nearest_pillar.width = result.width;
           nearest_pillar.area = largestArea / 100;
           nearest_pillar.xpos = result.xCenter;
-          nearest_pillar.colour = (result.ID == RED) ? RED : (result.ID == GREEN) ? GREEN
-                                                                                  : NO_COLOUR;
+          nearest_pillar.ypos = result.yCenter;
+          nearest_pillar.colour = (result.ID == RED) ? RED : (result.ID == GREEN) ? GREEN : NO_COLOUR;
         }
       }
     }
