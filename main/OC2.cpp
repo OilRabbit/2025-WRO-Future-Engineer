@@ -66,22 +66,23 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
   static COLOURED_OBJ pillar_front;
   const int area_dangerzone = 40;
   bool stopping_phase = false;
-  const float steering_amp_fact = 4.25;
+  const float steering_amp_fact1 = 200;
+  const float steering_amp_fact2 = 2;
+  
   const float bezier_t_amp_fact = 5.1;
   static float max_steering = 0;
+  static int gyro_ang_detect_phase = 0;
 
 
   static bool cal_point = false;
   static POINT current_pt = {CAM_MID_XPOS, CAM_LOWEST_YPOS};
-  POINT next_pt = {0, 0}; 
-  static POINT lastpt = {0, 0};
-  static POINT checkpt = {0, 0};
-  static POINT endpt = {0, 0};
   static bool curve_phase1 = false;
   static bool curve_phase2 = false;
+  static bool curve_phase3 = false;
   static float t_bezier = 0;
   static int bezier_iter_time = 0;
-  static float bezier_checktime = 0;
+  static float bezier_checktime = 300;
+  static int curve_phase1_gyro_chkpt = 45;
 
   // static bool pillarPassDash_phase = false;
   // int pillarPass_dashDist = 800;
@@ -121,17 +122,16 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       steering_percentage = 0;
       pillar_detect_phase = true;
       cal_point = false;
-      current_pt = {CAM_MID_XPOS, CAM_LOWEST_YPOS};
-      next_pt = {0, 0}; 
-      lastpt = {0, 0};
-      POINT checkpt = {0, 0};
-      POINT endpt = {0, 0};
+
       curve_phase1 = false;
       curve_phase2 = false;
+      curve_phase3 = false;
       bezier_iter_time = 0;
       t_bezier = 0;
-      bezier_checktime = 0;
+      bezier_checktime = 300;
+      curve_phase1_gyro_chkpt = 45;
       max_steering = 0;
+      gyro_ang_detect_phase = 0;
 
       // pillarPass_checkTime = 0;
       // pillarPassDash_phase = false;
@@ -157,79 +157,61 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       displayThread.enabled = false;
       OC2_endtime = internalClock.read();
       if (pillar_detect_phase){
-        // Serial.print("detect phase\n");
         if (nearestPillarGlobal.colour == RED){
-          if (nearestPillarGlobal.area >= 5 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
+          if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
             pillar_detect_phase = false;
             pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
             pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
-            t_bezier = 0;
-            bezier_checktime = bezier_t_amp_fact * 100 / abs(power);
-            bezier_checktime = bezier_checktime * area_dangerzone / pillar_front.area;
+            gyro_ang_detect_phase = getIMU();
+            if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // || pillar_front.area < 13
+            else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200;
             curve_phase1 = true;
-            bezier_iter_time = internalClock.read();
           }
         } else if (nearestPillarGlobal.colour == GREEN){
-          if (nearestPillarGlobal.area >= 5 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
-            pillar_detect_phase = false;
-            pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
-            pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
-            t_bezier = 0;
-            bezier_checktime = bezier_t_amp_fact * 100 / abs(power);
-            bezier_checktime = bezier_checktime * area_dangerzone / pillar_front.area;
-            curve_phase1 = true;
-            bezier_iter_time = internalClock.read();
+          if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
           }
         }
       } else if (curve_phase1){
-        // Serial.print("curve_phase1\n");
-        if (t_bezier <= 1.0){
-          if (pillar_front.colour == RED){
-            if (internalClock.read() - bezier_iter_time <= bezier_checktime){
-              steering_percentage = pillar_front.area * 100 * t_bezier * ((min_xpos_Rcase(pillar_front.area) - pillar_front.xpos) / min_xpos_Rcase(pillar_front.area)) * steering_amp_fact / area_dangerzone;
+        if (pillar_front.colour == RED){
+          if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
+            if (pillar_front.colour == RED){
+              if (pillar_front.xpos > 230 || pillar_front.area < 13) steering_percentage = -(60 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (60 * area_dangerzone * pillar_front.xpos);
+              else steering_percentage = -(50 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (50 * area_dangerzone * pillar_front.xpos);
             } else {
-              t_bezier += 0.05;
-              bezier_iter_time = internalClock.read();
             }
           } else {
-            if (internalClock.read() - bezier_iter_time <= bezier_checktime){
-              steering_percentage = pillar_front.area * 100 * t_bezier * (min_xpos_Gcase(pillar_front.area) / pillar_front.xpos) * steering_amp_fact / area_dangerzone;
+            curve_phase1 = false;
+            if (pillar_front.xpos > 230 && pillar_front.area < 30){
+              bezier_checktime = 200 * (pillar_front.xpos - 50) / 300;
+              curve_phase2 = true;
+            } else if (pillar_front.area >= 30){
+              bezier_checktime = 150 * (pillar_front.xpos - 50) / 300;
+              curve_phase2 = true;
+            } else if (pillar_front.area > 13){
+              bezier_checktime = 50 * (pillar_front.xpos - 50) / 300;
+              curve_phase2 = true;
             } else {
-              t_bezier += 0.05;
-              bezier_iter_time = internalClock.read();
+              gyro_ang_detect_phase = getIMU();
+              curve_phase3 = true;
             }
+            bezier_iter_time = internalClock.read();
           }
+        } else {}
+      } else if (curve_phase2) {
+        if (internalClock.read() - bezier_iter_time <= bezier_checktime){
+          steering_percentage = 0;
         } else {
-          bezier_iter_time = internalClock.read();
-          t_bezier = 0;
-          bezier_checktime = bezier_t_amp_fact * 100 / abs(power);
-          bezier_checktime = bezier_checktime * area_dangerzone / pillar_front.area;
-          if (pillar_front.colour == RED) bezier_checktime *= (pillar_front.xpos - 100) / 200;
-          max_steering = steering_percentage;
-          curve_phase1 = false;
-          curve_phase2 = true;
-        }
-      } else if (curve_phase2){
-        // Serial.print("curve_phase2\n");
-        if (t_bezier <= 1.0){
-          if (pillar_front.colour == RED){
-            if (internalClock.read() - bezier_iter_time <= bezier_checktime){
-              steering_percentage = max_steering - pillar_front.area * 100 * t_bezier * ((min_xpos_Rcase(pillar_front.area) - pillar_front.xpos) / min_xpos_Rcase(pillar_front.area)) * steering_amp_fact / area_dangerzone;
-              // Serial.println(steering_percentage);
-            } else {
-              t_bezier += 0.05;
-              bezier_iter_time = internalClock.read();
-            }
-          } else {
-            if (internalClock.read() - bezier_iter_time <= bezier_checktime){
-              steering_percentage = max_steering - pillar_front.area * 100 * t_bezier * (min_xpos_Gcase(pillar_front.area) / (min_xpos_Rcase(pillar_front.area) - pillar_front.xpos)) * steering_amp_fact / area_dangerzone;
-            } else {
-              t_bezier += 0.05;
-              bezier_iter_time = internalClock.read();
-            }
-          }
-        } else {
+          gyro_ang_detect_phase = getIMU();
           curve_phase2 = false;
+          curve_phase3 = true;
+        }
+      } else if (curve_phase3){
+        if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
+          if (pillar_front.colour == RED){
+            steering_percentage = (abs(getIMU()) + 25) * steering_amp_fact2;
+          } else {}
+        } else {
+          curve_phase3 = false;
           end_game = true;
         }
       }
