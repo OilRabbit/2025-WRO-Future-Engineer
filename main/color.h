@@ -11,10 +11,11 @@
 extern int colorNo;
 
 void colorInit();
-uint8_t getColorRGB(ColorType color);
-uint8_t getColorType();
-uint8_t getGrayScale();
+int getColorRGB(ColorType colour);
+int getColorType();
+int getGreyScale();
 void getColorTypeloop();
-void showColorType (COLUMN column, int line_number, int size, bool clearDisplay);
+void showColorType(COLUMN column, int line_number, int size, bool clearDisplay);
+
 
 #endif
