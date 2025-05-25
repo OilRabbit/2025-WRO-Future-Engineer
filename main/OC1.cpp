@@ -356,7 +356,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
     }
     if (!end_game){
       displayThread.enabled = false;
-      OC1_endtime = internalClock.read();
       if (num_turn == 0){
         if (ultra1Dist > dist_threshold && !dash_forward){
           anticlockwise = true;
@@ -471,10 +470,12 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
         steering(0);
         MiniR4.M2.setPower(0);
         end_game = true;
+        first_run = false;
         OC1_endtime = internalClock.read();
       } else {
         MiniR4.M2.setPower(power);
       }
+      OC1_endtime = internalClock.read();
     } else {
       steering(0);
       MiniR4.M2.setPower(0);
