@@ -15,7 +15,7 @@
 typedef enum {
   RED = 2,
   GREEN = 1,
-  MAGENTA = 3,
+  // MAGENTA = 3,
   NO_COLOUR = -1
 }COLOUR_BLOCK;
 

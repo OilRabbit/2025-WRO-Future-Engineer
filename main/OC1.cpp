@@ -307,7 +307,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static bool need_turn = false;
   static bool dash_forward = false;
   static int num_turn = 0;
-  static bool close_wall = false;
   static long milliseconds = 0;
   static bool reset_OC1 = false;
   static int turn_waittime = 150;
@@ -342,7 +341,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       need_turn = false;
       dash_forward = false;
       num_turn = 0;
-      close_wall = false;
       steering_percentage = 0;
       milliseconds = 0;
       innerWall_dist = 75;
@@ -404,7 +402,6 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
         tar_ang += (is_left == true) ? -right_ang : right_ang; // 88.58
         cal_tar_ang = false;
         need_turn = true;
-        close_wall = false;
         if (num_turn == 4) start_sector_endtime = internalClock.read();
         num_turn++;
         // dash_timeZero2 = internalClock.read();

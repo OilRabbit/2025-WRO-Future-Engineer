@@ -18,11 +18,32 @@
 
 #define CAM_MID_XPOS 152
 #define CAM_LOWEST_YPOS 220
+#define MID_RACINGLN_POS 440
 
 struct POINT {
   float x;
   float y;
 };
+
+typedef enum {
+  DETECT_STATE,
+  TURNING_N_AVOIDING_STATE,
+  DASH_BEFORE_TURNING_STATE, // not yet written
+  CURVE_P1_STATE, // not yet written
+  CURVE_P2_STATE, // not yet written
+  CURVE_P3_STATE, // not yet written
+  WAIT_TURN_STATE,
+  TURNING_STATE,
+  DASH_AFTER_TURNING_STATE,
+  PARKING_STATE, // not yet written
+  CHECK_FRONT_BLK_STATE,
+  ST_FW_WITH_BLK_STATE, // not yet written
+  CHECK_MID_RACINGLN_STATE,
+  MID_P1_STATE,
+  MID_P2_STATE,
+  MID_P3_STATE,
+  MID_DASH_STATE
+} OC2_STATES;
 
 extern float steering_percentage;
 
