@@ -291,6 +291,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static bool start_game = false;
   static bool prev_btn_state = false;
   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
+  
   if (curr_btn_state && !prev_btn_state){
     start_game = !start_game;
   }
@@ -315,6 +316,9 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static int start_sector_starttime = 0;
   static int start_sector_endtime = 0;
   static bool last_turn_cali = true;
+
+  MiniR4.M2.setBrake(true);
+
   if (!start_game){ 
     reset_OC1 = true;
     steering(0);

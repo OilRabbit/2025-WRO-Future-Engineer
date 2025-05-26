@@ -28,16 +28,16 @@ struct POINT {
 typedef enum {
   DETECT_STATE,
   TURNING_N_AVOIDING_STATE,
-  DASH_BEFORE_TURNING_STATE, // not yet written
-  CURVE_P1_STATE, // not yet written
-  CURVE_P2_STATE, // not yet written
-  CURVE_P3_STATE, // not yet written
+  CURVE_P1_STATE, 
+  CURVE_P2_STATE, 
+  CURVE_P3_STATE,
+  CURVE_P4_STATE,
   WAIT_TURN_STATE,
   TURNING_STATE,
   DASH_AFTER_TURNING_STATE,
   PARKING_STATE, // not yet written
   CHECK_FRONT_BLK_STATE,
-  ST_FW_WITH_BLK_STATE, // not yet written
+  ST_FW_WITH_BLK_STATE,
   CHECK_MID_RACINGLN_STATE,
   MID_P1_STATE,
   MID_P2_STATE,
