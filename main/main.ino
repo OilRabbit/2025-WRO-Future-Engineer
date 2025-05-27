@@ -32,7 +32,7 @@ void setup() {
   // laserInit(I2CPORT2);
   huskylensInit();
   display.oledDisplayCenterln(1, 1, "Initializing IMU", true);
-  delay(1000);
+  // delay(1000);
   imuInit();
   display.oledClear();
 

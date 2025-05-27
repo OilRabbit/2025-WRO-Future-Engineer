@@ -297,6 +297,15 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   }
   prev_btn_state = curr_btn_state;
 
+  static bool prev_imu_btn_state = false;
+  bool curr_imu_btn_state = MiniR4.BTN_UP.getState();
+  
+  if (curr_imu_btn_state && !prev_imu_btn_state){
+    MiniR4.Motion.resetIMUValues();
+    resetIMU();
+  }
+  prev_imu_btn_state = curr_imu_btn_state;
+
   static bool end_game = false;
   static long dash_timeZero = 0;
   static long dash_timeZero2 = 0;
@@ -430,7 +439,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           }
           if (anticlockwise){
             if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
-              steering_percentage = (getIMU() - tar_ang) * 3;
+              steering_percentage = (getIMU() - tar_ang) * 3; // TODO: Verify whether a minus sign is needed
               steering(steering_percentage);
               MiniR4.M2.setPower(power);
             } else {
@@ -438,7 +447,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
             }
           } else {
             if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra2Dist > dist_threshold || && ultra1Dist > dist_threshold
-              steering_percentage = (getIMU() - tar_ang) * 3;
+              steering_percentage = (getIMU() - tar_ang) * 3; // TODO: Verify whether a minus sign is needed
               steering(steering_percentage);
               MiniR4.M2.setPower(power);
             } else {

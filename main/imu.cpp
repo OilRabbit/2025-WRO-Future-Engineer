@@ -24,7 +24,7 @@ void imuInit(){
   const int samples = 500;
   for (int i = 0; i < samples; i++) {
     sum += MiniR4.Motion.getGyro(MiniR4Motion::AxisType::Z);
-    delay(2);
+    delay(1);
   }
   zeroValue[3] = sum / (double)samples;
 }
