@@ -42,7 +42,8 @@ typedef enum {
   MID_P1_STATE,
   MID_P2_STATE,
   MID_P3_STATE,
-  MID_DASH_STATE
+  MID_DASH_STATE,
+  DEBUG_STATE
 } OC2_STATES;
 
 extern float steering_percentage;
