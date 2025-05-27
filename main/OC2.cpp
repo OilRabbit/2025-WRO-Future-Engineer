@@ -88,7 +88,9 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
   static bool curve_phase3 = false;
   static int pillar_avoid_save_t = 0;
   static float curve_phase2_chk_t = 300;
+  static float curve_sphase3_chk_t = 300;
   static int curve_phase1_gyro_chkpt = 45;
+  static int mid_phase1_gyro_chkpt = 50;
   static bool c_dash_phase = false;
   static float dash_degree = 0;
   static float inner_wall_dist = 0;
@@ -103,6 +105,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
   static int num_turn = 0;
   static long turn_waittimeZero = 0;
   static int turn_waittime = 150;
+  static bool blk_while_turning = false;
   
   MiniR4.M2.setBrake(true);
 
@@ -132,7 +135,9 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       curve_phase3 = false;
       pillar_avoid_save_t = 0;
       curve_phase2_chk_t = 300;
+      curve_sphase3_chk_t = 300;
       curve_phase1_gyro_chkpt = 45;
+      mid_phase1_gyro_chkpt = 50;
       gyro_ang_detect_phase = 0;
       c_dash_phase = false;
       dash_degree = 0;
@@ -148,6 +153,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       num_turn = 0;
       turn_waittimeZero = 0;
       turn_waittime = 150;
+      blk_while_turning = false;
       OC2_starttime = internalClock.read();
       if (!first_run) resetIMU();
       reset_OC2 = false;
@@ -174,7 +180,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 state = WAIT_TURN_STATE;
-                turn_waittime = 120;
+                turn_waittime = 400;
                 turn_waittimeZero = internalClock.read();
               }
             } else if (ultra2Dist > dist_threshold){
@@ -189,23 +195,30 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 state = WAIT_TURN_STATE;
-                turn_waittime = 120;
+                turn_waittime = 400;
                 turn_waittimeZero = internalClock.read();
               }
             } else if (nearestPillarGlobal.colour == RED){
-                if (nearestPillarGlobal.area >= 20 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
+                if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                   pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                  gyro_ang_detect_phase = getIMU();
+                  if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // For Pt A, B
+                  else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200; // For Pt C, D, E
                   state = CURVE_P1_STATE;
                 }
             } else if (nearestPillarGlobal.colour == GREEN){
-              if (nearestPillarGlobal.area >= 20 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
+              if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                 pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                 gyro_ang_detect_phase = getIMU();
+                if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 40; // For Pt A
+                else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 40; // For Pt B
+                else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 40 / 200; // For Pt C, D, E
                 state = CURVE_P1_STATE;
               }
             } else {
-              steering_percentage = -(getIMU() - tar_ang) * 8; // TODO: Verify whether a minus sign is needed
+              steering_percentage = (getIMU() - tar_ang) * 10; // TODO: Verify whether a minus sign is needed
             }
           } else {
             if (anticlockwise){
@@ -218,23 +231,29 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
                   }
                 } else {
                   state = WAIT_TURN_STATE;
-                  turn_waittime = 120;
+                  turn_waittime = 400;
                   turn_waittimeZero = internalClock.read();
                 }
               } else if (nearestPillarGlobal.colour == RED){
-                if (nearestPillarGlobal.area >= 20 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
+                if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                   pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                  gyro_ang_detect_phase = getIMU();
+                  if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // For Pt A, B
+                  else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200; // For Pt C, D, E
                   state = CURVE_P1_STATE;
                 }
               } else if (nearestPillarGlobal.colour == GREEN){
-                if (nearestPillarGlobal.area >= 20 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
+                if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                   pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                  if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 40; // For Pt A
+                  else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 40; // For Pt B
+                  else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 40 / 200; // For Pt C, D, E
                   state = CURVE_P1_STATE;
                 }
               } else {
-                steering_percentage = -(getIMU() - tar_ang) * 8; // TODO: Verify whether a minus sign is needed
+                steering_percentage = (getIMU() - tar_ang) * 10; // TODO: Verify whether a minus sign is needed
               }
             } else {
               if (ultra2Dist > dist_threshold){
@@ -246,23 +265,29 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
                   }
                 } else {
                   state = WAIT_TURN_STATE;
-                  turn_waittime = 120;
+                  turn_waittime = 400;
                   turn_waittimeZero = internalClock.read();
                 }
               } else if (nearestPillarGlobal.colour == RED){
-                if (nearestPillarGlobal.area >= 20 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
+                if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                   pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                  gyro_ang_detect_phase = getIMU();
+                  if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // For Pt A, B
+                  else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200; // For Pt C, D, E
                   state = CURVE_P1_STATE;
                 }
               } else if (nearestPillarGlobal.colour == GREEN){
-                if (nearestPillarGlobal.area >= 20 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
+                if (nearestPillarGlobal.area >= 10 && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                   pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                  if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 40; // For Pt A
+                  else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 40; // For Pt B
+                  else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 40 / 200; // For Pt C, D, E
                   state = CURVE_P1_STATE;
                 }
               } else {
-                steering_percentage = -(getIMU() - tar_ang) * 8; // TODO: Verify whether a minus sign is needed
+                steering_percentage = (getIMU() - tar_ang) * 10; // TODO: Verify whether a minus sign is needed
               }
             }
           }
@@ -270,15 +295,18 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
 
           case TURNING_N_AVOIDING_STATE:
             Serial.println("TURNING_N_AVOIDING_STATE");
-            if (pillar_front.colour == RED) turn_waittime = pillar_front.area * 50;
-            else turn_waittime = pillar_front.area * 20;
+            if (pillar_front.colour == RED) turn_waittime = pillar_front.area * 48.5;
+            else turn_waittime = pillar_front.area * 3;
             state = WAIT_TURN_STATE;
             turn_waittimeZero = internalClock.read();
             break;
 
           case WAIT_TURN_STATE:
             Serial.println("WAIT_TURN_STATE");
-            if ((internalClock.read() - turn_waittimeZero) < turn_waittime) break;
+            if ((internalClock.read() - turn_waittimeZero) < turn_waittime) {
+              steering_percentage = (getIMU() - tar_ang) * 10;
+              break;
+            }
             else {
               tar_ang += (is_left == true) ? -right_ang : right_ang; // 88.58
               num_turn++;
@@ -288,33 +316,54 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
           
           case TURNING_STATE:
             Serial.println("TURNING_STATE");
-            if ((abs(tar_ang - getIMU()) > 15) && (abs(tar_ang) > abs(getIMU()))){
+            if (nearestPillarGlobal.area > 10 && nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos <= min_xpos_Rcase(nearestPillarGlobal.area)) {
+              pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
+              pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+              gyro_ang_detect_phase = getIMU();
+              curve_phase1_gyro_chkpt = 10;
+              blk_while_turning = true;
+              state = CURVE_P1_STATE;
+              break;
+            } else if (nearestPillarGlobal.area > 10 && nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)) {
+              pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
+              pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+              curve_phase1_gyro_chkpt = 10;
+              blk_while_turning = true;
+              state = CURVE_P1_STATE;
+              break;
+            } else if ((abs(tar_ang - getIMU()) > 15) && (abs(tar_ang) > abs(getIMU()))){
               steering_percentage = (tar_ang > 0) ? -100 : 100;
               dash_timeZero = internalClock.read();
             }
             else{
-              // steering_percentage = 0;
+              steering_percentage = 0;
               state = DASH_AFTER_TURNING_STATE;
               dash_time = 500;
               dash_timeZero = internalClock.read();
+              break;
             }
             break;
           
           case DASH_AFTER_TURNING_STATE:
             Serial.println("DASH_AFTER_TURNING_STATE");
-            Serial.println(steering_percentage);
             if (num_turn >= 12){
               state = PARKING_STATE;
               break;
-            } else if (nearestPillarGlobal.area >= 20){
+            } else if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 10){
               if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos <= min_xpos_Rcase(nearestPillarGlobal.area)){
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                 pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                gyro_ang_detect_phase = getIMU();
+                if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // For Pt A, B
+                else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200; // For Pt C, D, E
                 state = CURVE_P1_STATE;
                 break;
               } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                 pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
+                if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 40; // For Pt A
+                else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 40; // For Pt B
+                else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 45 / 200; // For Pt C, D, E
                 state = CURVE_P1_STATE;
                 break;
               }
@@ -341,11 +390,13 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
           
           case CHECK_FRONT_BLK_STATE:
             Serial.println("CHECK_FRONT_BLK_STATE");
-            if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
+            if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 2 && nearestPillarGlobal.xpos < min_xpos_Rcase(nearestPillarGlobal.area)){
+              Serial.println("Hi?");
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
               pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
               state = ST_FW_WITH_BLK_STATE;
-            } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos < min_xpos_Gcase(nearestPillarGlobal.area)) {
+            } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 2 && nearestPillarGlobal.xpos > min_xpos_Gcase(nearestPillarGlobal.area)) {
+              Serial.println("Hi2?");
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
               pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
               state = ST_FW_WITH_BLK_STATE;
@@ -356,14 +407,16 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
 
           case CHECK_MID_RACINGLN_STATE:
             Serial.println("CHECK_MID_RACINGLN_STATE");
-            if (anticlockwise){
-              if (abs(ultra1Dist - MID_RACINGLN_POS) > 100){
+            if (num_turn == 0){
+              state = DETECT_STATE;
+            } else if (anticlockwise){
+              if (abs(ultra1Dist - MID_RACINGLN_POS) > 150 && ultra1Dist < dist_threshold){
                 inner_wall_dist = ultra1Dist - MID_RACINGLN_POS;
                 gyro_ang_detect_phase = getIMU();
                 state = MID_P1_STATE;
               } else state = DETECT_STATE;
             } else {
-              if (abs(ultra2Dist - MID_RACINGLN_POS) > 100){
+              if (abs(ultra2Dist - MID_RACINGLN_POS) > 150 && ultra2Dist < dist_threshold){
                 inner_wall_dist = -(ultra2Dist - MID_RACINGLN_POS);
                 gyro_ang_detect_phase = getIMU();
                 state = MID_P1_STATE;
@@ -373,10 +426,11 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
           
           case MID_P1_STATE:
             Serial.println("MID_P1_STATE");
-            if (abs(getIMU() - gyro_ang_detect_phase) < 45){
-              steering_percentage = (50 - (getIMU() - gyro_ang_detect_phase)) * 100 * sign(inner_wall_dist) / 45;
+            if (abs(getIMU() - gyro_ang_detect_phase) < mid_phase1_gyro_chkpt){
+              steering_percentage = 100 * sign(inner_wall_dist);
             } else {
-              mid_phase2_chk_t = inner_wall_dist;
+              Serial.println(inner_wall_dist);
+              mid_phase2_chk_t = abs(inner_wall_dist) * 0.001;
               mid_save_t = internalClock.read();
               state = MID_P2_STATE;
             }
@@ -394,8 +448,8 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
           
           case MID_P3_STATE:
             Serial.println("MID_P3_STATE");
-            if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
-              steering_percentage = -(50 - (getIMU() - gyro_ang_detect_phase)) * 100 * sign(inner_wall_dist) / 45;
+            if (abs(getIMU() - tar_ang) > 20){
+              steering_percentage = -100 * sign(inner_wall_dist);
             } else {
               state = MID_DASH_STATE;
               mid_dash_save_t = internalClock.read();
@@ -405,7 +459,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
           case MID_DASH_STATE:
             Serial.println("MID_DASH_STATE");
             if (internalClock.read() - mid_dash_save_t <= 100){
-              steering_percentage = getIMU() * 10;
+              steering_percentage = (getIMU() - tar_ang) * 8;
             } else state = DETECT_STATE;
             break;
 
@@ -413,11 +467,16 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
             Serial.println("CURVE_P1_STATE");
             if (pillar_front.colour == RED){
               if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
-                if (pillar_front.xpos > 230 || pillar_front.area < 13) steering_percentage = -(60 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (60 * area_dangerzone * pillar_front.xpos);
+                if (blk_while_turning) steering_percentage = -60;
+                else if (pillar_front.xpos > 230 || pillar_front.area < 13) steering_percentage = -(55 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (55 * area_dangerzone * pillar_front.xpos);
                 else steering_percentage = -(50 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (50 * area_dangerzone * pillar_front.xpos);
               } else {
-                state = CURVE_P2_STATE;
-                if (pillar_front.xpos > 230 && pillar_front.area < 30){ // For Pt A
+                if (blk_while_turning) {
+                  state = CURVE_P2_5_STATE;
+                  curve_sphase3_chk_t = pillar_front.area * 3;
+                  Serial.println(curve_sphase3_chk_t);
+                  pillar_avoid_save_t = internalClock.read();
+                } else if (pillar_front.xpos > 230 && pillar_front.area < 30){ // For Pt A
                   curve_phase2_chk_t = 200 * (pillar_front.xpos - 50) / 300;
                   state = CURVE_P2_STATE;
                 } else if (pillar_front.area >= 30){ // For Pt B
@@ -435,17 +494,23 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
               }
             } else {
               if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
+                if (blk_while_turning) steering_percentage = 60;
                 if (mirror(pillar_front.xpos) > 230) steering_percentage = (55 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (60 * area_dangerzone * mirror(pillar_front.xpos)); // || pillar_front.area < 13
                 else steering_percentage = (50 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (50 * area_dangerzone * mirror(pillar_front.xpos));
               } else {
-                curve_phase1 = false;
-                if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30){ // For Pt A
+                if (blk_while_turning) {
+                  state = CURVE_P2_5_STATE;
+                  curve_sphase3_chk_t = pillar_front.area * 10;
+                  Serial.println(curve_sphase3_chk_t);
+                  pillar_avoid_save_t = internalClock.read();
+                } else if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30){ // For Pt A
                   curve_phase2_chk_t = 150 * (mirror(pillar_front.xpos) - 50) / 300;
                   state = CURVE_P2_STATE;
                 } else if (pillar_front.area >= 30){ // For Pt B
                   curve_phase2_chk_t = 120 * (mirror(pillar_front.xpos) - 50) / 300;
                   state = CURVE_P2_STATE;
                 } else if (pillar_front.area > 13){ // For Pt C, D
+                curve_phase2_chk_t = 20 * (mirror(pillar_front.xpos) - 50) / 300;
                   gyro_ang_detect_phase = getIMU();
                   state = CURVE_P2_STATE;
                 } else { // For Pt E
@@ -470,27 +535,41 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
             }
             break;
           
+          case CURVE_P2_5_STATE:
+            Serial.println("CURVE_P2_5_STATE");
+            if (internalClock.read() - pillar_avoid_save_t <= curve_sphase3_chk_t){
+              steering_percentage = 0;
+            } else {
+              state = CURVE_P3_STATE;
+              break;
+            }
+            break;
+          
           case CURVE_P3_STATE:
             Serial.println("CURVE_P3_STATE");
-            if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
+            if (abs(getIMU() - tar_ang) > 20){
               if (pillar_front.colour == RED){
-                steering_percentage = (abs(getIMU()) + 25) * steering_amp_fact2;
+                if (blk_while_turning) steering_percentage = 100;
+                else steering_percentage = (abs(getIMU()) + 25) * steering_amp_fact2;
               } else {
-                steering_percentage = -(abs(getIMU()) + 25) * steering_amp_fact2;
+                if (blk_while_turning) steering_percentage = -100;
+                else steering_percentage = -(abs(getIMU()) + 25) * steering_amp_fact2;
               }
             } else {
               state = CURVE_P4_STATE;
+              blk_while_turning = false;
               pillar_avoid_save_t = internalClock.read();
               break;
             }
+            Serial.println(steering_percentage);
             break;
 
           case CURVE_P4_STATE:
             Serial.println("CURVE_P4_STATE");
             if (internalClock.read() - pillar_avoid_save_t <= 100){
-              steering_percentage = getIMU() * 10;
+              steering_percentage = (getIMU() - tar_ang) * 8;
             } else {
-              state = DETECT_STATE;
+              state = CHECK_MID_RACINGLN_STATE;
               break;
             }
             break;
@@ -499,10 +578,12 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
             Serial.println("ST_FW_WITH_BLK_STATE");
             if (anticlockwise){
               if (ultra1Dist < dist_threshold){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
+                steering_percentage = (getIMU() - tar_ang) * 7;
                 break;
               } else state = DETECT_STATE;
             } else {
               if (ultra2Dist < dist_threshold){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
+              steering_percentage = (getIMU() - tar_ang) * 7;
                 break;
               } else state = CHECK_FRONT_BLK_STATE;
             }
@@ -525,7 +606,7 @@ void OC2main(){
   // LaserElements = 8;
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
   // OpenChallengeLaserFilter(LaserMode, LaserElements, 90, 2500, -100);
-  OC2Huskylens(85, 1000, -100);
+  OC2Huskylens(84, 1000, -100);
 }
 
 /**

@@ -389,6 +389,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
             wait_turn = true;
           } else {
             wait_turn = false;
+            milliseconds = internalClock.read();
           }
         } else {
           if (ultra2Dist > dist_threshold && !dash_forward){
