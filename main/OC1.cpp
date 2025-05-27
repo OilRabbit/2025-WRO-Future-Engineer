@@ -487,27 +487,124 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   }
 }
 
-void OpenChallengeCSMoving(){
-  static bool start_game = false;
-static bool prev_btn_state = false;
-bool curr_btn_state = MiniR4.BTN_DOWN.getState();
-if (curr_btn_state && !prev_btn_state){
-  start_game = !start_game;
-}
-prev_btn_state = curr_btn_state;
-static bool end_game = false;
-static bool anticlockwise = false;
-static long milliseconds = 0;
-static long dash_timeZero = 0;
-static long dash_time = 0;
-static bool is_left = false;
-static bool reset_timer = true;
-static double tar_ang = 0;
-static bool cal_tar_ang = false;
-static bool need_turn = false;
-static bool dash_forward = false;
-static int num_turn = 0;
-}
+// void OpenChallengeCSMoving(double right_ang, int dist_threshold, int power){
+//   static bool first_run = true;
+//   static bool start_game = false;
+//   static bool prev_btn_state = false;
+//   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
+
+//   if (curr_btn_state && !prev_btn_state){
+//     start_game = !start_game;
+//   }
+
+//   static bool end_game = false;
+//   static long dash_timeZero = 0;
+//   static long dash_timeZero2 = 0;
+//   static long dash_time = 0;
+//   static double tar_ang = 0;
+//   static bool is_left = false;
+//   static bool anticlockwise = false;
+//   static bool cal_tar_ang = false;
+//   static bool need_turn = false;
+//   static bool dash_forward = false;
+//   static int num_turn = 0;
+//   static long milliseconds = 0;
+//   static bool reset_OC1 = false;
+//   static int turn_waittime = 0;
+//   // static int innerWall_dist = 75;
+//   static bool wait_turn = false;
+//   static int start_sector_starttime = 0;
+//   static int start_sector_endtime = 0;
+//   static bool last_turn_cali = true;
+//   static bool forward_b4_turn = false;
+
+//   MiniR4.M2.setPower(0);
+
+//   if (!start_game){ 
+//     reset_OC1 = true;
+//     steering(0);
+//     MiniR4.M2.setPower(0);
+//     displayThread.enabled = true;
+//     Ultra1Thread.enabled = true;
+//     Ultra2Thread.enabled = true;
+//     ColorThread.enabled = true;
+//     OC1Thread.setInterval(10);
+//     Ultra1Thread.setInterval(10);
+//     Ultra2Thread.setInterval(10);
+//     ColorThread.setInterval(10);
+//   } else {
+//     if(reset_OC1){
+//       OC1Thread.setInterval(0);
+//       Ultra1Thread.setInterval(0);
+//       Ultra2Thread.setInterval(0);
+//       ColorThread.setInterval(0);
+//       end_game = false;
+//       dash_timeZero = 0;
+//       dash_timeZero2 = 0;
+//       dash_time = 0;
+//       tar_ang = 0;
+//       is_left = false;
+//       anticlockwise = false;
+//       cal_tar_ang = false;
+//       need_turn = false;
+//       dash_forward = false;
+//       num_turn = 0;
+//       steering_percentage = 0;
+//       milliseconds = 0;
+//       // innerWall_dist = 75;
+//       wait_turn = false;
+//       start_sector_starttime = 0;
+//       start_sector_endtime = 0;
+//       last_turn_cali = true;
+//       OC1_starttime = internalClock.read();
+//       if (!first_run) resetIMU();
+//       reset_OC1 = false;
+//     }
+//     if (!end_game){
+//       displayThread.enabled = false;
+//       if (num_turn == 0){
+//         if (getColorType() == 4 && !dash_forward){
+//           anticlockwise = true;
+//           is_left = true;
+//           wait_turn = true;
+//         } else if (getColorType() == 9 && !dash_forward){
+//           anticlockwise = false;
+//           is_left = false;
+//           wait_turn = true;
+//         } else{
+//           wait_turn = false ;
+//           milliseconds = internalClock.read();       
+//         }
+//       } else{
+//         if(anticlockwise){
+//           if (getColorType() == 4 && !dash_forward){
+//             is_left = true;
+//             wait_turn = true;
+//           } else {
+//             wait_turn = false;
+//             milliseconds = internalClock.read();
+//           }
+//         } else {
+//           if (getColorType() == 9 && !dash_forward){
+//             anticlockwise = false;
+//             is_left = false;
+//             wait_turn = true;
+//           } else {
+//             wait_turn = false;
+//             milliseconds = internalClock.read();
+//           }
+//         }
+//       }
+//       if (anticlockwise){
+//         if (ultra1Dist >= 700) turn_waittime = 0;
+//         else turn_waittime = (((390 - 0.58 * ultra1Dist))*1000) / 730;
+//       } else {
+//         if (ultra2Dist >= 700) turn_waittime = 0;
+//         else turn_waittime = (((390 - 0.58 * ultra1Dist))*1000) / 730;
+//       }
+//     }
+//   }
+// }
 
 void OC1main(){
   LaserMode = CISTERN_DIST;

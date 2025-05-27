@@ -31,5 +31,6 @@ extern Thread OC2Thread;
 extern Thread Ultra1Thread;
 extern Thread Ultra2Thread;
 extern Thread huskylensThread;
+extern Thread ColorThread;
 
 #endif

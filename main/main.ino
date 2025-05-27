@@ -7,6 +7,7 @@ Thread OC2Thread = Thread();
 Thread Ultra1Thread = Thread();
 Thread Ultra2Thread = Thread();
 Thread huskylensThread = Thread();
+Thread ColorThread = Thread();
 // Thread Laser1Thread = Thread();
 // Thread Laser2Thread = Thread();
 
@@ -26,6 +27,7 @@ void setup() {
   reset_steering();
   ultraInit(ultra1);
   ultraInit(ultra2);
+  colorInit();
   // laserInit(I2CPORT1);
   // laserInit(I2CPORT2);
   huskylensInit();
