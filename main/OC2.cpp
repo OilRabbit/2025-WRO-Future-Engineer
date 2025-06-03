@@ -3,59 +3,55 @@
 #include "Arduino.h"
 #include "OC2.h"
 
-int min_xpos_Rcase(int area){
+/**
+ * @brief Algorithm to calculate the safe xpos of the Red pillar seen according to its area from the huskylens
+ * @param area; int; the area of the pillar from the huskylens
+ *
+ * @return float; the safe xpos of the pillar seen
+*/
+float min_xpos_Rcase(int area){
   return -2.8164 * area + 114;
 }
 
-int min_xpos_Gcase(int area){
+/**
+ * @brief Algorithm to calculate the safe xpos of the Green pillar seen according to its area from the huskylens
+ * @param area; int; the area of the pillar from the huskylens
+ *
+ * @return float; the safe xpos of the pillar seen
+*/
+float min_xpos_Gcase(int area){
   return 1.9722 * area + 210.81;
 }
 
-float xpos2steeringPer(float xpos){
-  return 1 / (pow((159 - xpos), 2) + 1);
-}
-
-POINT bezier(float t, POINT P0, POINT P1, POINT P2) {
-  POINT pt;
-  pt.x = (1 - t) * (1 - t) * P0.x + 2 * (1 - t) * t * P1.x + t * t * P2.x;
-  pt.y = (1 - t) * (1 - t) * P0.y + 2 * (1 - t) * t * P1.y + t * t * P2.y;
-  return pt;
-}
-
-float normalizeAngle(float angle) {
-  while (angle > PI) angle -= 2 * PI;
-  while (angle < -PI) angle += 2 * PI;
-  return angle;
-}
-
-int computeSteeringAngle(POINT prev, POINT curr, POINT next) {
-  float headingCurr = atan2(curr.y - prev.y, curr.x - prev.x);
-  float headingNext = atan2(next.y - curr.y, next.x - curr.x);
-  float deltaHeading = normalizeAngle(headingNext - headingCurr);
-  Serial.println("deltaHeading");
-  Serial.println(deltaHeading);
-
-  float angleDeg = -deltaHeading * 180.0 / PI;
-  angleDeg = constrain(angleDeg, -33, 33);
-  angleDeg /= 33 / 100;
-
-  return angleDeg;
-}
-
+/**
+ * @brief Algorithm to calculate the mirror everything on the Red pillar case to the Green pillar case
+ * @param xpos; float; the xpos of Green pillar from the huskylens
+ *
+ * @return float; the corresponding xpos when translate to Red case
+*/
 float mirror(float xpos){
   return CAM_MID_XPOS * 2 - xpos;
 }
 
 /**
- * @brief The main function for OC2
- * If this function is being used, the smart car will turn to the direction immediately after one of the laser sensor detects a MEAN/MEDIAN distance > 1700mm
+ * @brief Function for OC2
+ * 
+ * @param right_ang; double; the value of an "right angle" for the IMU (as the value of IMU is not consistent)
+ * @param dist_threshold; int; the threshold that the car sees for turning (in mm)
+ * @param power; int; the power of the driving motor (0 ~ -100)
  * 
  */
 long OC2_starttime = 0; 
 long OC2_endtime = 0; 
 void OC2Huskylens(double right_ang, int dist_threshold, int power){
+  // A flag to for resetting the IMU before starting the run.
+  // Resetting IMU takes a few seconds, which means if we do so when the run starts, we will lack behind for a few seconds
   static bool first_run = true;
+
+  // A flag to determine whether the run is started or not
   static bool start_game = false;
+
+  // Variables and flag for checking the DOWN button state
   static bool prev_btn_state = false;
   bool curr_btn_state = MiniR4.BTN_DOWN.getState();
   
@@ -64,6 +60,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
   }
   prev_btn_state = curr_btn_state;
 
+  // Variables and flag for checking the UP button state
   static bool prev_imu_btn_state = false;
   bool curr_imu_btn_state = MiniR4.BTN_UP.getState();
   
@@ -73,44 +70,43 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
   }
   prev_imu_btn_state = curr_imu_btn_state;
 
-  static OC2_STATES state = DETECT_STATE;
-  static bool reset_OC2 = false;
-  static bool end_game = false;
-  std::vector<COLOURED_OBJ> pillars_array;
-  static bool pillar_detect_phase = true;
-  static COLOURED_OBJ pillar_front;
-  const int area_dangerzone = 40;
-  const float steering_amp_fact1 = 200;
-  const float steering_amp_fact2 = 2;
-  static int gyro_ang_detect_phase = 0;
-  static bool curve_phase1 = false;
-  static bool curve_phase2 = false;
-  static bool curve_phase3 = false;
-  static int pillar_avoid_save_t = 0;
-  static float curve_phase2_chk_t = 300;
-  static float curve_sphase3_chk_t = 300;
-  static int curve_phase1_gyro_chkpt = 45;
-  static int mid_phase1_gyro_chkpt = 50;
-  static bool c_dash_phase = false;
-  static float dash_degree = 0;
-  static float inner_wall_dist = 0;
-  static int mid_save_t = 0;
-  static float mid_phase2_chk_t = 0;
-  static int mid_dash_save_t = 0;
-  static double tar_ang = 0;
-  static long dash_timeZero = 0;
-  static long dash_time = 0;
-  static bool is_left = false;
-  static bool anticlockwise = false;
-  static int num_turn = 0;
-  static long turn_waittimeZero = 0;
-  static int turn_waittime = 150;
-  static bool blk_while_turning = false;
+  // Variables required for OC2
+  static OC2_STATES state = DETECT_STATE;     // A variable storing the current state of OC2 run
+  static bool reset_OC2 = false;              // A flag determining whether the all the variables should be reseted
+  static bool end_game = false;               // A flag determining whether the run has ended
+  std::vector<COLOURED_OBJ> pillars_array;    // An array storing all the pillars detected
+  static COLOURED_OBJ pillar_front;           // A struct storing all the info of the nearest pillar detected during DETECT_STATE
+  // EDITABLE: Not recommended to edit this but, if you want to change the danger zone of area of pillar, edit the following line
+  const int area_dangerzone = 40;             // A variable representing the area of a pillar which is identified as danger when its area is larger than this value
+  // END OF EDITABLE
+  // EDITABLE: Edit this if the car is turning too sharp/mild during CURVE_P1_STATE
+  const float steering_amp_fact1 = 200;       // An amplification factor for calculating the steering percentage during CURVE_P1_STATE
+  // END OF EDITABLE
+  // EDITABLE: Edit this if the car is turning too sharp/mild during CURVE_P3_STATE
+  const float steering_amp_fact2 = 2;         // An amplification factor for calculating the steering percentage during CURVE_P3_STATE
+  // END OF EDITABLE
+  static int gyro_ang_detect_phase = 0;       // A variable storing the current IMU angle
+  static int pillar_avoid_save_t = 0;         // A variable storing the instant time for avoiding pillars
+  static float curve_phase2_chk_t = 300;      // A variable storing the time required for the car to move straight forward during CURVE_P2_STATE. Non-editable as it will be recalculated during the run
+  static float curve_sphase3_chk_t = 300;     // A variable storing the time required for the car to move straight forward during CURVE_P2_5_STATE. Non-editable as it will be recalculated during the run
+  static int curve_phase1_gyro_chkpt = 45;    // A variable storing the IMU value for the car to turn to during CURVE_P1_STATE. Non-editable as it will be recalculated during the run
+  static int mid_phase1_gyro_chkpt = 50;      // A variable storing the IMU value for the car to turn to during MID_P1_STATE. Non-editable as it will be recalculated during the run
+  static float inner_wall_dist = 0;           // A variable storing the distance between the car and the inner wall (measured using ultrasonic sensor)
+  static int mid_save_t = 0;                  // A variable storing the instant time for going back to mid racing line
+  static float mid_phase2_chk_t = 0;          // A variable storing the time required for the car to move straight forward during MID_P2_STATE. Non-editable as it will be recalculated during the run
+  static int mid_dash_save_t = 0;             // A variable storing the time required for the car to move straight forward during MID_DASH_STATE. Non-editable as it will be recalculated during the run
+  static double tar_ang = 0;                  // The target angle which the car should be facing
+  static long dash_timeZero = 0;              // Variable to store the instant time from the internal clock for dashing
+  static long dash_time = 0;                  // The time required for the car to run before using the ultrasonic sensors for detection again after turning
+  static bool anticlockwise = false;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
+  static int num_turn = 0;                    // Variable storing the number of turns the car has made
+  static long turn_waittimeZero = 0;          // Variable to store the instant time from the internal clock for waiting to turning
+  static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
+  static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
   
   MiniR4.M2.setBrake(true);
 
   if (!start_game){ 
-    // Serial.begin(115200);
     reset_OC2 = true;
     steering(0);
     MiniR4.M2.setPower(0);
@@ -126,21 +122,16 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       Ultra1Thread.setInterval(0);
       Ultra2Thread.setInterval(0);
       huskylensThread.setInterval(0);
-      end_game = false;
+
       state = DETECT_STATE;
-      steering_percentage = 0;
-      pillar_detect_phase = true;
-      curve_phase1 = false;
-      curve_phase2 = false;
-      curve_phase3 = false;
+      reset_OC2 = false;
+      end_game = false;
+      gyro_ang_detect_phase = 0;
       pillar_avoid_save_t = 0;
       curve_phase2_chk_t = 300;
       curve_sphase3_chk_t = 300;
       curve_phase1_gyro_chkpt = 45;
       mid_phase1_gyro_chkpt = 50;
-      gyro_ang_detect_phase = 0;
-      c_dash_phase = false;
-      dash_degree = 0;
       inner_wall_dist = 0;
       mid_save_t = 0;
       mid_phase2_chk_t = 0;
@@ -148,15 +139,14 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       tar_ang = 0;
       dash_timeZero = 0;
       dash_time = 0;
-      is_left = false;
       anticlockwise = false;
       num_turn = 0;
       turn_waittimeZero = 0;
       turn_waittime = 150;
       blk_while_turning = false;
+
       OC2_starttime = internalClock.read();
       if (!first_run) resetIMU();
-      reset_OC2 = false;
     }
     if (!end_game){
       displayThread.enabled = false;
@@ -164,14 +154,16 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
       steering(steering_percentage);
       MiniR4.M2.setPower(power);
 
+      // The Finte State Machine for OC2 which is well organized
       switch (state) {
+        // As the name implies, this state do the detections using ultrasonic sensors and huskylens when driving on a straight sector.
         case DETECT_STATE:
         Serial.println("DETECT_STATE");
+          // Before doing any turning, both ultrasonic sensors are locked
           if (num_turn == 0) {
             if (ultra1Dist > dist_threshold){
               anticlockwise = true;
               Ultra2Thread.enabled = false;
-              is_left = true;
               if (nearestPillarGlobal.colour != NO_COLOUR){
                 if (nearestPillarGlobal.area >= 20){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -186,7 +178,6 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
             } else if (ultra2Dist > dist_threshold){
               anticlockwise = false;
               Ultra1Thread.enabled = false;
-              is_left = false;
               if (nearestPillarGlobal.colour != NO_COLOUR){
                 if (nearestPillarGlobal.area >= 20){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -308,7 +299,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
               break;
             }
             else {
-              tar_ang += (is_left == true) ? -right_ang : right_ang; // 88.58
+              tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
               num_turn++;
               state = TURNING_STATE;
             }
@@ -607,35 +598,6 @@ void OC2main(){
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
   // OpenChallengeLaserFilter(LaserMode, LaserElements, 90, 2500, -100);
   OC2Huskylens(84, 1000, -100);
-}
-
-/**
- * @brief A function to put into display thread for showing the steering angle percentage
- * 
- * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
- * @param line_number; int; The line number where the data should be displaced at (0 ~ 3)
- * @param size; int; The size of the text being displaced (1 ~ 2)
- * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
- */
-void showSteeringOC2(COLUMN column, int line_number, int size, bool clearDisplay){
-  static String steering_text = "St: " + String(steering_percentage) + "%";
-  display.oledSetTextColour(BLACK);
-  if (column == LEFT){
-    display.oledDisplayLeftln(line_number, size, steering_text, clearDisplay);
-    display.oledSetTextColour(WHITE);
-    steering_text = "St: " + String(steering_percentage) + "%";
-    display.oledDisplayLeftln(line_number, size, steering_text, clearDisplay);
-  } else if (column == MID) {
-    display.oledDisplayCenterln(line_number, size, steering_text, clearDisplay);
-    display.oledSetTextColour(WHITE);
-    steering_text = "St: " + String(steering_percentage) + "%";
-    display.oledDisplayCenterln(line_number, size, steering_text, clearDisplay);
-  } else {
-    display.oledDisplayRightln(line_number, size, steering_text, clearDisplay);
-    display.oledSetTextColour(WHITE);
-    steering_text = "St: " + String(steering_percentage) + "%";
-    display.oledDisplayRightln(line_number, size, steering_text, clearDisplay);
-  }
 }
 
 void showOC2Time(COLUMN column, int line_number, int size, bool clearDisplay){

@@ -49,11 +49,10 @@ typedef enum {
 
 extern float steering_percentage;
 
-int min_xpos_Gcase(int area);
-int min_xpos_Rcase(int area);
+float min_xpos_Gcase(int area);
+float min_xpos_Rcase(int area);
 void OC2Huskylens(double right_ang, int dist_threshold, int power);
 void OC2main();
-void showSteeringOC2(COLUMN column, int line_number, int size, bool clearDisplay);
 void showOC2Time(COLUMN column, int line_number, int size, bool clearDisplay);
 
 #endif

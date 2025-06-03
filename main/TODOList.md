@@ -9,8 +9,4 @@
 ### 4. Write PID functions for steering using:
 a. Laser b. IMU
 
-### 5. Rewrite comments for laser.c/.h
-
-### 6. Rewrite comments for ultra.c/.h
-
-### 7. Rewrite comments for OC1.c/.h
+### 5. Write a "UNUSED" macro

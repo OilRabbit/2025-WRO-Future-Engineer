@@ -23,7 +23,6 @@
 #include "ultra.h"
 #include "color.h"
 
-
 extern ThreadController controller;
 extern Thread displayThread;
 extern Thread OC1Thread;

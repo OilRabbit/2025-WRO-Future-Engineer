@@ -32,54 +32,41 @@ void setup() {
   // laserInit(I2CPORT2);
   huskylensInit();
   display.oledDisplayCenterln(1, 1, "Initializing IMU", true);
-  // delay(1000);
   imuInit();
   display.oledClear();
 
   // Follow this to create your own thread
   displayThread.onRun(displayData);
   displayThread.setInterval(0);
+  controller.add(&displayThread);
 
   // OC1Thread.onRun(OC1main);
   // OC1Thread.setInterval(10);
+  // controller.add(&OC1Thread);
 
   OC2Thread.onRun(OC2main);
   OC2Thread.setInterval(10);
+  controller.add(&OC2Thread);
 
   Ultra1Thread.onRun(getultra1Distloop);
   Ultra1Thread.setInterval(10);
+  controller.add(&Ultra1Thread);
   Ultra2Thread.onRun(getultra2Distloop);
   Ultra2Thread.setInterval(10);
+  controller.add(&Ultra2Thread);
 
   huskylensThread.onRun(getNearestPillarGlobal);
   huskylensThread.setInterval(10);
+  controller.add(&huskylensThread);
 
   // Laser1Thread.onRun(getLaser1Distloop);
   // Laser1Thread.setInterval(0);
+  // controller.add(&Laser1Thread);
   // Laser2Thread.onRun(getLaser2Distloop);
   // Laser2Thread.setInterval(0);
-
-  // Add the threads to the controller
-  controller.add(&displayThread);
-  // controller.add(&OC1Thread);
-  controller.add(&OC2Thread);
-  controller.add(&Ultra1Thread);
-  controller.add(&Ultra2Thread);
-  controller.add(&huskylensThread);
-  // controller.add(&Laser1Thread);
   // controller.add(&Laser2Thread);
-
-  display.oledDisplayCenterln(1, 1, "Starting...", true);
-  display.oledClear();
 }
 
-float duration, distance;
 void loop() {
-  // Start all the threads in this controller
   controller.run();
-  // MiniR4.M2.resetCounter();
-  // Serial.println(MiniR4.M2.getDegrees());
-  // huskylensColorRegTest();
-  // steering(50);
-  // MiniR4.M2.setPower(100);
 }
