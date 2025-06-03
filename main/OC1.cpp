@@ -317,6 +317,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   
   if (curr_imu_btn_state && !prev_imu_btn_state){
     MiniR4.Motion.resetIMUValues();
+    reset_steering();
     resetIMU();
   }
   prev_imu_btn_state = curr_imu_btn_state;
@@ -334,13 +335,13 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static bool last_turn_cali = true;      // A state-like boolean determining whether the car should calibrate the distance to drive before stopping
   static int num_turn = 0;                // Variable storing the number of turns the car has made
   static long turn_waittimeZero = 0;      // Variable to store the instant time from the internal clock for waiting to turning
-  static int turn_waittime = 0;           // Variable storing the time in ms that required to wait before the car turn 
+  static int turn_waittime = 150;           // Variable storing the time in ms that required to wait before the car turn 
   static int innerWall_dist = 110;        // The distance with the inner wall in mm that the car should keep
   static int start_sector_starttime = 0;  // Variable storing the instant time from the internal clock when the run starts 
   static int start_sector_endtime = 0;    // Variable storing the instant time from the internal clock when the run ends
   static bool reset_OC1 = false;          // A flag determining whether the all the variables should be reseted
 
-  MiniR4.M2.setBrake(true);
+  // MiniR4.M2.setBrake(true);
 
   if (!start_game){ 
     reset_OC1 = true;
@@ -416,7 +417,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       }
 
       // EDITABLE: To control the time (in ms) for the car to dash forward before turning, edit the value of turn_waittime in follow two line
-      if (num_turn == 0) turn_waittime = 0;
+      if (num_turn == 0 ) turn_waittime = 0;
       else turn_waittime = 150;
       // END OF EDITABLE
 
@@ -489,7 +490,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
             if (ultra1Dist < innerWall_dist) steering_percentage = (ultra1Dist - innerWall_dist) * 0.75;
-            else if (num_turn == 0) steering_percentage = 0; // (ultra1Dist - ultra2Dist) * 0.2;
+            else if (num_turn == 0) steering_percentage = 0;
             else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
             else steering_percentage = (ultra1Dist - innerWall_dist) * 0.25;
             // END OF EDITABLE
@@ -529,12 +530,16 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   }
 }
 
+// void testing(){
+//   MiniR4.M2.setPower(100);
+// }
 /**
  * @brief The main thread function for OC1
  * 
  */
 void OC1main(){
-  OpenChallengeUltraFilter(85, 1000, -100);
+  OpenChallengeUltraFilter(87, 1000, -100);
+  // testing();
   // LaserMode = CISTERN_DIST;
   // LaserElements = 8;
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
