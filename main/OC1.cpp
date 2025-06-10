@@ -339,8 +339,10 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static int start_sector_starttime = 0;  // Variable storing the instant time from the internal clock when the run starts 
   static int start_sector_endtime = 0;    // Variable storing the instant time from the internal clock when the run ends
   static bool reset_OC1 = false;          // A flag determining whether the all the variables should be reseted
+  static int imu_threshold = 15;
+  int motor_power = power;
 
-  MiniR4.M2.setBrake(true);
+  // MiniR4.M2.setBrake(true);
 
   if (!start_game){ 
     reset_OC1 = true;
@@ -378,6 +380,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       reset_OC1 = false;
     }
     if (!end_game){
+      MiniR4.M2.setBrake(false);
       // Disable the display thread before for the rest of the run until it ends
       displayThread.enabled = false;
 
@@ -406,6 +409,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           }
         } else {
           if (ultra2Dist > dist_threshold && !dash_forward){
+            imu_threshold = 20;
             anticlockwise = false;
             wait_turn = true;
           } else {
@@ -439,7 +443,13 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
 
       // Turning
       // EDITABLE: If the car is turning too less/much, edit the value "15" in the following line
-      if ((abs(tar_ang - getIMU()) > 15) && (abs(tar_ang) > abs(getIMU())) && need_turn){
+      if ((abs(tar_ang) - abs(getIMU()) > imu_threshold) && (abs(tar_ang) > abs(getIMU())) && need_turn){
+        if (!anticlockwise){
+          motor_power = -100;
+          MiniR4.M2.setPower(motor_power);
+        }
+        
+        // Serial.println(abs(tar_ang) > abs(getIMU()));
       // END OF EDITABLE
         steering_percentage = (tar_ang > 0) ? -100 : 100;
         steering(steering_percentage);
@@ -447,9 +457,11 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
         dash_timeZero = internalClock.read();
         if (num_turn == 4) start_sector_starttime = internalClock.read();
       } else {
+        motor_power = -100;
         need_turn = false;
         // Dash forward for a while after turning to avoid re-activate the turning state
         if (dash_forward){
+          // end_game = true;
           if (num_turn >= 12) dash_time = (start_sector_endtime - start_sector_starttime) / 2;
           // EDITABLE: If the dash time after turning is too short/long, edit the value of dash_time in the following two lines
           else if (num_turn == 1) dash_time = 1200;
@@ -466,7 +478,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
               steering_percentage = (getIMU() - tar_ang) * 3;
               // END OF EDITABLE
               steering(steering_percentage);
-              MiniR4.M2.setPower(power);
+              MiniR4.M2.setPower(motor_power);
             } else {
               dash_forward = false;
             }
@@ -475,7 +487,8 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
               // EDITABLEL: If the car is not moving straigtly, edit the kp value in the following line
               steering_percentage = (getIMU() - tar_ang) * 3;
               // END OF EDITABLE
-              MiniR4.M2.setPower(power);
+              steering(steering_percentage);
+              MiniR4.M2.setPower(motor_power);
             } else {
               dash_forward = false;
             }
@@ -485,11 +498,12 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           // EDITABLE: If the car is too close/far from the inner wall, edit the value of innerWall_dist in the following two lines
           if (num_turn == 1) innerWall_dist = 110;
           else innerWall_dist = 90;
+
           // END OF EDITABLE
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
             if (ultra1Dist < innerWall_dist) steering_percentage = (ultra1Dist - innerWall_dist) * 0.75;
-            else if (num_turn == 0) steering_percentage = 0; // (ultra1Dist - ultra2Dist) * 0.2;
+            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
             else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
             else steering_percentage = (ultra1Dist - innerWall_dist) * 0.25;
             // END OF EDITABLE
@@ -497,10 +511,10 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
             steering(steering_percentage);
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.75;
-            else if (num_turn == 0) steering_percentage = 0; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.08;
-            else steering_percentage = -(ultra2Dist - innerWall_dist) * 0.25;
+            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist - innerWall_dist) * 1.5;
+            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.3;
+            else steering_percentage = -(ultra2Dist - innerWall_dist) * 0.30;
             // END OF EDITABLE
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
@@ -509,17 +523,19 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       }
       // End of race case
       if (num_turn >= 12 && !dash_forward){
+        MiniR4.M2.setBrake(true);
         steering(0);
         MiniR4.M2.setPower(0);
         end_game = true;
         first_run = false;
         OC1_endtime = internalClock.read();
       } else {
-        MiniR4.M2.setPower(power);
+        MiniR4.M2.setPower(motor_power);
       }
       OC1_endtime = internalClock.read();
     } else {
       // Stop the car after the end of race
+      MiniR4.M2.setBrake(true);
       steering(0);
       MiniR4.M2.setPower(0);
       displayThread.enabled = true;
