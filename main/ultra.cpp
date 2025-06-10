@@ -35,7 +35,7 @@ int getUltra1Dist(){
 
   duration = pulseIn(ultra1.echo, HIGH);
   return (duration * 0.343) / 2;
-  delay(20);
+  delay(10);
 }
 
 int getUltra2Dist(){
@@ -48,7 +48,7 @@ int getUltra2Dist(){
 
   duration = pulseIn(ultra2.echo, HIGH);
   return (duration * 0.343) / 2;
-  delay(20);
+  delay(10);
 }
 
 /**
