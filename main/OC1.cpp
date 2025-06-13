@@ -409,7 +409,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           }
         } else {
           if (ultra2Dist > dist_threshold && !dash_forward){
-            imu_threshold = 20;
+            imu_threshold = 15;
             anticlockwise = false;
             wait_turn = true;
           } else {
@@ -496,8 +496,13 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
         } else {
           // Keep the car in a safe distance with the inner wall using PID with values from the active ultrasonic sensor
           // EDITABLE: If the car is too close/far from the inner wall, edit the value of innerWall_dist in the following two lines
-          if (num_turn == 1) innerWall_dist = 110;
-          else innerWall_dist = 90;
+          if (anticlockwise){
+            if (num_turn == 1) innerWall_dist = 110;
+            else innerWall_dist = 90;
+          } else {
+            if (num_turn == 1) innerWall_dist = 150;
+            else innerWall_dist = 130;
+          }
 
           // END OF EDITABLE
           if (anticlockwise){
