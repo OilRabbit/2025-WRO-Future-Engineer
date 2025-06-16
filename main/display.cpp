@@ -14,5 +14,5 @@ void displayData(){
   // showNearestColour(RIGHT, 1, 1, false);
   showSteering(RIGHT, 3, 1, false);
   showOC1Time(MID, 0, 1, false);
-  // showColorType(RIGHT, 1, 1, false);
+  showColorType(RIGHT, 1, 1, false);
 }
