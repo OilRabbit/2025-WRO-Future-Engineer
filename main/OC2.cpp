@@ -663,7 +663,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
   static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
   static int color_number = getColorType();
-  static int power2 = -80;
+  static int power2 = -70;
 
   MiniR4.M2.setBrake(true);
 
@@ -735,7 +735,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 state = WAIT_TURN_STATE;
-                turn_waittime = 50;
+                turn_waittime = 10;
                 turn_waittimeZero = internalClock.read();
               }
             } else if (ultra2Dist > dist_threshold){
@@ -865,8 +865,6 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             else {
               tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
               num_turn++;
-              // power2 = 0;
-              // MiniR4.M2.setPower(power2);
               state = TURNING_STATE;
             }
             break;
@@ -884,7 +882,6 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             } else if (nearestPillarGlobal.area > 10 && nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos >= min_xpos_Gcase(nearestPillarGlobal.area)) {
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
               pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
-              gyro_ang_detect_phase = getIMU();
               curve_phase1_gyro_chkpt = 10;
               blk_while_turning = true;
               state = CURVE_P1_STATE;
@@ -896,8 +893,6 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             else{
               steering_percentage = 0;
               state = DASH_AFTER_TURNING_STATE;
-              // power2 = 0;
-              // MiniR4.M2.setPower(power2);
               dash_time = 500;
               dash_timeZero = internalClock.read();
               break;
@@ -918,10 +913,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200; // For Pt C, D, E
                 state = CURVE_P1_STATE;
                 break;
-              } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos >= min_xpos_Gcase(nearestPillarGlobal.area)){
+              } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                 pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
-                gyro_ang_detect_phase = getIMU();
                 if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 40; // For Pt A
                 else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 40; // For Pt B
                 else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 45 / 200; // For Pt C, D, E
@@ -1063,12 +1057,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                   state = CURVE_P2_5_STATE;
                   curve_sphase3_chk_t = pillar_front.area * 10;
                   Serial.println(curve_sphase3_chk_t);
-                  gyro_ang_detect_phase = getIMU();
                   pillar_avoid_save_t = internalClock.read();
-                  power2 = 0;
-                  MiniR4.M2.setPower(power2);
-                  Serial.println(gyro_ang_detect_phase);
-                  break;
                 } else if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30){ // For Pt A
                   curve_phase2_chk_t = 150 * (mirror(pillar_front.xpos) - 50) / 300;
                   state = CURVE_P2_STATE;
@@ -1104,10 +1093,6 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           case CURVE_P2_5_STATE:
             Serial.println("CURVE_P2_5_STATE");
             if (internalClock.read() - pillar_avoid_save_t <= curve_sphase3_chk_t){
-              // if (abs(tar_ang - gyro_ang_detect_phase) > 30 && (internalClock.read() - pillar_avoid_save_t) <= (curve_sphase3_chk_t / 4) ){
-              //   steering_percentage = 100;
-              //   Serial.println(steering_percentage);
-              // }
               steering_percentage = 0;
             } else {
               state = CURVE_P3_STATE;
@@ -1132,13 +1117,12 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               break;
             }
             Serial.println(steering_percentage);
-            Serial.println(abs(getIMU() - tar_ang));
             break;
 
           case CURVE_P4_STATE:
             Serial.println("CURVE_P4_STATE");
             if (internalClock.read() - pillar_avoid_save_t <= 20){
-              steering_percentage = (getIMU() - tar_ang) * 5;
+              steering_percentage = (getIMU() - tar_ang) * 8;
             } else {
               state = CHECK_MID_RACINGLN_STATE;
               break;
@@ -1178,7 +1162,7 @@ void OC2main(){
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
   // OpenChallengeLaserFilter(LaserMode, LaserElements, 90, 2500, -100);
   // OC2Huskylens(84, 1000, -70);
-  OC2HuskylensNColor(84, 1000, -80);
+  OC2HuskylensNColor(84, 1000, -70);
 }
 
 void showOC2Time(COLUMN column, int line_number, int size, bool clearDisplay){
@@ -1207,3 +1191,4 @@ void showOC2Time(COLUMN column, int line_number, int size, bool clearDisplay){
     display.oledDisplayRightln(line_number, size, curr_time_text, clearDisplay);
   }
 }
+
