@@ -5,7 +5,7 @@
 #include <MatrixMiniR4.h>
 #include "oled.h"
 
-#define MAX_STEERING_ANGLE 14
+#define MAX_STEERING_ANGLE 16
 
 extern float steering_percentage; 
 
