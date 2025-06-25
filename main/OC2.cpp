@@ -330,7 +330,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
             else{
               steering_percentage = 0;
               state = DASH_AFTER_TURNING_STATE;
-              dash_time = 500;
+              dash_time = 600;
               dash_timeZero = internalClock.read();
               break;
             }
@@ -492,7 +492,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
               } else {
                 if (blk_while_turning) {
                   state = CURVE_P2_5_STATE;
-                  curve_sphase3_chk_t = pillar_front.area * 10;
+                  curve_sphase3_chk_t = pillar_front.area * 15;
                   Serial.println(curve_sphase3_chk_t);
                   pillar_avoid_save_t = internalClock.read();
                 } else if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30){ // For Pt A
@@ -501,7 +501,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
                 } else if (pillar_front.area >= 30){ // For Pt B
                   curve_phase2_chk_t = 120 * (mirror(pillar_front.xpos) - 50) / 300;
                   state = CURVE_P2_STATE;
-                } else if (pillar_front.area > 13){ // For Pt C, D
+                } else if (pillar_front.area > 10){ // 13 // For Pt C, D
                 curve_phase2_chk_t = 20 * (mirror(pillar_front.xpos) - 50) / 300;
                   gyro_ang_detect_phase = getIMU();
                   state = CURVE_P2_STATE;
@@ -558,7 +558,7 @@ void OC2Huskylens(double right_ang, int dist_threshold, int power){
 
           case CURVE_P4_STATE:
             Serial.println("CURVE_P4_STATE");
-            if (internalClock.read() - pillar_avoid_save_t <= 20){
+            if (internalClock.read() - pillar_avoid_save_t <= 1000){
               steering_percentage = (getIMU() - tar_ang) * 8;
             } else {
               state = CHECK_MID_RACINGLN_STATE;
@@ -1124,7 +1124,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
           case CURVE_P4_STATE:
             Serial.println("CURVE_P4_STATE");
-            if (internalClock.read() - pillar_avoid_save_t <= 20){
+            if (internalClock.read() - pillar_avoid_save_t <= 1000){
               steering_percentage = (getIMU() - tar_ang) * 8;
             } else {
               state = CHECK_MID_RACINGLN_STATE;
