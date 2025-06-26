@@ -466,7 +466,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           if (num_turn >= 12) dash_time = (start_sector_endtime - start_sector_starttime) / 2;
           // EDITABLE: If the dash time after turning is too short/long, edit the value of dash_time in the following two lines
           else if (num_turn == 1) dash_time = 1200;
-          else dash_time = 50;
+          else dash_time = 150;
           // END OF EDITABLE
 
           if (num_turn >= 12 && last_turn_cali) {

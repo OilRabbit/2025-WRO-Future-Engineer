@@ -18,7 +18,7 @@
 
 #define CAM_MID_XPOS 152
 #define CAM_LOWEST_YPOS 220
-#define MID_RACINGLN_POS 400
+#define MID_RACINGLN_POS 430
 
 struct POINT {
   float x;
