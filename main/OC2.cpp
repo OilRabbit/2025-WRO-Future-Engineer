@@ -641,7 +641,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   const int area_dangerzone = 40;             // A variable representing the area of a pillar which is identified as danger when its area is larger than this value
   // END OF EDITABLE
   // EDITABLE: Edit this if the car is turning too sharp/mild during CURVE_P1_STATE
-  const float steering_amp_fact1 = 200;       // An amplification factor for calculating the steering percentage during CURVE_P1_STATE
+  const float steering_amp_fact1 = 150;       // An amplification factor for calculating the steering percentage during CURVE_P1_STATE
   // END OF EDITABLE
   // EDITABLE: Edit this if the car is turning too sharp/mild during CURVE_P3_STATE
   const float steering_amp_fact2 = 2;         // An amplification factor for calculating the steering percentage during CURVE_P3_STATE
@@ -730,10 +730,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               anticlockwise = true;
               Ultra2Thread.enabled = false;
               // power2 = -40;
-              // break;
-              if(color_number == 2 || color_number == 4){
-                MiniR4.M2.setPower(50);
-              }
+              // break
               if (nearestPillarGlobal.colour != NO_COLOUR){
                 if (nearestPillarGlobal.area >= 20){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -742,7 +739,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 state = WAIT_TURN_STATE;
-                turn_waittime = 80;
+                if (ultra1Dist > dist_threshold) turn_waittime = 80;
+                else turn_waittime = 0;
                 turn_waittimeZero = internalClock.read();
               }
             } else if (ultra2Dist > dist_threshold){
@@ -784,9 +782,6 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           } else {
             if (anticlockwise){
               if (ultra1Dist > dist_threshold || color_number == 2 || color_number == 4){
-                if(color_number == 2 || color_number == 4){
-                  MiniR4.M2.setPower(50);
-                }
                 if (nearestPillarGlobal.colour != NO_COLOUR){
                   if (nearestPillarGlobal.area >= 20){
                     pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -795,7 +790,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                   }
                 } else {
                   state = WAIT_TURN_STATE;
-                  turn_waittime = 80;
+                  if (ultra1Dist > dist_threshold) turn_waittime = 80;
+                  else turn_waittime = 0;
                   turn_waittimeZero = internalClock.read();
                 }
               } else if (nearestPillarGlobal.colour == RED){
@@ -1050,10 +1046,10 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 } else if (pillar_front.xpos > 230 && pillar_front.area < 30){ // For Pt A
                   curve_phase2_chk_t = 200 * (pillar_front.xpos - 50) / 300;
                   state = CURVE_P2_STATE;
-                } else if (pillar_front.area >= 30){ // For Pt B
+                } else if (pillar_front.area >= 16){ // For Pt B
                   curve_phase2_chk_t = 150 * (pillar_front.xpos - 50) / 300;
                   state = CURVE_P2_STATE;
-                } else if (pillar_front.area > 13){ // For Pt C, D
+                } else if (pillar_front.area > 10){ // For Pt C, D
                   curve_phase2_chk_t = 50 * (pillar_front.xpos - 50) / 300;
                   state = CURVE_P2_STATE;
                 } else { // For Pt E
