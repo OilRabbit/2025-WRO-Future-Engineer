@@ -1,4 +1,3 @@
-#include "MatrixMiniR4.h"
 #include "imu.h"
 
 Kalman kalmanZ;
@@ -65,7 +64,10 @@ double unwrapAngle(double current_angle){
  * @return double; The angle in gyro
  */
 double getIMU(){
-  return unwrapAngle(MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw)) * -1;
+  int16_t roll = 0, pitch = 0, yaw = 0;
+  mmL.GetIMUEuler(roll, pitch, yaw);
+  return unwrapAngle(yaw) * -1;
+  // return unwrapAngle(MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw)) * -1;
 }
 
 void resetIMU(){
