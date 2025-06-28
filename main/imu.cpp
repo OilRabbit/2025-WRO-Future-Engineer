@@ -29,9 +29,14 @@ void imuInit(){
   zeroValue[3] = sum / (double)samples;
 }
 
-void resetIMU(){
-  MiniR4.Motion.resetIMUValues();
+double unwrap_previous_angle = 0;
+double unwrap_accum_angle = 0;
+
+void resetUnwrap(){
+  unwrap_previous_angle = MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw);
+  unwrap_accum_angle = 0;
 }
+
 
 /**
  * @brief Convert angle in compass to angle in gyro (i.e. will not reset to 180 when < -180)
@@ -40,22 +45,18 @@ void resetIMU(){
  * @return double; The angle in gyro
  */
 double unwrapAngle(double current_angle){
-  static double previous_angle = 0;
-  static double accum_angle = 0;
+  double delta = current_angle - unwrap_previous_angle;
 
-  double delta = current_angle - previous_angle;
-
-  // Handle the angle wrap-around from -180 to 180
   if (delta > 180) {
     delta -= 360;
   } else if (delta < -180) {
     delta += 360;
   }
 
-  accum_angle += delta;
-  previous_angle = current_angle;
+  unwrap_accum_angle += delta;
+  unwrap_previous_angle = current_angle;
 
-  return accum_angle;
+  return unwrap_accum_angle;
 }
 
 /**
@@ -66,6 +67,13 @@ double unwrapAngle(double current_angle){
 double getIMU(){
   return unwrapAngle(MiniR4.Motion.getEuler(MiniR4Motion::AxisType::Yaw)) * -1;
 }
+
+void resetIMU(){
+  MiniR4.Motion.resetIMUValues();
+  delay(100); // optional: allow IMU to stabilize
+  resetUnwrap(); // <-- Reset software angle tracker
+}
+
 
 /**
  * @brief (UNUSED) Get the IMU z-axis rotation angle with the use of Kalman filter
