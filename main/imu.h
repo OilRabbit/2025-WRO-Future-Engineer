@@ -14,10 +14,14 @@ typedef enum{
 }IMU_METHOD;
 
 void imuInit();
+void resetUnwrap();
 void resetIMU();
 double unwrapAngle(double current_angle);
 double getIMU();
 double getIMUKalman();
 void showIMU(IMU_METHOD method, COLUMN column, int line_number, int size, bool clearDisplay);
+
+extern double unwrap_previous_angle;
+extern double unwrap_accum_angle;
 
 #endif

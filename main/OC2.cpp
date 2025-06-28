@@ -665,8 +665,17 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
   static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
   // static int color_number = getColorType();
-  static int power2 = -80;
+  static int power2 = power;
   static int change_state_time = 0;
+  static double prev_inner_dist = 0;
+  static double cur_inner_dist = 0;
+  static double drift_ang = 0;
+  static double steering_for_drift = 0;
+  static double detect_drifting_t = 0;
+  static double drift_tuning_t = 0;
+  static int num_reset_imu = 0;
+  static double reset_imu_t = 0;
+  static bool initial_drift_detect = true;
 
   MiniR4.M2.setBrake(true);
 
@@ -718,13 +727,126 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
       steering_percentage = (steering_percentage > 100) ? 100 : steering_percentage;
       steering_percentage = (steering_percentage < -100) ? -100 : steering_percentage;
       steering(steering_percentage);
-      MiniR4.M2.setPower(power);
+      MiniR4.M2.setPower(power2);
 
       // The Finte State Machine for OC2 which is well organized
       switch (state) {
+        case DETECT_DRIFTING_STATE:
+          Serial.println("DETECT_DRIFTING_STATE");
+          power2 = -25;
+          if ((internalClock.read() - detect_drifting_t) < 2000){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
+            if (initial_drift_detect) steering_percentage = (anticlockwise) ? -15 : 15;
+            else steering_percentage = 0;
+            // steering(0);
+            if (anticlockwise) cur_inner_dist = ultra1Dist;
+            else cur_inner_dist = ultra2Dist;
+          } else {
+            initial_drift_detect = false;
+            if (abs(cur_inner_dist - prev_inner_dist) < 5) {
+              steering_percentage = 0;
+              power2 = 0;
+              state = RESET_IMU_STATE;
+              reset_imu_t = internalClock.read();
+              break;
+            } else {
+              Serial.println(cur_inner_dist - prev_inner_dist);
+              if (cur_inner_dist > prev_inner_dist) drift_ang = -asin((cur_inner_dist - prev_inner_dist) / 50) * 180 / PI;
+              else drift_ang = asin((prev_inner_dist - cur_inner_dist) / 50) * 180 / PI;
+              steering_percentage = drift_ang * 100 * 6.5 / 180;
+              if (steering_percentage < 6.5 && steering_percentage > -6.5) steering_percentage = 14;
+              Serial.println(steering_percentage);
+              // steering_percentage = steering_for_drift;
+              drift_tuning_t = internalClock.read();
+              state = DRIFTING_TUNING_STATE;
+              break;
+            }
+          }
+          break;
+        
+        case DRIFTING_TUNING_STATE:
+          Serial.println("DRIFTING_TUNING_STATE");
+          power2 = 25;
+          if ((internalClock.read() - drift_tuning_t) < 2000){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
+            steering(steering_percentage);
+          } else {
+            state = DETECT_DRIFTING_STATE;
+            detect_drifting_t = internalClock.read();
+            prev_inner_dist = ultra1Dist;
+            break;
+          }
+          break;
+
+        case RESET_IMU_STATE:
+          if ((internalClock.read() - reset_imu_t) < 1000){
+            MiniR4.Motion.resetIMUValues();
+            resetIMU();
+            tar_ang = 0;
+            steering_percentage = 0;
+            initial_drift_detect = true;
+            power2 = 0;
+            break;
+          } else {
+            num_reset_imu++;
+            state = BW_AFTER_RESET_IMU_STATE;
+            // state = DETECT_STATE;
+            break;
+          }
+          break;
+        
+        case BW_AFTER_RESET_IMU_STATE:
+          // steering_percentage = 0;
+          if (anticlockwise) {
+            if (ultra1Dist < dist_threshold){
+              power2 = 50;
+              break;
+            } else {
+              state = FW_AFTER_RESET_IMU_STATE;
+              break;
+            }
+          } else {
+            if (ultra2Dist < dist_threshold){
+              power2 = 50;
+              break;
+            } else {
+              state = FW_AFTER_RESET_IMU_STATE;
+              break;
+            }
+          }
+          break;
+
+        case FW_AFTER_RESET_IMU_STATE:
+          // steering_percentage = 0;
+          if (anticlockwise) {
+            if (ultra1Dist > dist_threshold){
+              steering(steering_percentage);
+              power2 = -20;
+              break;
+            } else {
+              power2 = power;
+              steering_percentage = 0;
+              tar_ang = 0;
+              state = DETECT_STATE;
+              break;
+            }
+          } else {
+            if (ultra2Dist > dist_threshold){
+              steering(steering_percentage);
+              power2 = -20;
+              break;
+            } else {
+              power2 = power;
+              steering_percentage = 0;
+              tar_ang = 0;
+              state = DETECT_STATE;
+              break;
+            }
+          }
+          break;
+
         // As the name implies, this state do the detections using ultrasonic sensors and huskylens when driving on a straight sector.
         case DETECT_STATE:
-        Serial.println("DETECT_STATE");
+          Serial.println("DETECT_STATE");
+          power2 = power;
           // Before doing any turning, both ultrasonic sensors are locked
           if (num_turn == 0) {
             if (ultra1Dist > dist_threshold ){ // || color_number == 2 || color_number == 4
@@ -895,14 +1017,17 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               blk_while_turning = true;
               state = CURVE_P1_STATE;
               break;
-            } else if ((abs(tar_ang - getIMU()) > 15) && (abs(tar_ang) > abs(getIMU()))){
+            } else if ((abs(tar_ang - getIMU()) > 20) && (abs(tar_ang) > abs(getIMU()))){
               steering_percentage = (tar_ang > 0) ? -100 : 100;
               dash_timeZero = internalClock.read();
             }
             else{
               steering_percentage = 0;
               state = DASH_AFTER_TURNING_STATE;
-              dash_time = 1000;
+              if (num_turn % 4 != 0 && num_turn < 12) {
+                dash_time = 1000;
+                steering_percentage = (anticlockwise) ? -100 : -100;
+              } else dash_time = 500;
               dash_timeZero = internalClock.read();
               break;
             }
@@ -936,15 +1061,29 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
                   steering_percentage = (getIMU() - tar_ang) * 8; // TODO: Verify whether a minus sign is needed
                   MiniR4.M2.setPower(power2);
-                } else {
+                } else 
+                // if (num_reset_imu < num_turn / 4) {
+                //   initial_drift_detect = true;
+                //     state = DETECT_DRIFTING_STATE;
+                //     detect_drifting_t = internalClock.read();
+                //     prev_inner_dist = ultra1Dist;
+                //     break;
+                // } else { 
                   state = CHECK_FRONT_BLK_STATE;
                   break;
-                }
+                // }
               } else {
                 if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
                   steering_percentage = (getIMU() - tar_ang) * 5; // TODO: Verify whether a minus sign is needed
                   MiniR4.M2.setPower(power);
                 } else {
+                  // if (num_reset_imu < num_turn / 4){
+                  //   initial_drift_detect = true;
+                  //   state = DETECT_DRIFTING_STATE;
+                  //   detect_drifting_t = internalClock.read();
+                  //   prev_inner_dist = ultra1Dist;
+                  //   break;
+                  // } else 
                   state = CHECK_FRONT_BLK_STATE;
                   break;
                 }
@@ -1141,9 +1280,17 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             if (internalClock.read() - pillar_avoid_save_t <= 1000){
               steering_percentage = (getIMU() - tar_ang) * 8;
             } else {
-              state = CHECK_MID_RACINGLN_STATE;
-              change_state_time = internalClock.read();
-              break;
+              // if (num_reset_imu < num_turn / 4){
+              //   initial_drift_detect = true;
+              //   state = DETECT_DRIFTING_STATE;
+              //   detect_drifting_t = internalClock.read();
+              //   prev_inner_dist = ultra1Dist;
+              //   break;
+              // } else {
+                state = CHECK_MID_RACINGLN_STATE;
+                change_state_time = internalClock.read();
+                break;
+              // }
             }
             break;
 
@@ -1161,6 +1308,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               } else state = CHECK_FRONT_BLK_STATE;
             }
             break;
+
+          case PARKING_STATE:
+            end_game = true;
 
         }
     } else {
