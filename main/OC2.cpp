@@ -651,7 +651,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static float curve_phase2_chk_t = 300;      // A variable storing the time required for the car to move straight forward during CURVE_P2_STATE. Non-editable as it will be recalculated during the run
   static float curve_sphase3_chk_t = 300;     // A variable storing the time required for the car to move straight forward during CURVE_P2_5_STATE. Non-editable as it will be recalculated during the run
   static int curve_phase1_gyro_chkpt = 45;    // A variable storing the IMU value for the car to turn to during CURVE_P1_STATE. Non-editable as it will be recalculated during the run
-  static int mid_phase1_gyro_chkpt = 50;      // A variable storing the IMU value for the car to turn to during MID_P1_STATE. Non-editable as it will be recalculated during the run
+  static int mid_phase1_gyro_chkpt = 45;      // A variable storing the IMU value for the car to turn to during MID_P1_STATE. Non-editable as it will be recalculated during the run
   static float inner_wall_dist = 0;           // A variable storing the distance between the car and the inner wall (measured using ultrasonic sensor)
   static int mid_save_t = 0;                  // A variable storing the instant time for going back to mid racing line
   static float mid_phase2_chk_t = 0;          // A variable storing the time required for the car to move straight forward during MID_P2_STATE. Non-editable as it will be recalculated during the run
@@ -664,8 +664,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static long turn_waittimeZero = 0;          // Variable to store the instant time from the internal clock for waiting to turning
   static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
   static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
-  static int color_number = getColorType();
+  // static int color_number = getColorType();
   static int power2 = -80;
+  static int change_state_time = 0;
 
   MiniR4.M2.setBrake(true);
 
@@ -726,7 +727,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         Serial.println("DETECT_STATE");
           // Before doing any turning, both ultrasonic sensors are locked
           if (num_turn == 0) {
-            if (ultra1Dist > dist_threshold || color_number == 2 || color_number == 4){
+            if (ultra1Dist > dist_threshold ){ // || color_number == 2 || color_number == 4
               anticlockwise = true;
               Ultra2Thread.enabled = false;
               // power2 = -40;
@@ -739,7 +740,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 state = WAIT_TURN_STATE;
-                if (ultra1Dist > dist_threshold) turn_waittime = 80;
+                if (ultra1Dist > dist_threshold) turn_waittime = 50;
                 else turn_waittime = 0;
                 turn_waittimeZero = internalClock.read();
               }
@@ -754,7 +755,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 state = WAIT_TURN_STATE;
-                turn_waittime = 80;
+                turn_waittime = 50;
                 turn_waittimeZero = internalClock.read();
               }
             } else if (nearestPillarGlobal.colour == RED){
@@ -781,7 +782,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             }
           } else {
             if (anticlockwise){
-              if (ultra1Dist > dist_threshold || color_number == 2 || color_number == 4){
+              if (ultra1Dist > dist_threshold ){ //|| color_number == 2 || color_number == 4
                 if (nearestPillarGlobal.colour != NO_COLOUR){
                   if (nearestPillarGlobal.area >= 20){
                     pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -855,7 +856,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
           case TURNING_N_AVOIDING_STATE:
             Serial.println("TURNING_N_AVOIDING_STATE");
-            if (pillar_front.colour == RED) turn_waittime = pillar_front.area * 48.5;
+            if (pillar_front.colour == RED) turn_waittime = pillar_front.area * 50; // 48.5
             else turn_waittime = pillar_front.area * 3;
             state = WAIT_TURN_STATE;
             turn_waittimeZero = internalClock.read();
@@ -864,7 +865,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           case WAIT_TURN_STATE:
             Serial.println("WAIT_TURN_STATE");
             if ((internalClock.read() - turn_waittimeZero) < turn_waittime) {
-              MiniR4.M2.setPower(0);
+              // MiniR4.M2.setPower(0);
               steering_percentage = (getIMU() - tar_ang) * 10;
               break;
             }
@@ -890,7 +891,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
               gyro_ang_detect_phase = getIMU();
               Serial.println(gyro_ang_detect_phase);
-              curve_phase1_gyro_chkpt = 70;
+              curve_phase1_gyro_chkpt = 50; // 60; // 70;
               blk_while_turning = true;
               state = CURVE_P1_STATE;
               break;
@@ -953,12 +954,12 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           
           case CHECK_FRONT_BLK_STATE:
             Serial.println("CHECK_FRONT_BLK_STATE");
-            if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 2 && nearestPillarGlobal.xpos < min_xpos_Rcase(nearestPillarGlobal.area)){
+            if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area >= 4 && nearestPillarGlobal.xpos < min_xpos_Rcase(nearestPillarGlobal.area)){
               Serial.println("Hi?");
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
               pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
               state = ST_FW_WITH_BLK_STATE;
-            } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 2 && nearestPillarGlobal.xpos > min_xpos_Gcase(nearestPillarGlobal.area)) {
+            } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area >= 4 && nearestPillarGlobal.xpos > min_xpos_Gcase(nearestPillarGlobal.area)) {
               Serial.println("Hi2?");
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
               pillar_front = {nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
@@ -977,7 +978,11 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 inner_wall_dist = ultra1Dist - MID_RACINGLN_POS;
                 gyro_ang_detect_phase = getIMU();
                 state = MID_P1_STATE;
-              } else state = DETECT_STATE;
+              } 
+              else if (internalClock.read() - change_state_time > 50) {
+                state = DETECT_STATE;
+              }
+              
             } else {
               if (abs(ultra2Dist - MID_RACINGLN_POS) > 150 && ultra2Dist < dist_threshold){
                 inner_wall_dist = -(ultra2Dist - MID_RACINGLN_POS);
@@ -1015,7 +1020,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           
           case MID_P3_STATE:
             Serial.println("MID_P3_STATE");
-            if (abs(getIMU() - tar_ang) > 20){
+            if (abs(getIMU() - tar_ang) > 15){
               steering_percentage = -100 * sign(inner_wall_dist);
             } else {
               state = MID_DASH_STATE;
@@ -1137,6 +1142,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               steering_percentage = (getIMU() - tar_ang) * 8;
             } else {
               state = CHECK_MID_RACINGLN_STATE;
+              change_state_time = internalClock.read();
               break;
             }
             break;
@@ -1174,7 +1180,7 @@ void OC2main(){
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
   // OpenChallengeLaserFilter(LaserMode, LaserElements, 90, 2500, -100);
   // OC2Huskylens(84, 1000, -70);
-  OC2HuskylensNColor(84, 1000, -80);
+  OC2HuskylensNColor(87, 1100, -80);
 }
 
 void showOC2Time(COLUMN column, int line_number, int size, bool clearDisplay){
