@@ -15,6 +15,7 @@
 #include "OC1.h"
 #include <cmath>
 #include "huskylens.h"
+#include "led.h"
 
 #define CAM_MID_XPOS 152
 #define CAM_LOWEST_YPOS 220
@@ -41,6 +42,7 @@ typedef enum {
   WAIT_TURN_STATE,
   TURNING_STATE,
   DASH_AFTER_TURNING_STATE,
+  LAST_SECTOR_DASH,
   PARKING_STATE, // not yet written
   CHECK_FRONT_BLK_STATE,
   ST_FW_WITH_BLK_STATE,

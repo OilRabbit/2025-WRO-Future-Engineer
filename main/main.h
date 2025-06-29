@@ -21,6 +21,7 @@
 #include "huskylens.h"
 #include "imu.h"
 #include "ultra.h"
+#include "LED.h"
 // #include "color.h"
 
 extern ThreadController controller;
