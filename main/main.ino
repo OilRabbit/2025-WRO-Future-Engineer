@@ -27,7 +27,7 @@ void setup() {
   reset_steering();
   ultraInit(ultra1);
   ultraInit(ultra2);
-  // colorInit();
+  colorInit();
   // laserInit(I2CPORT1);
   // laserInit(I2CPORT2);
   huskylensInit();
@@ -59,9 +59,9 @@ void setup() {
   huskylensThread.setInterval(10);
   controller.add(&huskylensThread);
 
-  // colorThread.onRun(getColorTypeloop);
-  // colorThread.setInterval(10);
-  // controller.add(&colorThread);
+  colorThread.onRun(getColorTypeloop);
+  colorThread.setInterval(10);
+  controller.add(&colorThread);
 
   // Laser1Thread.onRun(getLaser1Distloop);
   // Laser1Thread.setInterval(0);

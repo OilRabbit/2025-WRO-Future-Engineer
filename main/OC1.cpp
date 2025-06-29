@@ -541,9 +541,9 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
       OC1_endtime = internalClock.read();
     } else {
       // Stop the car after the end of race
-      MiniR4.M2.setBrake(true);
       steering(0);
       MiniR4.M2.setPower(0);
+      MiniR4.M2.setBrake(true);
       displayThread.enabled = true;
       Ultra1Thread.enabled = true;
       Ultra2Thread.enabled = true;
