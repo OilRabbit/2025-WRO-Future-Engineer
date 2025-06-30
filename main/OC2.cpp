@@ -824,11 +824,22 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           break;
         
         case BW_AFTER_RESET_IMU_STATE:
-          steering_percentage = 0;
           if (abs(MiniR4.M2.getCounter()) < abs(encoder_counter) - 1) {
             if (last_sector_no_blk) steering_percentage = (anticlockwise) ? abs(encoder_counter) / 150 : -abs(encoder_counter) / 150;
             else steering_percentage = 0;
             power2 = 50;
+            break;
+          } else {
+            MiniR4.M2.resetCounter();
+            state = FW_AFTER_RESET_IMU_STATE;
+            break;
+          }
+          break;
+        
+        case FW_AFTER_RESET_IMU_STATE:
+          steering_percentage = 0;
+          if (abs(MiniR4.M2.getCounter()) < 200) {
+            power2 = -50;
             break;
           } else {
             state = DETECT_STATE;
