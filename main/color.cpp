@@ -9,9 +9,12 @@ int ColorNo;
  * @param port; (enum) LASERPORT; The port of the laser
  */
 void colorInit(){
-   MiniR4.I2C3.MXColor.begin();
-   MiniR4.I2C3.MXColor.setGamma(false);
-   MiniR4.I2C3.MXColor.setLight(true ,false ,200);
+  MiniR4.I2C1.MXColor.begin();
+  MiniR4.I2C3.MXColor.begin();
+  MiniR4.I2C1.MXColor.setGamma(false);
+  MiniR4.I2C3.MXColor.setGamma(false);
+  MiniR4.I2C1.MXColor.setLight(true ,false ,200);
+  MiniR4.I2C3.MXColor.setLight(true ,false ,200);
 }
 int getColorRGB(ColorType colour){
    return MiniR4.I2C3.MXColor.getColor(colour);
