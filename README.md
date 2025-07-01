@@ -4,11 +4,13 @@
 
 [About Our Team](#about-our-team)
 
-[Documentation]()
+[Documentation](documentation/WROFEReport.pdf)
 
 [Meeting Agenda & Minutes](https://docs.google.com/document/d/1UcRYFaWVR6Crpbr7qZHQyp-bxXoaFOH1-K7Gqp4DvTU/edit?usp=sharing)
 
-[Pictures and Practice Videos]()
+[Pictures and Practice Videos](picsNveds)
+
+[Practice Videos](picsNveds/videos_link.md)
 
 ## About Our Team
 
