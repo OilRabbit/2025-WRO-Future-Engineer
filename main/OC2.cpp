@@ -1607,6 +1607,18 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             Serial.println("CURVE_P4_STATE");
             // if (nearestPillarGlobal.area >= 40) pillar_avoid_save_t = internalClock.read();
             CP4_t = (num_turn % 4 == 0 && num_turn < 12) ? 1000 : (blk_while_turning) ? 500 : 500;
+            if (num_turn % 4 == 0 && num_turn < 12) CP4_t = 1000;
+            else if (blk_while_turning) CP4_t = 500;
+            else if (pillar_front.colour == RED) {
+              if (pillar_front.xpos > 230 && pillar_front.area < 30) CP4_t = 500; // For Pt A
+              else if (pillar_front.area >= 16) CP4_t = 200; // For Pt B
+              else if (pillar_front.area > 10) CP4_t = 500; // For Pt C, D
+              else CP4_t = 500; // For Pt E
+            } else {
+              if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) CP4_t = 500; // For Pt A
+              else if (pillar_front.area >= 30) CP4_t = 200; // For Pt B
+              else curve_phase1_gyro_chkpt = CP4_t = 500; // For Pt C, D, E
+            }
             if (internalClock.read() - pillar_avoid_save_t <= CP4_t * speed_amp_factor){
               steering_percentage = (getIMU() - tar_ang) * 10;
             } else {
