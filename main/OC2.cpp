@@ -846,7 +846,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case BW_AFTER_RESET_IMU_STATE:
           if (abs(MiniR4.M2.getCounter()) < abs(encoder_counter) - 250) {
             if (last_sector_no_blk) steering_percentage = (anticlockwise) ? abs(encoder_counter) / 150 : -abs(encoder_counter) / 150;
-            if (steering_percentage > 30 || steering_percentage < -30) steering_percentage = (anticlockwise) ? 30 : -30; 
+            if (steering_percentage > 20 || steering_percentage < -20) steering_percentage = (anticlockwise) ? 20 : -20; 
             else steering_percentage = 0;
             power2 = 50;
             break;
@@ -1167,14 +1167,20 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               } else{
                 steering_percentage = 0;
                 prev_state = TURNING_STATE;
-                state = LAST_SECTOR_DASH;
-                power2 = -30;
-                dash_time = (anticlockwise) ? u1_ind * 1.5 : u2_ind * 1.5;
-                // Serial.println(u1_ind);
-                // state = DEBUG_STATE;
-                // dash_time = 1200 * speed_amp_factor;
+                state = DASH_AFTER_TURNING_STATE;
+                dash_time = (anticlockwise) ? u1_ind * 1.5 * dash_amp_fact : u2_ind * 1.5 * dash_amp_fact;
                 dash_timeZero = internalClock.read();
                 break;
+                // steering_percentage = 0;
+                // prev_state = TURNING_STATE;
+                // state = LAST_SECTOR_DASH;
+                // power2 = -30;
+                // dash_time = (anticlockwise) ? u1_ind * 1.5 : u2_ind * 1.5;
+                // // Serial.println(u1_ind);
+                // // state = DEBUG_STATE;
+                // // dash_time = 1200 * speed_amp_factor;
+                // dash_timeZero = internalClock.read();
+                // break;
               }
             } else if (nearestPillarGlobal.area > 10 && nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)) {
               red_block_flash(anticlockwise);
