@@ -8,7 +8,7 @@ Thread Ultra1Thread = Thread();
 Thread Ultra2Thread = Thread();
 Thread huskylensThread = Thread();
 Thread colorThread = Thread();
-// Thread Laser1Thread = Thread();
+Thread Laser1Thread = Thread();
 // Thread Laser2Thread = Thread();
 
 // Controller to manage all threads
@@ -28,7 +28,7 @@ void setup() {
   ultraInit(ultra1);
   ultraInit(ultra2);
   colorInit();
-  // laserInit(I2CPORT1);
+  laserInit(I2CPORT1);
   // laserInit(I2CPORT2);
   huskylensInit();
   display.oledDisplayCenterln(1, 1, "Initializing IMU", true);
@@ -63,9 +63,9 @@ void setup() {
   colorThread.setInterval(10);
   controller.add(&colorThread);
 
-  // Laser1Thread.onRun(getLaser1Distloop);
-  // Laser1Thread.setInterval(0);
-  // controller.add(&Laser1Thread);
+  Laser1Thread.onRun(getLaser1Distloop);
+  Laser1Thread.setInterval(0);
+  controller.add(&Laser1Thread);
   // Laser2Thread.onRun(getLaser2Distloop);
   // Laser2Thread.setInterval(0);
   // controller.add(&Laser2Thread);

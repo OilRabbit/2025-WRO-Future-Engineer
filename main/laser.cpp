@@ -15,7 +15,7 @@ int LaserElements = 5;
  * @param port; (enum) LASERPORT; The port of the laser
  */
 void laserInit(LASERPORT port){
-  if (port == I2CPORT1) MiniR4.I2C4.MXLaser.begin();
+  if (port == I2CPORT1) MiniR4.I2C1.MXLaser.begin();
   else MiniR4.I2C2.MXLaser.begin();
 }
 
@@ -27,10 +27,10 @@ void laserInit(LASERPORT port){
  */
 int getLaserDist(LASERPORT port){
   if (port == I2CPORT1){
-    if (MiniR4.I2C4.MXLaser.getDistance() == 8191){
+    if (MiniR4.I2C1.MXLaser.getDistance() == 8191){
       return 8191;
     } else {
-      return MiniR4.I2C4.MXLaser.getDistance();
+      return MiniR4.I2C1.MXLaser.getDistance();
     }
   } else {
     if (MiniR4.I2C2.MXLaser.getDistance() == 8191){

@@ -713,6 +713,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static bool from_tNa_state = false;
   static int u1_ind = 0;
   static int u2_ind = 0;
+  static int curve_p3_outloop_time = 0;
 
   MiniR4.M2.setBrake(true);
 
@@ -1501,6 +1502,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 } else { // For Pt E
                   gyro_ang_detect_phase = getIMU();
                   state = CURVE_P3_STATE;
+                  curve_p3_outloop_time = internalClock.read();
                 }
                 pillar_avoid_save_t = internalClock.read();
                 break;
@@ -1530,6 +1532,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 } else { // For Pt E
                   gyro_ang_detect_phase = getIMU();
                   state = CURVE_P3_STATE;
+                  curve_p3_outloop_time = internalClock.read();
                 }
                 pillar_avoid_save_t = internalClock.read();
                 break;
@@ -1561,8 +1564,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           
           case CURVE_P3_STATE:
             Serial.println("CURVE_P3_STATE");
+            Serial.println(curve_p3_outloop_time);
             if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.colour > 10){
-              if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
+               if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
                 red_block_flash(anticlockwise);
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                 pillar_front = {RED, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
@@ -1584,7 +1588,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 break;
               }
             } else {
-              if (abs(getIMU() - tar_ang) > 20){
+              if (abs(getIMU() - tar_ang) > 20 || internalClock.read() - curve_p3_outloop_time < 1000){
                 if (pillar_front.colour == RED){
                   red_block_flash(anticlockwise);
                   if (blk_while_turning) steering_percentage = 100;
