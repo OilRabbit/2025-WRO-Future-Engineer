@@ -865,7 +865,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           power2 = -30;
           // Before doing any turning, both ultrasonic sensors are locked
           if (num_turn == 0) {
-            if (ultra1Dist > dist_threshold){ // || color_number == 2 || color_number == 4
+            if (ultra1Dist > dist_threshold || color_number == 2 || color_number == 4){
               anticlockwise = true;
               Ultra2Thread.enabled = false;
               // power2 = -40;
@@ -943,7 +943,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             }
           } else {
             if (anticlockwise){
-              if (ultra1Dist > dist_threshold){ //|| color_number == 2 || color_number == 4
+              if (ultra1Dist > dist_threshold || color_number == 2 || color_number == 4){
                 if (nearestPillarGlobal.colour != NO_COLOUR){
                   if (nearestPillarGlobal.area >= 13){
                     pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -1217,6 +1217,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
                 pillar_front = {RED, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
                 gyro_ang_detect_phase = getIMU();
+                Serial.println(gyro_ang_detect_phase);
                 if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // For Pt A, B
                 else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 170; // For Pt C, D, E
                 if (anticlockwise) MiniR4.LED.setColor(2, 0, 0, 0);
@@ -1479,7 +1480,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             if (pillar_front.colour == RED){
               red_block_flash(anticlockwise);
               if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt){
-                if (blk_while_turning) steering_percentage = -100;
+                if (blk_while_turning) steering_percentage = -100; 
                 else if (pillar_front.xpos > 230 || pillar_front.area < 13) steering_percentage = -(55 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (55 * area_dangerzone * pillar_front.xpos);
                 else steering_percentage = -(50 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (50 * area_dangerzone * pillar_front.xpos);
               } else {
