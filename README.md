@@ -2,7 +2,7 @@
 
 ## Links
 
-[About Our Team]()
+[About Our Team](#about-our-team)
 
 [Documentation]()
 
