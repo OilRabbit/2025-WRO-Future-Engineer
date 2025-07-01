@@ -19,7 +19,7 @@
 
 #define CAM_MID_XPOS 152
 #define CAM_LOWEST_YPOS 220
-#define MID_RACINGLN_POS 430
+#define MID_RACINGLN_POS 420
 #define PI 3.14159265
 
 struct POINT {
