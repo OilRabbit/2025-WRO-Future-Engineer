@@ -1022,7 +1022,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           Serial.println("DETECT_STATE");
           power2 = -30;
           if (anticlockwise){
-            if (ultra1Dist > dist_threshold && abs(MiniR4.M2.getCounter() > 2000) || (getColorType() == 2 || getColorType() == 4)){
+            if (ultra1Dist > dist_threshold && abs(MiniR4.M2.getCounter() > 1500) || (getColorType() == 2 || getColorType() == 4)){
               if (getColorType() == 2 || getColorType() == 4) colour_check = true;
               if (nearestPillarGlobal.colour != NO_COLOUR){
                 if (nearestPillarGlobal.area >= 13){
@@ -1080,7 +1080,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               steering_percentage = (getIMU() - tar_ang) * 10; // TODO: Verify whether a minus sign is needed
             }
           } else {
-            if (ultra2Dist > dist_threshold && abs(MiniR4.M2.getCounter() > 2000)){
+            if (ultra2Dist > dist_threshold && abs(MiniR4.M2.getCounter() > 1500) || (getColorType() == 2 || getColorType() == 4)){
+              if (getColorType() == 2 || getColorType() == 4) colour_check = true;
               if (nearestPillarGlobal.colour != NO_COLOUR){
                 if (nearestPillarGlobal.area >= 13){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -1101,7 +1102,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 break;
               }
             } else if (nearestPillarGlobal.colour == RED){
-              if (ultra2Dist < dist_threshold && u2_ind < ultra2Dist) u2_ind = ultra2Dist;;
+              if (ultra2Dist < dist_threshold && u2_ind < ultra2Dist) u2_ind = ultra2Dist;
               if (nearestPillarGlobal.area >= 13 && nearestPillarGlobal.xpos > min_xpos_Rcase(nearestPillarGlobal.area)){
                 red_block_flash(anticlockwise);
                 pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -1204,6 +1205,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 prev_state = WAIT_TURN_STATE;
                 state = TURNING_STATE;
                 power2 = power;
+                colour_check = false;
                 break;
               }
             }
@@ -1817,11 +1819,11 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 prev_inner_dist = ultra1Dist;
                 blk_while_turning = false;
                 break;
-              } else if (anticlockwise && ultra1Dist > dist_threshold) {
+              } else if (anticlockwise && ultra1Dist > dist_threshold || (getColorType() == 2 || getColorType() == 4)) {
                 prev_state = CURVE_P4_STATE;
                 state = DETECT_STATE;
                 break;
-              } else if (!anticlockwise && ultra2Dist > dist_threshold) {
+              } else if (!anticlockwise && (ultra2Dist > dist_threshold || (getColorType() == 2 || getColorType() == 4)) {
                 prev_state = CURVE_P4_STATE;
                 state = DETECT_STATE;
                 break;
