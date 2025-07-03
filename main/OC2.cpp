@@ -1820,10 +1820,16 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 blk_while_turning = false;
                 break;
               } else if (anticlockwise && ultra1Dist > dist_threshold || (getColorType() == 2 || getColorType() == 4)) {
+                if ((getColorType() == 2 || getColorType() == 4)) {
+                  colour_check = true;
+                }
                 prev_state = CURVE_P4_STATE;
                 state = DETECT_STATE;
                 break;
               } else if (!anticlockwise && (ultra2Dist > dist_threshold || (getColorType() == 2 || getColorType() == 4)) {
+                if ((getColorType() == 2 || getColorType() == 4)) {
+                  colour_check = true;
+                }
                 prev_state = CURVE_P4_STATE;
                 state = DETECT_STATE;
                 break;
