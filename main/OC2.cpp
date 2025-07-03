@@ -720,6 +720,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static int dash_amp_fact = 1;
   static bool parking_colourblk = false;
   static bool blk_after_turn = false;
+  static colour_check = true;
 
   MiniR4.M2.setBrake(true);
 
@@ -764,6 +765,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
       parking_colourblk = false;
       power2 = 0;
       blk_after_turn = 0;
+      colour_checked = false;
 
       OC2_starttime = internalClock.read();
       if (!first_run) resetIMU();
@@ -1020,7 +1022,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           Serial.println("DETECT_STATE");
           power2 = -30;
           if (anticlockwise){
-            if (ultra1Dist > dist_threshold && abs(MiniR4.M2.getCounter() > 2000)){
+            if (ultra1Dist > dist_threshold && abs(MiniR4.M2.getCounter() > 2000) || (getColorType() == 2 || getColorType() == 4)){
+              if (getColorType() == 2 || getColorType() == 4) colour_check = true;
               if (nearestPillarGlobal.colour != NO_COLOUR){
                 if (nearestPillarGlobal.area >= 13){
                   pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -1160,38 +1163,48 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               break;
             }
             else {
-              if (anticlockwise){
-                if (ultra1Dist < dist_threshold && (internalClock.read() - turn_waittimeZero) > turn_waittime * 0.3){
-                  prev_state = WAIT_TURN_STATE;
-                  if (from_tNa_state) state = CURVE_P1_STATE;
-                  else state = DETECT_STATE;
-                  from_tNa_state = false;
-                  break;
+              if (!colour_check){
+                if (anticlockwise){
+                  if (ultra1Dist < dist_threshold && (internalClock.read() - turn_waittimeZero) > turn_waittime * 0.3){
+                    prev_state = WAIT_TURN_STATE;
+                    if (from_tNa_state) state = CURVE_P1_STATE;
+                    else state = DETECT_STATE;
+                    from_tNa_state = false;
+                    break;
+                  } else {
+                    tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
+                    num_turn++;
+                    from_tNa_state = false;
+                    prev_state = WAIT_TURN_STATE;
+                    state = TURNING_STATE;
+                    power2 = power;
+                    break;
+                  }
                 } else {
-                  tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
-                  num_turn++;
-                  from_tNa_state = false;
-                  prev_state = WAIT_TURN_STATE;
-                  state = TURNING_STATE;
-                  power2 = power;
-                  break;
+                  if (ultra2Dist < dist_threshold && (internalClock.read() - turn_waittimeZero) > turn_waittime * 0.95){
+                    prev_state = WAIT_TURN_STATE;
+                    if (from_tNa_state) state = CURVE_P1_STATE;
+                    else state = DETECT_STATE;
+                    from_tNa_state = false;
+                    break;
+                  } else {
+                    tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
+                    num_turn++;
+                    from_tNa_state = false;
+                    prev_state = WAIT_TURN_STATE;
+                    state = TURNING_STATE;
+                    power2 = power;
+                    break;
+                  }
                 }
               } else {
-                if (ultra2Dist < dist_threshold && (internalClock.read() - turn_waittimeZero) > turn_waittime * 0.95){
-                  prev_state = WAIT_TURN_STATE;
-                  if (from_tNa_state) state = CURVE_P1_STATE;
-                  else state = DETECT_STATE;
-                  from_tNa_state = false;
-                  break;
-                } else {
-                  tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
-                  num_turn++;
-                  from_tNa_state = false;
-                  prev_state = WAIT_TURN_STATE;
-                  state = TURNING_STATE;
-                  power2 = power;
-                  break;
-                }
+                tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
+                num_turn++;
+                from_tNa_state = false;
+                prev_state = WAIT_TURN_STATE;
+                state = TURNING_STATE;
+                power2 = power;
+                break;
               }
             }
             break;
