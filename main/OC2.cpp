@@ -1430,7 +1430,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           case SP_TURNING_STATE:
             Serial.println("SP_TURNING_STATE");
             power2 = -30;
-            if (abs(MiniR4.M2.getCounter()) < 400) {
+            if (abs(MiniR4.M2.getCounter()) < 750) {
               power2 = -30;
             } else {
               steering_percentage = 0;
@@ -1468,26 +1468,13 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               power2 = power;
               // state = DEBUG_STATE;
               break;
-            } else if (anticlockwise) {
-              if ((abs(getIMU() - tar_ang) < 10) && (abs(tar_ang) < abs(getIMU()))) {
-                prev_state = SP2_TURNING_STATE;
-                state = DASH_AFTER_TURNING_STATE;
-                dash_time = u1_ind * 1.5 * dash_amp_fact;
-                bk_after_turn_t2 = internalClock.read();
-                break;
-              } else {
-                power2 = 50;
-              }
+            } else if ((anticlockwise && getIMU() - tar_ang < 10) || (!anticlockwise && tar_ang - getIMU() < 10)) {
+              prev_state = SP2_TURNING_STATE;
+              state = DASH_AFTER_TURNING_STATE;
+              dash_time = u1_ind * 1.5 * dash_amp_fact;
+              bk_after_turn_t2 = internalClock.read();
             } else {
-              if ((abs(tar_ang - getIMU()) < 10) && (abs(tar_ang) > abs(getIMU())))  {
-                prev_state = SP2_TURNING_STATE;
-                state = DASH_AFTER_TURNING_STATE;
-                dash_time = u2_ind * 1.5 * dash_amp_fact;
-                bk_after_turn_t2 = internalClock.read();
-                break;
-              } else {
-                power2 = 50;
-              }
+              power2 = 50;
             }
             break;
           
@@ -1521,6 +1508,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
           case DASH_AFTER_TURNING_STATE:
             Serial.println("DASH_AFTER_TURNING_STATE");
+            power2 = power;
             if (anticlockwise) MiniR4.LED.setColor(2, 255, 255, 255);
             else MiniR4.LED.setColor(1, 255, 255, 255);
             // if()
@@ -1864,14 +1852,14 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                   state = CURVE_P2_STATE;
                   break;
                 } else if (pillar_front.area > 10){ // For Pt C, D
-                  curve_phase2_chk_t = 120 * (pillar_front.xpos - 50) * speed_amp_factor / 300;
+                  curve_phase2_chk_t = 150 * (pillar_front.xpos - 50) * speed_amp_factor / 300;
                   prev_state = CURVE_P1_STATE;
                   state = CURVE_P2_STATE;
                   break;
                 } else { // For Pt E
                   gyro_ang_detect_phase = getIMU();
                   prev_state = CURVE_P1_STATE;
-                  curve_phase2_chk_t = 80 * (pillar_front.xpos - 50) * speed_amp_factor / 300;
+                  curve_phase2_chk_t = 120 * (pillar_front.xpos - 50) * speed_amp_factor / 300;
                   state = CURVE_P2_STATE;
                   break;
                 }
@@ -1903,13 +1891,13 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                   state = CURVE_P2_STATE;
                   break;
                 } else if (pillar_front.area > 14){ // For Pt C, D
-                  curve_phase2_chk_t = 140 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
+                  curve_phase2_chk_t = 150 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
                   gyro_ang_detect_phase = getIMU();
                   prev_state = CURVE_P1_STATE;
                   state = CURVE_P2_STATE;
                   break;
                 } else { // For Pt E
-                  curve_phase2_chk_t = 100 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
+                  curve_phase2_chk_t = 150 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
                   gyro_ang_detect_phase = getIMU();
                   prev_state = CURVE_P1_STATE;
                   state = CURVE_P3_STATE;
