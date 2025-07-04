@@ -45,7 +45,7 @@ void setup() {
   // controller.add(&OC1Thread);
 
   OC2Thread.onRun(OC2main);
-  OC2Thread.setInterval(15);
+  OC2Thread.setInterval(10);
   controller.add(&OC2Thread);
 
   Ultra1Thread.onRun(getultra1Distloop);
