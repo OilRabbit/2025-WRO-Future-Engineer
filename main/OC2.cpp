@@ -644,11 +644,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case CHECK_MID_RACINGLN_STATE:
           Serial.println("CHECK_MID_RACINGLN_STATE");
           MiniR4.M2.setPower(-60);
-          if (num_turn == 0){
-            prev_state = CHECK_MID_RACINGLN_STATE;
-            state = MOVE_FORWARD;
-            break;
-          } else if (anticlockwise){
+          if (anticlockwise){
             if (abs(ultra1Dist - MID_RACINGLN_POS) > 60 && ultra1Dist < dist_threshold && MiniR4.M2.getCounter() < 1500){
               inner_wall_dist = ultra1Dist - MID_RACINGLN_POS;
               gyro_ang_detect_phase = getIMU();
