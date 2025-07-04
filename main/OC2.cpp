@@ -1351,7 +1351,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 power2 = power;
                 // state = DEBUG_STATE;
                 break;
-              } else if ((abs(tar_ang - getIMU()) > 70) && (abs(tar_ang) > abs(getIMU()))){
+              } else if ((abs(tar_ang - getIMU()) > 80) && (abs(tar_ang) > abs(getIMU()))){
                 steering_percentage = (tar_ang > 0) ? -100 : 100;
                 dash_timeZero = internalClock.read();
               } else{
@@ -1399,7 +1399,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               state = CURVE_P1_STATE;
               // state = DEBUG_STATE;
               break;
-            } else if ((abs(tar_ang - getIMU()) > 70) && (abs(tar_ang) > abs(getIMU()))){
+            } else if ((abs(tar_ang - getIMU()) > 80) && (abs(tar_ang) > abs(getIMU()))){
               steering_percentage = (tar_ang > 0) ? -100 : 100;
               dash_timeZero = internalClock.read();
             } else{
@@ -1430,7 +1430,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           case SP_TURNING_STATE:
             Serial.println("SP_TURNING_STATE");
             power2 = -30;
-            if (abs(MiniR4.M2.getCounter()) < 750) {
+            if (abs(MiniR4.M2.getCounter()) < 1200) {
               power2 = -30;
             } else {
               steering_percentage = 0;
@@ -1455,7 +1455,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               state = CURVE_P1_STATE;
               power2 = power;
               break;
-            } else if (nearestPillarGlobal.area > 10 && nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area)) {
+            } else if (nearestPillarGlobal.area > 10 && nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos >= CAM_MID_XPOS - 30) {
               green_block_flash(anticlockwise);
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
               pillar_front = {GREEN, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
@@ -1620,6 +1620,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           
           case CHECK_FRONT_BLK_STATE:
             Serial.println("CHECK_FRONT_BLK_STATE");
+            power2 = power;
             if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area >= 7){
               // Serial.println("Hi?");
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -1963,7 +1964,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               // Serial.println(abs(getIMU() - tar_ang));
               if (pillar_front.colour == RED){
                 red_block_flash(anticlockwise);
-                if (getIMU() - tar_ang > 20){
+                if (getIMU() - tar_ang > 30){
                   if (blk_while_turning) steering_percentage = 100;
                   else steering_percentage = (abs(tar_ang - getIMU()) + 30) * steering_amp_fact2; // (abs(getIMU()) + 25) * steering_amp_fact2;
                 } else {
@@ -1974,7 +1975,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 }
               } else {
                 green_block_flash(anticlockwise);
-                if (tar_ang - getIMU() > 20){
+                if (tar_ang - getIMU() > 30){
                   if (blk_while_turning) steering_percentage = -100;
                   else steering_percentage = -(abs(tar_ang - getIMU()) + 30) * steering_amp_fact2;
                 } else {
@@ -1997,9 +1998,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             else if (pillar_front.colour == RED) {
               if (pillar_front.xpos > 230 && pillar_front.area < 30) CP4_t = 600; // For Pt A
               else if (pillar_front.area >= 16) CP4_t = 300; // For Pt B
-              else if (pillar_front.area > 10) CP4_t = 600; // For Pt C, D
+              else if (pillar_front.area >= 10) CP4_t = 800; // For Pt C, D
               else CP4_t = 500; // For Pt E
-            } else {
+            } else if (pillar_front.colour == GREEN) {
               if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) CP4_t = 500; // For Pt A
               else if (pillar_front.area >= 30) CP4_t = 200; // For Pt B
               else curve_phase1_gyro_chkpt = CP4_t = 500; // For Pt C, D, E
@@ -2046,6 +2047,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
           case ST_FW_WITH_BLK_STATE:
             Serial.println("ST_FW_WITH_BLK_STATE");
+            power2 = -30;
             if (anticlockwise){
               if (ultra1Dist < dist_threshold){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
                 steering_percentage = (getIMU() - tar_ang) * 10;
@@ -2061,7 +2063,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 break;
               } else{
                 prev_state = ST_FW_WITH_BLK_STATE;
-                state = CHECK_FRONT_BLK_STATE;
+                state = DETECT_STATE;
               }
             }
             break;
