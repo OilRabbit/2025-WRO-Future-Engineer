@@ -122,7 +122,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static float curve_phase2_chk_t = 300;      // A variable storing the time required for the car to move straight forward during CURVE_P2_STATE. Non-editable as it will be recalculated during the run
   static float curve_sphase3_chk_t = 300;     // A variable storing the time required for the car to move straight forward during CURVE_P2_5_STATE. Non-editable as it will be recalculated during the run
   static int curve_phase1_gyro_chkpt = 45;    // A variable storing the IMU value for the car to turn to during CURVE_P1_STATE. Non-editable as it will be recalculated during the run
-  static int mid_phase1_gyro_chkpt = 40;      // A variable storing the IMU value for the car to turn to during MID_P1_STATE. Non-editable as it will be recalculated during the run
+  static int mid_phase1_gyro_chkpt = 52;      // A variable storing the IMU value for the car to turn to during MID_P1_STATE. Non-editable as it will be recalculated during the run
   static float inner_wall_dist = 0;           // A variable storing the distance between the car and the inner wall (measured using ultrasonic sensor)
   static int mid_save_t = 0;                  // A variable storing the instant time for going back to mid racing line
   static float mid_phase2_chk_t = 0;          // A variable storing the time required for the car to move straight forward during MID_P2_STATE. Non-editable as it will be recalculated during the run
@@ -240,7 +240,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
         case TESTING_2:
           Serial.println("TESTING_2");
-          if (MiniR4.M2.getCounter() - motor_last_counter < 300){ // 1000 degree = 254mm
+          if (MiniR4.M2.getCounter() - motor_last_counter < 700){ // 1000 degree = 254mm
             MiniR4.M2.setPower(-50);
           }
           else{
@@ -411,7 +411,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case MID_P3_STATE:
           Serial.println("MID_P3_STATE");
           MiniR4.M2.setPower(-40);
-          if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 15){
+          if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 18){
             if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
               red_block_flash(anticlockwise);
               pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
@@ -473,32 +473,32 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 curve_sphase3_chk_t = pillar_front.area * 2 * speed_amp_factor;
                 Serial.println("RED blk_while_turning");
                 pillar_avoid_save_t = internalClock.read();
-                break;
+                //break;
               } else if (pillar_front.xpos > 230 && pillar_front.area < 30){ // For Pt A
-                curve_phase2_chk_t = 500; //200 * (pillar_front.xpos - 20) * speed_amp_factor / 100;
+                curve_phase2_chk_t = 200 * (pillar_front.xpos - 20) * speed_amp_factor / 200; //500;
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("RED Pt A");
-                break;
+                //break;
               } else if (pillar_front.area >= 16){ // For Pt B
-                curve_phase2_chk_t = 100 * (pillar_front.xpos - 50) * speed_amp_factor / 100; // 80*
+                curve_phase2_chk_t = 200 * (pillar_front.xpos - 50) * speed_amp_factor / 200; // 80*
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("RED Pt B");
-                break;
+                //break;
               } else if (pillar_front.area > 10){ // For Pt C, D
-                curve_phase2_chk_t = 50 * (pillar_front.xpos - 50) * speed_amp_factor / 100; // 20*, 350
+                curve_phase2_chk_t = 50 * (pillar_front.xpos - 50) * speed_amp_factor / 200; // 20*, 350
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("RED Pt C, D");
-                break;
+                //break;
               } else { // For Pt E
                 gyro_ang_detect_phase = getIMU();
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P3_STATE;
                 curve_phase2_chk_t = 200;
                 Serial.println("RED Pt E");
-                break;
+                //break;
               }
               pillar_avoid_save_t = internalClock.read();
               motor_last_counter = MiniR4.M2.getCounter();
@@ -506,7 +506,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             }
           } else {
             green_block_flash(anticlockwise);
-            if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt + 2){
+            if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt - 10){
               if (blk_while_turning) steering_percentage = 100;
               if (mirror(pillar_front.xpos) > 230) steering_percentage = (55 - abs(getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (60 * area_dangerzone * mirror(pillar_front.xpos)); // || pillar_front.area < 13
               else steering_percentage = (50 - abs(getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 340 / (50 * area_dangerzone * mirror(pillar_front.xpos)); //320
@@ -517,37 +517,37 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 curve_sphase3_chk_t = pillar_front.area * 10 * speed_amp_factor;
                 pillar_avoid_save_t = internalClock.read();
                 Serial.println("GREEN blk_while_turning");
-                break;
+                //break;
               } else if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30){ // For Pt A
                 curve_phase2_chk_t = 150 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("GREEN Pt A");
-                break;
+                //break;
               } else if (pillar_front.area >= 30 && pillar_front.xpos < 285){ // For Pt B
                 curve_phase2_chk_t = 120 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("GREEN Pt B");
-                break;
+                //break;
               } else if (pillar_front.area > 13){ // For Pt C, D
-                curve_phase2_chk_t = 150 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300; // 5*
+                curve_phase2_chk_t = 30 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300; // 5*
                 gyro_ang_detect_phase = getIMU();
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("GREEN Pt C, D");
-                break;
+                //break;
               } else { // For Pt E
                 curve_phase2_chk_t = 100 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
                 gyro_ang_detect_phase = getIMU();
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("GREEN Pt E");
-                break;
+                //break;
               }
               pillar_avoid_save_t = internalClock.read();
               motor_last_counter = MiniR4.M2.getCounter();
-              break;
+              //break;
             }
             break;
           }
@@ -557,7 +557,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case CURVE_P2_STATE:
           Serial.println("CURVE_P2_STATE");
           MiniR4.M2.setPower(-50);
-          if (internalClock.read() - pillar_avoid_save_t <= curve_phase2_chk_t + 300 || abs(MiniR4.M2.getCounter() - motor_last_counter) < 500){ // - 20 // curve_phase2_chk_t
+          if (internalClock.read() - pillar_avoid_save_t <= curve_phase2_chk_t + 20 || abs(MiniR4.M2.getCounter() - motor_last_counter) < 500){ // - 20 // curve_phase2_chk_t
             steering_percentage = 0;
             Serial.print(internalClock.read() - pillar_avoid_save_t);
             Serial.print(" ");
@@ -714,8 +714,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             prev_state = TURNING_P1;
           }
           if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 857){ // || getIMU() < tar_ang - 45 //anticlockwise
-            steering_percentage = 100;
             MiniR4.M2.setPower(-50);
+            if (anticlockwise) steering_percentage = 100;
+            else steering_percentage = -100;
           }
           else {
             motor_last_counter = MiniR4.M2.getCounter();
@@ -727,8 +728,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case TURNING_P2:
           Serial.println("TURNING_P2");
           if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 857){
-            steering_percentage = -100;
             MiniR4.M2.setPower(50);
+            if (anticlockwise) steering_percentage = -100;
+            else steering_percentage = 100;
           }
           else {
             tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
@@ -756,8 +758,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case TURNING_P2_5:
           Serial.println("TURNING_P2_5");
           if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 1714){
-            steering_percentage = -100;
             MiniR4.M2.setPower(50);
+            if (anticlockwise) steering_percentage = -100;
+            else steering_percentage = 100;
           }
           else {
             tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
