@@ -249,8 +249,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             break;
           }
           else {
-            if (MiniR4.M2.getCounter() - motor_last_counter < 700){ // 1000 degree = 254mm
-            MiniR4.M2.setPower(-50);
+            if (MiniR4.M2.getCounter() - motor_last_counter < 500){ // 1000 degree = 254mm
+            MiniR4.M2.setPower(-60);
             }
             else{
               prev_state = TESTING_2;
@@ -352,7 +352,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           else {
             Serial.println("Left");
           }
-          MiniR4.M2.setPower(-50);
+          MiniR4.M2.setPower(-60);
           if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 15){
             if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area) && getUltra2Dist() < dist_threshold){
               red_block_flash(anticlockwise);
@@ -385,7 +385,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               // }
             } else {
               // Serial.println(inner_wall_dist);
-              mid_phase2_chk_t = abs(inner_wall_dist) * 2 * speed_amp_factor;
+              mid_phase2_chk_t = abs(inner_wall_dist) * 2.1 * speed_amp_factor;
               Serial.println(mid_phase2_chk_t);
               mid_save_t = internalClock.read();
               prev_state = MID_P1_STATE;
@@ -436,7 +436,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
       
         case MID_P3_STATE:
           Serial.println("MID_P3_STATE");
-          MiniR4.M2.setPower(-50);
+          MiniR4.M2.setPower(-60);
           if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 18){
             if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
               red_block_flash(anticlockwise);
@@ -488,12 +488,12 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
         case CURVE_P1_STATE:
           Serial.println("CURVE_P1_STATE ");
-          MiniR4.M2.setPower(-50);
+          MiniR4.M2.setPower(-60);
           if (pillar_front.colour == RED){
             red_block_flash(anticlockwise);
-            if (abs(getIMU() - gyro_ang_detect_phase) + 5 < curve_phase1_gyro_chkpt){
+            if (abs(getIMU() - gyro_ang_detect_phase) + 10 < curve_phase1_gyro_chkpt){
               if (blk_while_turning) steering_percentage = -100; 
-              else if (pillar_front.xpos > 230 || pillar_front.area < 13) steering_percentage = -(68 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (55 * area_dangerzone * pillar_front.xpos);
+              else if (pillar_front.xpos > 230 || pillar_front.area < 13) steering_percentage = -(55 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (55 * area_dangerzone * pillar_front.xpos);
               else steering_percentage = -(60 - (getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (50 * area_dangerzone * pillar_front.xpos);
               Serial.print(steering_percentage);
               Serial.print(" ");
@@ -518,7 +518,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 Serial.println("RED Pt B");
                 //break;
               } else if (pillar_front.area > 10){ // For Pt C, D
-                curve_phase2_chk_t = 20 * (pillar_front.xpos - 50) * speed_amp_factor / 200; // 20*, 50*
+                curve_phase2_chk_t = 20 * (pillar_front.xpos - 50) * speed_amp_factor / 300; // 20*, 50*
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("RED Pt C, D");
@@ -537,10 +537,12 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             }
           } else {
             green_block_flash(anticlockwise);
-            if (abs(getIMU() - gyro_ang_detect_phase) < curve_phase1_gyro_chkpt - 10){
+            if (abs(getIMU() - gyro_ang_detect_phase) + 20 < curve_phase1_gyro_chkpt){
               if (blk_while_turning) steering_percentage = 100;
               if (mirror(pillar_front.xpos) > 230) steering_percentage = (50 - abs(getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (60 * area_dangerzone * mirror(pillar_front.xpos)); // || pillar_front.area < 13
               else steering_percentage = (50 - abs(getIMU() - gyro_ang_detect_phase)) * pillar_front.area * steering_amp_fact1 * 320 / (50 * area_dangerzone * mirror(pillar_front.xpos)); //320
+              Serial.print(steering_percentage);
+              Serial.println(" ");
             } else {
               if (blk_while_turning) {
                 prev_state = CURVE_P1_STATE;
@@ -562,7 +564,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 Serial.println("GREEN Pt B");
                 //break;
               } else if (pillar_front.area > 13){ // For Pt C, D
-                curve_phase2_chk_t = 50 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300; // 30*
+                curve_phase2_chk_t = 20 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 250; // 30*
                 gyro_ang_detect_phase = getIMU();
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
@@ -615,7 +617,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
         case CURVE_P3_STATE:
           Serial.println("CURVE_P3_STATE");
-          MiniR4.M2.setPower(-50);
+          MiniR4.M2.setPower(-60);
           // if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.colour > 10){
           //    if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
           //     red_block_flash(anticlockwise);
@@ -675,7 +677,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
         case CURVE_P4_STATE:
           Serial.println("CURVE_P4_STATE");
-          MiniR4.M2.setPower(-50);
+          MiniR4.M2.setPower(-60);
           // if (nearestPillarGlobal.area >= 40) pillar_avoid_save_t = internalClock.read();
           CP4_t = (num_turn % 4 == 0 && num_turn < 12) ? 1000 : (blk_while_turning) ? 800 : 500;
           if (num_turn % 4 == 0 && num_turn < 12) CP4_t = 1000;
@@ -753,7 +755,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case CHECK_MID_TWICE:
           Serial.println("CHECK_MID_TWICE");
           if (MiniR4.M2.getCounter() - motor_last_counter < 400){ // 1000 degree = 254mm
-            MiniR4.M2.setPower(-50);
+            MiniR4.M2.setPower(-60);
           }
           else{
             prev_state = CHECK_MID_TWICE;
