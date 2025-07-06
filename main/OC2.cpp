@@ -130,7 +130,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
   static double tar_ang = 0;                  // The target angle which the car should be facing
   static long dash_timeZero = 0;              // Variable to store the instant time from the internal clock for dashing
   static long dash_time = 0;                  // The time required for the car to run before using the ultrasonic sensors for detection again after turning
-  static bool anticlockwise = true;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
+  static bool anticlockwise = false;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
   static int num_turn = 0;                    // Variable storing the number of turns the car has made
   static long turn_waittimeZero = 0;          // Variable to store the instant time from the internal clock for waiting to turning
   static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
@@ -193,7 +193,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
       tar_ang = 0;
       dash_timeZero = 0;
       dash_time = 0;
-      anticlockwise = true;
+      anticlockwise = false;
       num_turn = 0;
       turn_waittimeZero = 0;
       turn_waittime = 150;
@@ -299,7 +299,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               }
             }
             else if (front_wall_dist < 450 && nearestPillarGlobal.colour == NO_COLOUR){ // no colour at front
-              if (front_wall_dist != 8191 && front_wall_dist > 1){ // && abs(MiniR4.M2.getCounter() - motor_last_counter) >= 3000
+              if (front_wall_dist != 8191 && front_wall_dist > 1 && abs(MiniR4.M2.getCounter()) >= 3000){ // 
                 Serial.print(MiniR4.M2.getCounter() - motor_last_counter);
                 Serial.print(" ");
                 Serial.println(front_wall_dist);
@@ -693,13 +693,13 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               break;
             }
           } else {
-            if (abs(ultra2Dist - MID_RACINGLN_POS) > 60 && ultra2Dist < dist_threshold && front_wall_dist > 2000){ // && MiniR4.M2.getCounter() < 1000
-              inner_wall_dist = -(ultra2Dist - MID_RACINGLN_POS);
+            if (abs(MID_RACINGLN_POS - ultra1Dist) > 60 && front_wall_dist > 2000){ // abs(ultra2Dist - MID_RACINGLN_POS) > 60 && ultra2Dist < dist_threshold
+              inner_wall_dist = -(ultra2Dist - MID_RACINGLN_POS); 
               gyro_ang_detect_phase = getIMU();
               prev_state = CHECK_MID_RACINGLN_STATE;
               state = MID_P1_STATE;
               break;
-            }  else if (internalClock.read() - change_state_time > 100 * speed_amp_factor) {
+            } else if (internalClock.read() - change_state_time > 100 * speed_amp_factor) {
               prev_state = CHECK_MID_RACINGLN_STATE;
               state = MOVE_FORWARD;
               break;
@@ -715,8 +715,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           }
           if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 850){ // || getIMU() < tar_ang - 45 //anticlockwise
             MiniR4.M2.setPower(-50);
-            if (anticlockwise) steering_percentage = 100;
-            else steering_percentage = -100;
+            // if (anticlockwise) steering_percentage = 100;
+            // else steering_percentage = -100;
+            steering_percentage = (anticlockwise) ? 100 : -100;
           }
           else {
             motor_last_counter = MiniR4.M2.getCounter();
@@ -729,8 +730,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           Serial.println("TURNING_P2");
           if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 850){
             MiniR4.M2.setPower(50);
-            if (anticlockwise) steering_percentage = -100;
-            else steering_percentage = 100;
+            // if (anticlockwise) steering_percentage = -100;
+            // else steering_percentage = 100;
+            steering_percentage = (anticlockwise) ? -100 : 100;
           }
           else {
             tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
@@ -759,8 +761,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           Serial.println("TURNING_P2_5");
           if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 1700){
             MiniR4.M2.setPower(50);
-            if (anticlockwise) steering_percentage = -100;
-            else steering_percentage = 100;
+            // if (anticlockwise) steering_percentage = -100;
+            // else steering_percentage = 100;
+            steering_percentage = (anticlockwise) ? -100 : 100;
           }
           else {
             tar_ang += (anticlockwise == true) ? -right_ang : right_ang; // 88.58
@@ -784,7 +787,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             }
             else {
               state = MOVE_FORWARD;
-              motor_last_counter = MiniR4.M2.getCounter();
+              MiniR4.M2.resetCounter();
             }
           }
           else if (side_wall_dist < 450){
@@ -794,12 +797,12 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
             }
             else {
               state = MOVE_FORWARD;
-              motor_last_counter = MiniR4.M2.getCounter();
+              MiniR4.M2.resetCounter();
             }
           }
           else {
               state = MOVE_FORWARD;
-              motor_last_counter = MiniR4.M2.getCounter();
+              MiniR4.M2.resetCounter();
             }
           break;
 
