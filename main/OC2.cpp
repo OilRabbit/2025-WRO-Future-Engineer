@@ -446,6 +446,11 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
 
         case TESTING_2:
           Serial.println("TESTING_2");
+          if (num_turn >= 12){
+            state = MOVE_FORWARD;
+            prev_state = TESTING_2;
+            break;
+          }
           if (num_turn % 4 == 0){
             prev_state = TESTING_2;
             state = MID_P1_STATE;
@@ -492,8 +497,11 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           Serial.print(" Laser1: ");
           Serial.println(front_wall_dist);
           MiniR4.M2.setPower(-60);
-          if (num_turn >= 12){
+          if (num_turn >= 12 && abs(MiniR4.M2.getCounter()) > 2000){
             state = STOP;
+            break;
+          } else if (num_turn >= 12 && prev_state == TESTING_2) {
+            steering_percentage = 0;
             break;
           }
           else {
@@ -851,7 +859,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 //break;
               } else { // For Pt E
                 // curve_phase2_chk_t = 350 * (mirror(pillar_front.xpos) - 0) * speed_amp_factor / 300;
-                curve_phase2_chk_t = 300 * 2.8;
+                curve_phase2_chk_t = 300 * 2.5;
                 gyro_ang_detect_phase = getIMU();
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
