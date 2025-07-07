@@ -669,8 +669,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               pillar_front = {RED, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
               gyro_ang_detect_phase = getIMU();
               // if (abs(getIMU() - tar_ang) > 10){
-                if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 15; // For Pt A, B
-                else curve_phase1_gyro_chkpt = pillar_front.xpos * 15 / 600; // For Pt C, D, E
+                if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 35; // For Pt A, B
+                else curve_phase1_gyro_chkpt = pillar_front.xpos * 35 / 600; // For Pt C, D, E
               // } else {
               //   if (pillar_front.xpos > 230) curve_phase1_gyro_chkpt = 45; // For Pt A, B
               //   else curve_phase1_gyro_chkpt = pillar_front.xpos * 45 / 200; // For Pt C, D, E
@@ -685,9 +685,9 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               pillar_front = {GREEN, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
               gyro_ang_detect_phase = getIMU();
               // if (abs(getIMU() - tar_ang) > 10){
-                if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 15; // For Pt A
-                else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 15; // For Pt B
-                else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 15 / 600; // For Pt C, D, E
+                if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 35; // For Pt A
+                else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 35; // For Pt B
+                else curve_phase1_gyro_chkpt = mirror(pillar_front.xpos) * 35 / 600; // For Pt C, D, E
               // } else {
               //   if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30) curve_phase1_gyro_chkpt = 40; // For Pt A
               //   else if (pillar_front.area >= 30) curve_phase1_gyro_chkpt = 40; // For Pt B
