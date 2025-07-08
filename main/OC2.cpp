@@ -186,7 +186,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
       // state = DETECT_STATE;
       reset_OC2 = false;
       end_game = false;
-      gyro_ang_detect_phase = 0;
+      gyro_ang_detect_phase = 0; 
       pillar_avoid_save_t = 0;
       curve_phase2_chk_t = 300;
       curve_sphase3_chk_t = 300;
@@ -380,7 +380,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               } else {
                 MiniR4.M2.resetCounter();
                 prev_state = OUT_PARKING_P6_STATE;
-                Laser1Thread.enabled = true;
+                Laser1Thread.enabled = false;
                 Ultra1Thread.enabled = false;
                 Ultra2Thread.enabled = false;
                 huskylensThread.enabled = false;
@@ -389,7 +389,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               }
             }
           } else {
-            if (getIMU() > 35) steering_percentage = -100; // >0
+            if (getIMU() > 15) steering_percentage = -100; // >0
             else {
                 if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area > 13){
                   MiniR4.M2.resetCounter();
@@ -399,7 +399,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 } else {
                   MiniR4.M2.resetCounter();
                   prev_state = OUT_PARKING_P6_STATE;
-                  Laser1Thread.enabled = true;
+                  Laser1Thread.enabled = false;
                   Ultra1Thread.enabled = false;
                   Ultra2Thread.enabled = false;
                   huskylensThread.enabled = false;
@@ -419,6 +419,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           } else {
             power2 = -50;
             MiniR4.M2.resetCounter();
+            Laser1Thread.enabled = true;
             prev_state = OUT_PARKING_P7_STATE;
             state = MOVE_FORWARD;
             break;
@@ -490,13 +491,17 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
           Serial.print("MOVE_FORWARD tar_ang: ");
           if (anticlockwise) Ultra1Thread.enabled = true;
           else Ultra2Thread.enabled = true;
+          Laser1Thread.enabled = true;
           Serial.print(tar_ang);
           Serial.print(" IMU: ");
           Serial.print(getIMU());
           front_wall_dist = getLaser1DistMedian(7);
           Serial.print(" Laser1: ");
           Serial.println(front_wall_dist);
-          MiniR4.M2.setPower(-60);
+          if (ultra1Dist > dist_threshold || ultra2Dist > dist_threshold){
+            MiniR4.M2.setPower(-40);
+          } 
+          else MiniR4.M2.setPower(-50);
           if (num_turn >= 12 && abs(MiniR4.M2.getCounter()) > 2000){
             state = STOP;
             break;
@@ -550,7 +555,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               }
             }
             else if (front_wall_dist < 450 && nearestPillarGlobal.colour == NO_COLOUR){ // no colour at front
-              if (front_wall_dist != 8191 && front_wall_dist > 1 && abs(MiniR4.M2.getCounter()) >= 2500){ // 
+              if (front_wall_dist != 8191 && front_wall_dist > 1 ){ // && abs(MiniR4.M2.getCounter()) >= 1000
                 Serial.print(MiniR4.M2.getCounter() - motor_last_counter);
                 Serial.print(" ");
                 Serial.println(front_wall_dist);
@@ -838,7 +843,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
                 Serial.println("GREEN blk_while_turning");
                 //break;
               } else if (mirror(pillar_front.xpos) > 230 && pillar_front.area < 30){ // For Pt A
-                curve_phase2_chk_t = 900 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300;
+                curve_phase2_chk_t = 1200 * (mirror(pillar_front.xpos) - 50) * speed_amp_factor / 300; //900*
                 prev_state = CURVE_P1_STATE;
                 state = CURVE_P2_STATE;
                 Serial.println("GREEN Pt A");
@@ -1155,7 +1160,7 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
         case TURNING_P1_0:
           Serial.println("TURNING_P1_0");
           front_wall_dist = getLaser1DistMedian(7);
-          if (front_wall_dist < 300){
+          if (front_wall_dist < 200){
             MiniR4.M2.setPower(50);
           }
           else {
