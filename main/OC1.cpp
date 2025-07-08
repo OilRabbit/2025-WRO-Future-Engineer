@@ -100,8 +100,8 @@ void OpenChallengeLaser300(LASERMODE laserMode, int laserMaxElements, double rig
       } else {
         need_turn = false;
         if (dash_forward){
-          if (num_turn >= 12) dash_time = 1000;
-          else dash_time = 2500;
+          if (num_turn >= 12) dash_time = 900;
+          else dash_time = 2000; //2500;
           if ((internalClock.read() - dash_timeZero) < dash_time){
             steering_percentage = (getIMU() - tar_ang) * 6;
             steering(steering_percentage);
@@ -335,7 +335,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   static int num_turn = 0;                // Variable storing the number of turns the car has made
   static long turn_waittimeZero = 0;      // Variable to store the instant time from the internal clock for waiting to turning
   static int turn_waittime = 0;           // Variable storing the time in ms that required to wait before the car turn 
-  static int innerWall_dist = 110;        // The distance with the inner wall in mm that the car should keep
+  static int innerWall_dist = 120;        // The distance with the inner wall in mm that the car should keep
   static int start_sector_starttime = 0;  // Variable storing the instant time from the internal clock when the run starts 
   static int start_sector_endtime = 0;    // Variable storing the instant time from the internal clock when the run ends
   static bool reset_OC1 = false;          // A flag determining whether the all the variables should be reseted
@@ -498,18 +498,21 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           // Keep the car in a safe distance with the inner wall using PID with values from the active ultrasonic sensor
           // EDITABLE: If the car is too close/far from the inner wall, edit the value of innerWall_dist in the following two lines
           if (anticlockwise){
-            if (num_turn == 1) innerWall_dist = 110;
-            else innerWall_dist = 120;
+            if (num_turn == 1) innerWall_dist = 160;
+            else innerWall_dist = 160;
           } else {
             if (num_turn == 1) innerWall_dist = 140;
-            else innerWall_dist = 90;
+            else innerWall_dist = 120;
           }
 
           // END OF EDITABLE
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra1Dist < (innerWall_dist + 50)) steering_percentage = (ultra1Dist - innerWall_dist) * 0.65;
-            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
+            if (ultra1Dist < (innerWall_dist + 60)){
+              steering_percentage = (ultra1Dist - innerWall_dist) * 0.60; //0.65;
+              if (steering_percentage > 18) steering_percentage = 18;
+            } 
+            else if (num_turn == 0) steering_percentage = getIMU() * 2; //3; // (ultra1Dist - ultra2Dist) * 0.2;
             else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
             else steering_percentage = (ultra1Dist - innerWall_dist) * 0.5;
             // END OF EDITABLE
@@ -518,7 +521,7 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
             if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist - innerWall_dist) * 1.2;
-            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
+            else if (num_turn == 0) steering_percentage = getIMU() * 2; //3; // (ultra1Dist - ultra2Dist) * 0.2;
             else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.3;
             else steering_percentage = -(ultra2Dist - innerWall_dist) * 0.50;
             // END OF EDITABLE
