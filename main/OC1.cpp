@@ -513,10 +513,10 @@ void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
               if (steering_percentage > 18) steering_percentage = 18;
             } 
             else if (num_turn == 0) steering_percentage = getIMU() * 2; //3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.03;
             else steering_percentage = (ultra1Dist - innerWall_dist) * 0.5;
             // END OF EDITABLE
-            if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
+            if (steering_percentage > 20 && num_turn != 0) steering_percentage = 20;
             steering(steering_percentage);
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
