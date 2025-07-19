@@ -1,3 +1,3 @@
 #include "pixy2.h"
 
-PIXY2 pixy;
+Pixy2I2C pixy;
