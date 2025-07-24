@@ -28,4 +28,10 @@ typedef struct{
   int area;
 }COLOURED_OBJ;
 
+extern Pixy2I2C pixy;
+extern COLOURED_OBJ nearestBlockGlobal;
+
+void pixy2Init();
+
+
 #endif
