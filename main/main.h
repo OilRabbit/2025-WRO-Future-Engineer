@@ -22,6 +22,7 @@
 #include "imu.h"
 #include "ultra.h"
 #include "LED.h"
+#include "pixy2I2C.h"
 // #include "color.h"
 
 extern ThreadController controller;

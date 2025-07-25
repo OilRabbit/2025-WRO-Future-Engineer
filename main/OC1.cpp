@@ -293,7 +293,7 @@ long OC1_starttime = 0;
 long OC1_endtime = 0; 
 void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power){
   // Disable the huskylens thread to boost the efficiency of this thread
-  huskylensThread.enabled = false;
+  // huskylensThread.enabled = false;
 
   // A flag to for resetting the IMU before starting the run.
   // Resetting IMU takes a few seconds, which means if we do so when the run starts, we will lack behind for a few seconds

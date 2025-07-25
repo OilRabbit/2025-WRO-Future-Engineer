@@ -13,6 +13,7 @@
 #include "ultra.h"
 #include "color.h"
 #include "steering.h"
+#include "pixy2I2C.h"
 
 void displayData();
 
