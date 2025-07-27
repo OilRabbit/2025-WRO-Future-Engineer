@@ -29,17 +29,22 @@ void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDispl
   display.oledSetTextColour(WHITE);
 
   pixy.ccc.getBlocks();
-  if (!pixy.ccc.numBlocks) pixy2_textR = "No OBJ" ;
+  if (!pixy.ccc.numBlocks) {
+    pixy2_textR = "No OBJ";
+    Serial.print("No OBJ");
+  } 
   else {
+    pixy2_textR = "Detected";
     Serial.print("Detected");
     Serial.println(pixy.ccc.numBlocks);
     int i;
     for(i = 0; i<pixy.ccc.numBlocks; i++){
-      String block = (pixy.ccc.blocks[i].m_signature == RED) ? "R" : ((pixy.ccc.blocks[i].m_signature == GREEN) ? "G" : "M");
-      pixy2_textR = block + "x: " + String(pixy.ccc.blocks[i].m_x) + " h:" + String(pixy.ccc.blocks[i].m_height);
+      Serial.print("  block ");
+      Serial.print(i);
+      Serial.print(": ");
+      pixy.ccc.blocks[i].print();
     }
   }
-
   if (column == LEFT) display.oledDisplayLeftln(line_number, 1, pixy2_textR, clearDisplay);
   else if (column == MID) display.oledDisplayCenterln(line_number, 1, pixy2_textR, clearDisplay);
   else display.oledDisplayRightln(line_number, 1, pixy2_textR, clearDisplay);
