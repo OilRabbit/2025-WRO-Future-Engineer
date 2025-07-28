@@ -34,7 +34,9 @@ void setup() {
   // huskylensInit();
   display.oledDisplayCenterln(1, 1, "Initializing IMU", true);
   imuInit();
-  pixy2Init();
+  // pixy2Init();
+  display.oledDisplayCenterln(1, 1, "Initializing pixy2", true);
+  pixy.init();
   display.oledClear();
 
   // Follow this to create your own thread

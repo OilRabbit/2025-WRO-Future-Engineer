@@ -3,13 +3,13 @@
 Pixy2I2C pixy;
 COLOURED_OBJ nearestBlockGlobal;
 
-/**
- * @brief Initialize the pixy2
- * 
- */
-void pixy2Init() {
-  pixy.init();
-}
+// /**
+//  * @brief Initialize the pixy2
+//  * 
+//  */
+// void pixy2Init() {
+//   pixy.init();
+// }
 
 /**
  * @brief A testing function for colour block detection and data displacement for the pixy2
