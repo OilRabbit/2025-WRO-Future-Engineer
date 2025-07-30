@@ -3,15 +3,15 @@
 
 #include <Arduino.h>
 #include <MatrixMiniR4.h>
-#include <Pixy2I2C.h>
+#include <Pixy2.h>
 #include <Pixy2CCC.h>
-#include <TPixy2.h>
+// #include <TPixy2.h>
 #include <Wire.h>
 #include <movingAvg.h>
 #include "oled.h"
 #include "huskylens.h"
 
-extern Pixy2I2C pixy;
+extern Pixy2 pixy;
 extern COLOURED_OBJ nearestBlockGlobal;
 
 void pixy2Init();

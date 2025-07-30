@@ -1,6 +1,7 @@
+#define I2C
 #include "pixy2I2C.h"
 
-Pixy2I2C pixy;
+Pixy2 pixy;
 COLOURED_OBJ nearestBlockGlobal;
 
 // /**
