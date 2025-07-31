@@ -21,8 +21,8 @@
 //
 
 // Uncomment one of these to enable another type of serial interface
-#define I2C
-//#define UART
+// #define I2C
+#define UART
 //#define SPI_SS
    
 #ifdef I2C
