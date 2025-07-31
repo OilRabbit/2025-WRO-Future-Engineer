@@ -50,3 +50,14 @@ void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDispl
   else if (column == MID) display.oledDisplayCenterln(line_number, 1, pixy2_textR, clearDisplay);
   else display.oledDisplayRightln(line_number, 1, pixy2_textR, clearDisplay);
 }
+
+/**
+ * @brief Get the signature of the object from the Huskylens
+ * 
+ * @return int; the ID of the object
+ */
+int getHuskyResultID() {
+  huskylens.request();
+  HUSKYLENSResult result = huskylens.read();
+  return result.ID;
+}
