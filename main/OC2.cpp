@@ -796,8 +796,8 @@ void OC2HuskylensNColor(double right_ang, int dist_threshold, int power){
               break;
             } else {
               // Serial.println(cur_inner_dist - prev_inner_dist);
-              if (cur_inner_dist > prev_inner_dist) drift_ang = asin((cur_inner_dist - prev_inner_dist) / 25) * 180 / PI;
-              else drift_ang = -asin((prev_inner_dist - cur_inner_dist) / 25) * 180 / PI;
+              if (cur_inner_dist > prev_inner_dist) drift_ang = asin((cur_inner_dist - prev_inner_dist) / 25) * 180 / PI_OC2;
+              else drift_ang = -asin((prev_inner_dist - cur_inner_dist) / 25) * 180 / PI_OC2;
               steering_percentage = drift_ang * 100 * 5.0 / 180;
               if (steering_percentage < 6.5 && steering_percentage > -6.5) steering_percentage = 14;
               // Serial.println(steering_percentage);

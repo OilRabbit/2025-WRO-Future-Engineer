@@ -14,13 +14,13 @@
 #include "main.h"
 #include "OC1.h"
 #include <cmath>
-#include "huskylens.h"
+// #include "huskylens.h"
 #include "led.h"
 
 #define CAM_MID_XPOS 152
 #define CAM_LOWEST_YPOS 220
 #define MID_RACINGLN_POS 420
-#define PI 3.14159265
+#define PI_OC2 3.14159265
 
 struct POINT {
   float x;

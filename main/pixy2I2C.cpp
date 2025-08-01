@@ -1,4 +1,4 @@
-#define UART
+// #define UART
 #include "pixy2I2C.h"
 
 Pixy2UART pixy;
