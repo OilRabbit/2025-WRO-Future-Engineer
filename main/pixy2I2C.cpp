@@ -103,15 +103,19 @@ COLOURED_OBJ getPixy2NearestColour() {
       int signature = pixy.ccc.blocks[i].m_signature;
       if (pixy.ccc.blocks[i].m_height > largestHeight) {
         largestHeight = pixy.ccc.blocks[i].m_height;
-        nearest_pillar.width = pixy.ccc.blocks[i].m_width;
+        nearest_colour.width = pixy.ccc.blocks[i].m_width;
         nearest_colour.height = pixy.ccc.blocks[i].m_height;
-        nearest_pillar.area = nearest_pillar.width * nearest_pillar.height;
+        nearest_colour.area = nearest_colour.width * nearest_colour.height;
         nearest_colour.xpos = pixy.ccc.blocks[i].m_x;
         nearest_colour.colour = (pixy.ccc.blocks[i].m_signature == RED) ? RED : GREEN;
       }
     }
   }
   return nearest_colour;
+}
+
+void getPixy2NearestPillarGlobal(){
+  nearestPillarGlobal = getPixy2NearestColour();
 }
 
 /**
@@ -140,23 +144,23 @@ void showPixy2NearestColour(COLUMN column, int line_number, int size, bool clear
   display.oledSetTextColour(WHITE);
   COLOURED_OBJ nearest_colour = getNearestPillar();
   if (nearest_colour.colour == RED) {
-    huskylens_textR = "R: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.area);
-    huskylens_textG = "G: NA";
+    pixy2_textR = "R: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.area);
+    pixy2_textG = "G: NA";
   } else if (nearest_colour.colour == GREEN) {
-    huskylens_textG = "G: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.area);
-    huskylens_textR = "R: NA";
+    pixy2_textG = "G: " + String(nearest_colour.xpos) + ", " + String(nearest_colour.area);
+    pixy2_textR = "R: NA";
   } else {
-    huskylens_textR = "R: NA";
-    huskylens_textG = "G: NA";
+    pixy2_textR = "R: NA";
+    pixy2_textG = "G: NA";
   }
   if (column == LEFT) {
-    display.oledDisplayLeftln(line_number, 1, huskylens_textR, clearDisplay);
-    display.oledDisplayLeftln(line_number + 1, 1, huskylens_textG, clearDisplay);
+    display.oledDisplayLeftln(line_number, 1, pixy2_textR, clearDisplay);
+    display.oledDisplayLeftln(line_number + 1, 1, pixy2_textG, clearDisplay);
   } else if (column == MID) {
-    display.oledDisplayCenterln(line_number, 1, huskylens_textR, clearDisplay);
-    display.oledDisplayCenterln(line_number + 1, 1, huskylens_textG, clearDisplay);
+    display.oledDisplayCenterln(line_number, 1, pixy2_textR, clearDisplay);
+    display.oledDisplayCenterln(line_number + 1, 1, pixy2_textG, clearDisplay);
   } else {
-    display.oledDisplayRightln(line_number, 1, huskylens_textR, clearDisplay);
-    display.oledDisplayRightln(line_number + 1, 1, huskylens_textG, clearDisplay);
+    display.oledDisplayRightln(line_number, 1, pixy2_textR, clearDisplay);
+    display.oledDisplayRightln(line_number + 1, 1, pixy2_textG, clearDisplay);
   }
 }
