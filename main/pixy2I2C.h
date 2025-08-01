@@ -16,5 +16,8 @@ extern COLOURED_OBJ nearestBlockGlobal;
 
 void pixy2Init();
 void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDisplay);
+int getPixy2Signature();
+int getPixy2XPos(COLOUR_BLOCK colour);
+
 
 #endif
