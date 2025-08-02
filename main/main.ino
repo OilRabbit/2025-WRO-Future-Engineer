@@ -7,6 +7,7 @@ Thread OC1Thread = Thread();
 Thread OC2Thread = Thread();
 Thread Ultra1Thread = Thread();
 Thread Ultra2Thread = Thread();
+Thread pixy2Thread = Thread();
 // Thread huskylensThread = Thread();
 // Thread colorThread = Thread();
 // Thread Laser1Thread = Thread();
@@ -74,7 +75,9 @@ void setup() {
   // Laser2Thread.setInterval(0);
   // controller.add(&Laser2Thread);
 
-
+  pixy2Thread.onRun(getPixy2NearestPillarGlobal);
+  pixy2Thread.setInterval(10);
+  controller.add(&pixy2Thread);
 }
 
 void loop() {
