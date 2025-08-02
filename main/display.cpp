@@ -16,5 +16,5 @@ void displayData(){
   showOC1Time(MID, 0, 1, false);
   //showColorType(RIGHT, 3, 1, false);
   showLaser1Dist(RIGHT, 3, 1, false);
-  showPixy2NearestColour(RIGHT , 1, 1, false);
+  pixy2ColorRegTest(RIGHT , 1, 1, false);
 }

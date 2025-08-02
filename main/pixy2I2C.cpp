@@ -34,15 +34,16 @@ void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDispl
     Serial.println("No OBJ");
   } 
   else {
-    pixy2_textR = "Detected";
     Serial.println("Detected");
     Serial.println(pixy.ccc.numBlocks);
     int i;
     for(i = 0; i<pixy.ccc.numBlocks; i++){
-      Serial.print("  block ");
-      Serial.print(i);
-      Serial.print(": ");
-      pixy.ccc.blocks[i].print();
+      if (pixy.ccc.blocks[i].m_signature = RED){
+        pixy2_textR = "Red Detected";
+      }
+      if(pixy.ccc.blocks[i].m_signature = GREEN){
+        pixy2_textR = "Green";
+      }
     }
   }
   if (column == LEFT) display.oledDisplayLeftln(line_number, 1, pixy2_textR, clearDisplay);
