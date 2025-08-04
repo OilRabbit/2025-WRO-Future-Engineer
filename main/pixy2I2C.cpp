@@ -44,6 +44,7 @@ void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDispl
       if(pixy.ccc.blocks[i].m_signature = GREEN){
         pixy2_textR = "Green";
       }
+      Serial.println(pixy.ccc.blocks[0].m_signature);
     }
   }
   if (column == LEFT) display.oledDisplayLeftln(line_number, 1, pixy2_textR, clearDisplay);
