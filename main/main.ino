@@ -1,4 +1,5 @@
 #include "main.h"
+// #include <NewPing.h>
 #define I2C
 
 // Define your threads here
@@ -14,7 +15,15 @@
 // Thread Laser2Thread = Thread();
 
 // Controller to manage all threads
-ThreadController controller = ThreadController();
+// ThreadController controller = ThreadController();
+
+// #define SONAR_NUM 2      // Number of sensors.
+// #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm. 
+
+// NewPing sonar[SONAR_NUM] = {   // Sensor object array.
+//   NewPing(3, 2, MAX_DISTANCE), // Ultra 1 trigger pin, echo pin, and max distance to ping. 
+//   NewPing(5, 4, MAX_DISTANCE)  // Ultra 2 trigger pin, echo pin, and max distance to ping.
+// };
 
 void setup() {
   // Init
@@ -81,6 +90,7 @@ void setup() {
 }
 
 void loop() {
-  controller.run();
+  // controller.run();
   OC1main();
+  // ultra_testing();
 }

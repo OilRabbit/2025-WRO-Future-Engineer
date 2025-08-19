@@ -10,6 +10,7 @@
 #include "timestamp.h"
 #include <algorithm>
 #include "ultra.h"
+#include "ultra_newping.h"
 #include "main.h"
 
 int sign(float num);

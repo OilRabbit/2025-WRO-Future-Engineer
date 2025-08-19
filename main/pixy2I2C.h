@@ -10,6 +10,7 @@
 #include <movingAvg.h>
 #include "oled.h"
 #include "huskylens.h"
+#include "LED.h"
 
 extern Pixy2UART pixy;
 extern COLOURED_OBJ nearestBlockGlobal;

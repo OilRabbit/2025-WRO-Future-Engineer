@@ -621,10 +621,10 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
       // MiniR4.M2.setBrake(false);
       if (num_turn == 0){
         // Unlock one of the sensor after ensuring the direction of the race to boost sensitivity of the lock one
-        if (getUltra1Dist() > dist_threshold && !dash_forward){
+        if (ultra1Dist_cm() * 10 > dist_threshold && !dash_forward){
           anticlockwise = true;
           wait_turn = true;
-        } else if (getUltra2Dist() > dist_threshold && !dash_forward){
+        } else if (ultra2Dist_cm() * 10 > dist_threshold && !dash_forward){
           anticlockwise = false;
           wait_turn = true;
         } else {
@@ -633,7 +633,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
         }
       } else {
         if (anticlockwise){
-          if (getUltra1Dist() > dist_threshold && !dash_forward){
+          if (ultra1Dist_cm() * 10 > dist_threshold && !dash_forward){
             imu_threshold = 20;
             wait_turn = true;
           } else {
@@ -641,7 +641,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
             turn_waittimeZero = internalClock.read();
           }
         } else {
-          if (getUltra2Dist() > dist_threshold && !dash_forward){
+          if (ultra2Dist_cm() * 10 > dist_threshold && !dash_forward){
             imu_threshold = 10;
             anticlockwise = false;
             wait_turn = true;
@@ -732,25 +732,25 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
             else innerWall_dist = 120;
           } else {
             if (num_turn == 1) innerWall_dist = 140;
-            else innerWall_dist = 90;
+            else innerWall_dist = 110;
           }
 
           // END OF EDITABLE
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (getUltra1Dist() < (innerWall_dist + 50)) steering_percentage = (getUltra1Dist() - innerWall_dist) * 0.65;
+            if (ultra1Dist_cm() * 10 < (innerWall_dist + 50)) steering_percentage = (ultra1Dist_cm() * 10 - innerWall_dist) * 0.65;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = (getUltra1Dist() - innerWall_dist) * 0.08;
-            else steering_percentage = (getUltra1Dist()- innerWall_dist) * 0.5;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist_cm() * 10 - innerWall_dist) * 0.08;
+            else steering_percentage = (ultra1Dist_cm()* 10 - innerWall_dist) * 0.5;
             // END OF EDITABLE
             if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
             steering(steering_percentage);
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (getUltra2Dist() < innerWall_dist) steering_percentage = -(getUltra2Dist() - innerWall_dist) * 1.2;
+            if (ultra2Dist_cm() < innerWall_dist) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 1.2;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(getUltra2Dist() - innerWall_dist) * 0.3;
-            else steering_percentage = -(getUltra2Dist() - innerWall_dist) * 0.50;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 0.3;
+            else steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 0.50;
             // END OF EDITABLE
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
@@ -773,7 +773,8 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
       MiniR4.M2.setPower(0);
       MiniR4.M2.setBrake(true);
     }
-    Serial.println(getUltra2Dist());
+    Serial.print("ultra2: ");
+    Serial.println(ultra2Dist_cm());
   } 
 }
 /**
@@ -782,7 +783,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
  */
 void OC1main(){
   // OpenChallengeUltraFilter(84, 1000, -100);
-  OC1nothread(84, 1000, -100);
+  OC1nothread(84, 900, -100);
   // LaserMode = CISTERN_DIST;
   // LaserElements = 8;
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);

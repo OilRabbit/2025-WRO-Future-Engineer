@@ -28,8 +28,10 @@ void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDispl
   else display.oledDisplayRightln(line_number, 1, pixy2_textR, clearDisplay);
   display.oledSetTextColour(WHITE);
 
-  pixy.ccc.getBlocks();
-  if (!pixy.ccc.numBlocks) {
+  uint16_t blocks;
+  while(1){
+    blocks = pixy.ccc.getBlocks();
+  if (!blocks) {
     pixy2_textR = "No OBJ";
     Serial.println("No OBJ");
   } 
@@ -38,15 +40,20 @@ void pixy2ColorRegTest(COLUMN column, int line_number, int size, bool clearDispl
     Serial.println(pixy.ccc.numBlocks);
     int i;
     for(i = 0; i<pixy.ccc.numBlocks; i++){
-      if (pixy.ccc.blocks[i].m_signature = RED){
-        pixy2_textR = "Red Detected";
+      blocks;
+      pixy.ccc.blocks[i].print();
+      if (pixy.ccc.blocks[i].m_signature = 1){
+        led1_flashgreen();
       }
-      if(pixy.ccc.blocks[i].m_signature = GREEN){
-        pixy2_textR = "Green";
+      if (pixy.ccc.blocks[i].m_signature = 2){
+        led1_flashred();
       }
-      Serial.println(pixy.ccc.blocks[0].m_signature);
+      Serial.print("Signature:");
+      Serial.println(pixy.ccc.blocks[i].m_signature);
+      // Serial.println(pixy.ccc.blocks[0].m_signature);
     }
   }
+}
   if (column == LEFT) display.oledDisplayLeftln(line_number, 1, pixy2_textR, clearDisplay);
   else if (column == MID) display.oledDisplayCenterln(line_number, 1, pixy2_textR, clearDisplay);
   else display.oledDisplayRightln(line_number, 1, pixy2_textR, clearDisplay);

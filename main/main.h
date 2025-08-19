@@ -23,6 +23,7 @@
 #include "ultra.h"
 #include "LED.h"
 #include "pixy2I2C.h"
+#include "ultra_newping.h"
 // #include "color.h"
 
 extern ThreadController controller;
