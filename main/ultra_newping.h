@@ -9,12 +9,12 @@
 #include "oled.h"
 
 #define SONAR_NUM 2      // Number of sensors.
-#define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm. 
+#define MAX_DISTANCE 819 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm
 
 void ultra_testing();
 int ultra1Dist_cm();
 int ultra2Dist_cm();
-void ultra1_event_timer_sketch();
-void echoCheck();
+// void ultra1_event_timer_sketch();
+// void echoCheck();
 
 #endif

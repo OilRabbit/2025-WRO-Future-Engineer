@@ -15,7 +15,7 @@ void ultra_testing(){
 }
 
 int ultra1Dist_cm(){
-  delay(10);
+  delay(50);
   sonar[0].ping_cm();
 }
 
@@ -24,20 +24,20 @@ int ultra2Dist_cm(){
   sonar[1].ping_cm();
 }
 
-void ultra1_event_timer_sketch(){
-  unsigned int pingSpeed = 50;
-  unsigned long pingTimer;
-  pingTimer = millis();
-  if (millis() >= pingTimer){
-    pingTimer += pingSpeed;
-    sonar[0].ping_timer(echoCheck);
-  }
-}
+// void ultra1_event_timer_sketch(){
+//   unsigned int pingSpeed = 50;
+//   unsigned long pingTimer;
+//   pingTimer = millis();
+//   if (millis() >= pingTimer){
+//     pingTimer += pingSpeed;
+//     sonar[0].ping_timer(echoCheck);
+//   }
+// }
 
-void echoCheck(){
-  if (sonar[0].check_timer()) { // This is how you check to see if the ping was received.
-    // Here's where you can add code.
-    Serial.print("Ping: ");
-    Serial.print(sonar[0].ping_result / US_ROUNDTRIP_CM); // Ping returned, uS result in ping_result, convert to cm with US_ROUNDTRIP_CM.
-    Serial.println("cm");
-}
+// void echoCheck(){
+//   if (sonar[0].check_timer()) { // This is how you check to see if the ping was received.
+//     // Here's where you can add code.
+//     Serial.print("Ping: ");
+//     Serial.print(sonar[0].ping_result / US_ROUNDTRIP_CM); // Ping returned, uS result in ping_result, convert to cm with US_ROUNDTRIP_CM.
+//     Serial.println("cm");
+// }

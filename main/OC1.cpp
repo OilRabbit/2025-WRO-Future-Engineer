@@ -747,7 +747,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
             steering(steering_percentage);
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra2Dist_cm() < innerWall_dist) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 1.2;
+            if (ultra2Dist_cm() * 10  < innerWall_dist) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 1.2;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
             else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 0.3;
             else steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 0.50;
@@ -773,8 +773,9 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
       MiniR4.M2.setPower(0);
       MiniR4.M2.setBrake(true);
     }
-    Serial.print("ultra2: ");
-    Serial.println(ultra2Dist_cm());
+    Serial.print("ultra1: ");
+    Serial.println(ultra1Dist_cm());
+    Serial.println(steering_percentage);
   } 
 }
 /**
@@ -783,7 +784,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
  */
 void OC1main(){
   // OpenChallengeUltraFilter(84, 1000, -100);
-  OC1nothread(84, 900, -100);
+  OC1nothread(84, 900, -80);
   // LaserMode = CISTERN_DIST;
   // LaserElements = 8;
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);
