@@ -14,5 +14,7 @@
 void ultra_testing();
 int ultra1Dist_cm();
 int ultra2Dist_cm();
+void ultra1_event_timer_sketch();
+void echoCheck();
 
 #endif
