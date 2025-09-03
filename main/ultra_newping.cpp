@@ -14,16 +14,23 @@ void ultra_testing(){
     Serial.println("cm ");
 }
 
-int ultra1Dist_cm(){
-  delay(50);
+int getultra1Dist_cm(){
+  delay(30);
   sonar[0].ping_cm();
 }
 
-int ultra2Dist_cm(){
-  delay(10);
+int getultra2Dist_cm(){
+  delay(30);
   sonar[1].ping_cm();
 }
 
+void ultra1Dist_cmloop(){
+  ultra1Dist_cm = getultra1Dist_cm();
+}
+
+void ultra2Dist_cmloop(){
+  ultra2Dist_cm = getultra2Dist_cm();
+}
 // void ultra1_event_timer_sketch(){
 //   unsigned int pingSpeed = 50;
 //   unsigned long pingTimer;
@@ -31,6 +38,7 @@ int ultra2Dist_cm(){
 //   if (millis() >= pingTimer){
 //     pingTimer += pingSpeed;
 //     sonar[0].ping_timer(echoCheck);
+//     print(
 //   }
 // }
 

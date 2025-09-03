@@ -12,8 +12,10 @@
 #define MAX_DISTANCE 819 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm
 
 void ultra_testing();
-int ultra1Dist_cm();
-int ultra2Dist_cm();
+int getultra1Dist_cm();
+int getultra2Dist_cm();
+void ultra1Dist_cmloop();
+void ultra2Dist_cmloop();
 // void ultra1_event_timer_sketch();
 // void echoCheck();
 

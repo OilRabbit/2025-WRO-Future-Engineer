@@ -778,6 +778,253 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
     Serial.println(steering_percentage);
   } 
 }
+
+void OC1_NewPing(){
+  static bool first_run = true;
+
+  static bool start_game = false;
+
+  static bool prev_btn_state = false;
+  bool curr_btn_state = MiniR4.BTN_DOWN.getState();
+
+  if (curr_btn_state && !prev_btn_state){
+    start_game = !start_game;
+  }
+  prev_btn_state = curr_btn_state;
+
+  static bool prev_imu_btn_state = false;
+  bool curr_imu_btn_state = MiniR4.BTN_UP.getState();
+  
+  if (curr_imu_btn_state && !prev_imu_btn_state){
+    MiniR4.Motion.resetIMUValues();
+    resetIMU();
+  }
+  prev_imu_btn_state = curr_imu_btn_state;
+
+  static bool end_game = false;           // A flag determining whether the run has ended
+  static long dash_timeZero = 0;          // Variable to store the instant time from the internal clock for dashing
+  static long dash_time = 0;              // The time required for the car to run before using the ultrasonic sensors for detection again after turning
+  static double tar_ang = 0;              // The target angle which the car should be facing
+  static bool anticlockwise = false;      // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
+  static bool cal_tar_ang = false;        // A state-like boolean determining whether the car should calculate a new target angle or not
+  static bool need_turn = false;          // A state-like boolean determining whether the car should make a turning or not
+  static bool dash_forward = false;       // A state-like boolean determining whether the car should dash forward without doing any detection with the ultrasonic sensors or not
+  static bool wait_turn = false;          // A state-like boolean determining whether the car should wait for turning or not
+  static bool last_turn_cali = true;      // A state-like boolean determining whether the car should calibrate the distance to drive before stopping
+  static int num_turn = 0;                // Variable storing the number of turns the car has made
+  static long turn_waittimeZero = 0;      // Variable to store the instant time from the internal clock for waiting to turning
+  static int turn_waittime = 0;           // Variable storing the time in ms that required to wait before the car turn 
+  static int innerWall_dist = 110;        // The distance with the inner wall in mm that the car should keep
+  static int start_sector_starttime = 0;  // Variable storing the instant time from the internal clock when the run starts 
+  static int start_sector_endtime = 0;    // Variable storing the instant time from the internal clock when the run ends
+  static bool reset_OC1 = false;          // A flag determining whether the all the variables should be reseted
+  static int imu_threshold = 15;
+  int motor_power = power;
+
+  if (!start_game){ 
+    reset_OC1 = true;
+    steering(0);
+    MiniR4.M2.setPower(0);
+    displayThread.enabled = true;
+    Ultra1Thread.enabled = true;
+    Ultra2Thread.enabled = true;
+    OC1Thread.setInterval(10);
+    Ultra1Thread.setInterval(10);
+    Ultra2Thread.setInterval(10);
+  } else {
+    if (reset_OC1){
+      OC1Thread.setInterval(0);
+      Ultra1Thread.setInterval(0);
+      Ultra2Thread.setInterval(0);
+      end_game = false;
+      dash_timeZero = 0;
+      dash_time = 0;
+      tar_ang = 0;
+      anticlockwise = false;
+      cal_tar_ang = false;
+      need_turn = false;
+      dash_forward = false;
+      wait_turn = false;
+      last_turn_cali = true;
+      num_turn = 0;
+      turn_waittimeZero = 0;
+      innerWall_dist = 110;
+      start_sector_starttime = 0;
+      start_sector_endtime = 0;
+      steering_percentage = 0;
+      OC1_starttime = internalClock.read();
+      if (!first_run) resetIMU();
+      reset_OC1 = false;
+    }
+    if (!end_game){
+      // MiniR4.M2.setBrake(false);
+      displayThread.enabled = false;
+
+      if (num_turn == 0){
+        // Unlock one of the sensor after ensuring the direction of the race to boost sensitivity of the lock one
+        if (ultra1Dist_cm > dist_threshold && !dash_forward){
+          anticlockwise = true;
+          Ultra2Thread.enabled = false;
+          wait_turn = true;
+        } else if (ultra2Dist_cm > dist_threshold && !dash_forward){
+          anticlockwise = false;
+          Ultra1Thread.enabled = false;
+          wait_turn = true;
+        } else {
+          wait_turn = false;
+          turn_waittimeZero = internalClock.read();
+        }
+      } else {
+        if (anticlockwise){
+          if (ultra1Dist > dist_threshold && !dash_forward){
+            imu_threshold = 20;
+            wait_turn = true;
+          } else {
+            wait_turn = false;
+            turn_waittimeZero = internalClock.read();
+          }
+        } else {
+          if (ultra2Dist > dist_threshold && !dash_forward){
+            imu_threshold = 10;
+            anticlockwise = false;
+            wait_turn = true;
+          } else {
+            wait_turn = false;
+            turn_waittimeZero = internalClock.read();
+          }
+        }
+      }
+
+      // EDITABLE: To control the time (in ms) for the car to dash forward before turning, edit the value of turn_waittime in follow two line
+      if (num_turn == 0) turn_waittime = 0;
+      else turn_waittime = 100;
+      // END OF EDITABLE
+
+      if (wait_turn) {
+        if ((internalClock.read() - turn_waittimeZero) < turn_waittime) {
+        } else {
+          wait_turn = false;
+          cal_tar_ang = true;
+        }
+      }
+      // Calculate the target angle
+      if (cal_tar_ang){ // && ((internalClock.read() - turn_waittimeZero) > 200)
+        tar_ang += (anticlockwise) ? -right_ang : right_ang;
+        cal_tar_ang = false;
+        need_turn = true;
+        // After turn 4, calculate the total time required to do the next turn, getting prepared for the last sector
+        if (num_turn == 4) start_sector_endtime = internalClock.read();
+        num_turn++;
+      }
+
+      // Turning
+      // EDITABLE: If the car is turning too less/much, edit the value "15" in the following line
+      if ((abs(tar_ang) - abs(getIMU()) > imu_threshold) && (abs(tar_ang) > abs(getIMU())) && need_turn){
+        if (!anticlockwise){
+          motor_power = -100;
+          MiniR4.M2.setPower(motor_power);
+        }
+        
+        // Serial.println(abs(tar_ang) > abs(getIMU()));
+      // END OF EDITABLE
+        steering_percentage = (tar_ang > 0) ? -100 : 100;
+        steering(steering_percentage);
+        dash_forward = true;
+        dash_timeZero = internalClock.read();
+        if (num_turn == 4) start_sector_starttime = internalClock.read();
+      } else {
+        motor_power = -100;
+        need_turn = false;
+        // Dash forward for a while after turning to avoid re-activate the turning state
+        if (dash_forward){
+          // end_game = true;
+          if (num_turn >= 12) dash_time = (start_sector_endtime - start_sector_starttime) / 2;
+          // EDITABLE: If the dash time after turning is too short/long, edit the value of dash_time in the following two lines
+          else if (num_turn == 1) dash_time = 1200;
+          else dash_time = 150;
+          // END OF EDITABLE
+
+          if (num_turn >= 12 && last_turn_cali) {
+            tar_ang += (anticlockwise) ? 5 : -5;
+            last_turn_cali = false;
+          }
+          if (anticlockwise){
+            if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra1Dist > dist_threshold || && ultra2Dist > dist_threshold
+              // EDITABLEL: If the car is not moving straigtly, edit the kp value in the following line
+              steering_percentage = (getIMU() - tar_ang) * 3;
+              // END OF EDITABLE
+              steering(steering_percentage);
+              MiniR4.M2.setPower(motor_power);
+            } else {
+              dash_forward = false;
+            }
+          } else {
+            if ((internalClock.read() - dash_timeZero) < dash_time){ // ultra2Dist > dist_threshold || && ultra1Dist > dist_threshold
+              // EDITABLEL: If the car is not moving straigtly, edit the kp value in the following line
+              steering_percentage = (getIMU() - tar_ang) * 3;
+              // END OF EDITABLE
+              steering(steering_percentage);
+              MiniR4.M2.setPower(motor_power);
+            } else {
+              dash_forward = false;
+            }
+          }
+        } else {
+          // Keep the car in a safe distance with the inner wall using PID with values from the active ultrasonic sensor
+          // EDITABLE: If the car is too close/far from the inner wall, edit the value of innerWall_dist in the following two lines
+          if (anticlockwise){
+            if (num_turn == 1) innerWall_dist = 110;
+            else innerWall_dist = 120;
+          } else {
+            if (num_turn == 1) innerWall_dist = 140;
+            else innerWall_dist = 90;
+          }
+
+          // END OF EDITABLE
+          if (anticlockwise){
+            // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
+            if (ultra1Dist < (innerWall_dist + 50)) steering_percentage = (ultra1Dist - innerWall_dist) * 0.65;
+            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
+            else steering_percentage = (ultra1Dist - innerWall_dist) * 0.5;
+            // END OF EDITABLE
+            if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
+            steering(steering_percentage);
+          } else {
+            // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
+            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist - innerWall_dist) * 1.2;
+            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.3;
+            else steering_percentage = -(ultra2Dist - innerWall_dist) * 0.50;
+            // END OF EDITABLE
+            if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
+            steering(steering_percentage);
+          }
+        }
+      }
+      // End of race case
+      if (num_turn >= 12 && !dash_forward){
+        MiniR4.M2.setBrake(true);
+        steering(0);
+        MiniR4.M2.setPower(0);
+        end_game = true;
+        first_run = false;
+        OC1_endtime = internalClock.read();
+      } else {
+        MiniR4.M2.setPower(motor_power);
+      }
+      OC1_endtime = internalClock.read();
+    } else {
+      // Stop the car after the end of race
+      steering(0);
+      MiniR4.M2.setPower(0);
+      MiniR4.M2.setBrake(true);
+      displayThread.enabled = true;
+      Ultra1Thread.enabled = true;
+      Ultra2Thread.enabled = true;
+    }
+  }
+}
 /**
  * @brief The main thread function for OC1
  * 
