@@ -17,8 +17,8 @@ int sign(float num);
 void OpenChallengeLaser300(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int turn_time, int power);
 void OpenChallengeLaserFilter(LASERMODE laserMode, int laserMaxElements, double right_ang, int dist_threshold, int power);
 void OpenChallengeUltraFilter(double right_ang, int dist_threshold, int power);
-void OC1nothread();
-void OC1_NewPing();
+void OC1nothread(double right_ang, int dist_threshold, int power);
+void OC1_NewPing(double right_ang, int dist_threshold, int power);
 void OC1main();
 void showOC1Time(COLUMN column, int line_number, int size, bool clearDisplay);
 

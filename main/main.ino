@@ -62,10 +62,10 @@ void setup() {
   // // OC2Thread.setInterval(15);
   // // controller.add(&OC2Thread);
 
-  // Ultra1Thread.onRun(getultra1Distloop);
+  // Ultra1Thread.onRun(ultra1Dist_cmloop);
   // Ultra1Thread.setInterval(10);
   // controller.add(&Ultra1Thread);
-  // Ultra2Thread.onRun(getultra2Distloop);
+  // Ultra2Thread.onRun(ultra2Dist_cmloop);
   // Ultra2Thread.setInterval(10);
   // controller.add(&Ultra2Thread);
 

@@ -25,11 +25,11 @@ int getultra2Dist_cm(){
 }
 
 void ultra1Dist_cmloop(){
-  ultra1Dist_cm = getultra1Dist_cm();
+  ultra1Dist_new = getultra1Dist_cm() * 10;
 }
 
 void ultra2Dist_cmloop(){
-  ultra2Dist_cm = getultra2Dist_cm();
+  ultra2Dist_new = getultra2Dist_cm() * 10;
 }
 // void ultra1_event_timer_sketch(){
 //   unsigned int pingSpeed = 50;

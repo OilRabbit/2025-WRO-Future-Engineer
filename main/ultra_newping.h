@@ -8,6 +8,9 @@
 #include <algorithm>
 #include "oled.h"
 
+extern int ultra1Dist_new;
+extern int ultra2Dist_new;
+
 #define SONAR_NUM 2      // Number of sensors.
 #define MAX_DISTANCE 819 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm
 

@@ -621,10 +621,10 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
       // MiniR4.M2.setBrake(false);
       if (num_turn == 0){
         // Unlock one of the sensor after ensuring the direction of the race to boost sensitivity of the lock one
-        if (ultra1Dist_cm() * 10 > dist_threshold && !dash_forward){
+        if (getultra1Dist_cm() * 10 > dist_threshold && !dash_forward){
           anticlockwise = true;
           wait_turn = true;
-        } else if (ultra2Dist_cm() * 10 > dist_threshold && !dash_forward){
+        } else if (getultra2Dist_cm() * 10 > dist_threshold && !dash_forward){
           anticlockwise = false;
           wait_turn = true;
         } else {
@@ -633,7 +633,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
         }
       } else {
         if (anticlockwise){
-          if (ultra1Dist_cm() * 10 > dist_threshold && !dash_forward){
+          if (getultra1Dist_cm() * 10 > dist_threshold && !dash_forward){
             imu_threshold = 20;
             wait_turn = true;
           } else {
@@ -641,7 +641,7 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
             turn_waittimeZero = internalClock.read();
           }
         } else {
-          if (ultra2Dist_cm() * 10 > dist_threshold && !dash_forward){
+          if (getultra2Dist_cm() * 10 > dist_threshold && !dash_forward){
             imu_threshold = 10;
             anticlockwise = false;
             wait_turn = true;
@@ -738,19 +738,19 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
           // END OF EDITABLE
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra1Dist_cm() * 10 < (innerWall_dist + 50)) steering_percentage = (ultra1Dist_cm() * 10 - innerWall_dist) * 0.65;
+            if (getultra1Dist_cm() * 10 < (innerWall_dist + 50)) steering_percentage = (getultra1Dist_cm() * 10 - innerWall_dist) * 0.65;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist_cm() * 10 - innerWall_dist) * 0.08;
-            else steering_percentage = (ultra1Dist_cm()* 10 - innerWall_dist) * 0.5;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (getultra1Dist_cm() * 10 - innerWall_dist) * 0.08;
+            else steering_percentage = (getultra1Dist_cm()* 10 - innerWall_dist) * 0.5;
             // END OF EDITABLE
             if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
             steering(steering_percentage);
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra2Dist_cm() * 10  < innerWall_dist) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 1.2;
+            if (getultra2Dist_cm() * 10  < innerWall_dist) steering_percentage = -(getultra2Dist_cm() * 10 - innerWall_dist) * 1.2;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 0.3;
-            else steering_percentage = -(ultra2Dist_cm() * 10 - innerWall_dist) * 0.50;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(getultra2Dist_cm() * 10 - innerWall_dist) * 0.3;
+            else steering_percentage = -(getultra2Dist_cm() * 10 - innerWall_dist) * 0.50;
             // END OF EDITABLE
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
@@ -774,12 +774,12 @@ void OC1nothread(double right_ang, int dist_threshold, int power){
       MiniR4.M2.setBrake(true);
     }
     Serial.print("ultra1: ");
-    Serial.println(ultra1Dist_cm());
+    Serial.println(getultra1Dist_cm());
     Serial.println(steering_percentage);
   } 
 }
 
-void OC1_NewPing(){
+void OC1_NewPing(double right_ang, int dist_threshold, int power){
   static bool first_run = true;
 
   static bool start_game = false;
@@ -862,11 +862,11 @@ void OC1_NewPing(){
 
       if (num_turn == 0){
         // Unlock one of the sensor after ensuring the direction of the race to boost sensitivity of the lock one
-        if (ultra1Dist_cm > dist_threshold && !dash_forward){
+        if (ultra1Dist_new > dist_threshold && !dash_forward){
           anticlockwise = true;
           Ultra2Thread.enabled = false;
           wait_turn = true;
-        } else if (ultra2Dist_cm > dist_threshold && !dash_forward){
+        } else if (ultra2Dist_new > dist_threshold && !dash_forward){
           anticlockwise = false;
           Ultra1Thread.enabled = false;
           wait_turn = true;
@@ -876,7 +876,7 @@ void OC1_NewPing(){
         }
       } else {
         if (anticlockwise){
-          if (ultra1Dist > dist_threshold && !dash_forward){
+          if (ultra1Dist_new > dist_threshold && !dash_forward){
             imu_threshold = 20;
             wait_turn = true;
           } else {
@@ -884,7 +884,7 @@ void OC1_NewPing(){
             turn_waittimeZero = internalClock.read();
           }
         } else {
-          if (ultra2Dist > dist_threshold && !dash_forward){
+          if (ultra2Dist_new > dist_threshold && !dash_forward){
             imu_threshold = 10;
             anticlockwise = false;
             wait_turn = true;
@@ -983,19 +983,19 @@ void OC1_NewPing(){
           // END OF EDITABLE
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra1Dist < (innerWall_dist + 50)) steering_percentage = (ultra1Dist - innerWall_dist) * 0.65;
+            if (ultra1Dist_new < (innerWall_dist + 50)) steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.65;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist - innerWall_dist) * 0.08;
-            else steering_percentage = (ultra1Dist - innerWall_dist) * 0.5;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.08;
+            else steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.5;
             // END OF EDITABLE
             if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
             steering(steering_percentage);
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist - innerWall_dist) * 1.2;
+            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist_new - innerWall_dist) * 1.2;
             else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist - innerWall_dist) * 0.3;
-            else steering_percentage = -(ultra2Dist - innerWall_dist) * 0.50;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist_new - innerWall_dist) * 0.3;
+            else steering_percentage = -(ultra2Dist_new - innerWall_dist) * 0.50;
             // END OF EDITABLE
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
