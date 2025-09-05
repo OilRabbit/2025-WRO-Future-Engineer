@@ -14,6 +14,7 @@
 #include "color.h"
 #include "steering.h"
 #include "pixy2I2C.h"
+#include "ultra_newping.h"
 
 void displayData();
 

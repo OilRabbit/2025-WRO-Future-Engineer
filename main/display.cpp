@@ -8,13 +8,15 @@ void displayData(){
   // Put your display functions here. The first one MUST clear display, while those after that MUST NOT clear the display
   showBattPercentage(false);
   showInternalClock(false);
-  showUltra1Dist(LEFT, 1, 1, false);
-  showUltra2Dist(LEFT, 2, 1, false);
+  // showUltra1Dist(LEFT, 1, 1, false);
+  // showUltra2Dist(LEFT, 2, 1, false);
+  showUltra1Dist_new(LEFT, 1, 1, false);
+  showUltra2Dist_new(LEFT, 2, 1, false);
   showIMU(IMU_ORIGIN, LEFT, 3, 1, false);
   // showNearestColour(RIGHT, 1, 1, false);
   // showSteering(RIGHT, 3, 1, false);
   showOC1Time(MID, 0, 1, false);
   //showColorType(RIGHT, 3, 1, false);
   showLaser1Dist(RIGHT, 3, 1, false);
-  pixy2ColorRegTest(RIGHT , 1, 1, false);
+  // pixy2ColorRegTest(RIGHT , 1, 1, false);
 }

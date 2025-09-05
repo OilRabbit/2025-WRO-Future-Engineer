@@ -6,6 +6,9 @@ NewPing sonar[SONAR_NUM] = {   // Sensor object array.
   NewPing(5, 4, MAX_DISTANCE)  // Ultra 2 trigger pin, echo pin, and max distance to ping.
 };
 
+int ultra1Dist_new;
+int ultra2Dist_new;
+
 void ultra_testing(){
     delay(50); // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
     Serial.print("ultra1");
@@ -31,21 +34,45 @@ void ultra1Dist_cmloop(){
 void ultra2Dist_cmloop(){
   ultra2Dist_new = getultra2Dist_cm() * 10;
 }
-// void ultra1_event_timer_sketch(){
-//   unsigned int pingSpeed = 50;
-//   unsigned long pingTimer;
-//   pingTimer = millis();
-//   if (millis() >= pingTimer){
-//     pingTimer += pingSpeed;
-//     sonar[0].ping_timer(echoCheck);
-//     print(
-//   }
-// }
 
-// void echoCheck(){
-//   if (sonar[0].check_timer()) { // This is how you check to see if the ping was received.
-//     // Here's where you can add code.
-//     Serial.print("Ping: ");
-//     Serial.print(sonar[0].ping_result / US_ROUNDTRIP_CM); // Ping returned, uS result in ping_result, convert to cm with US_ROUNDTRIP_CM.
-//     Serial.println("cm");
-// }
+void showUltra1Dist_new(COLUMN column, int line_number, int size, bool clearDisplay){
+  static String ultra_text = String("U1:") + String(ultra1Dist_new) + "mm";
+  display.oledSetTextColour(BLACK);
+  if (column == LEFT){
+    display.oledDisplayLeftln(line_number, size, ultra_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    ultra_text = String("U1:") + String(ultra1Dist_new) + "mm";
+    display.oledDisplayLeftln(line_number, size, ultra_text, clearDisplay);
+  } else if (column == MID) {
+    display.oledDisplayCenterln(line_number, size, ultra_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    ultra_text =String("U1:") + String(ultra1Dist_new) + "mm";
+    display.oledDisplayCenterln(line_number, size, ultra_text, clearDisplay);
+  } else {
+    display.oledDisplayRightln(line_number, size, ultra_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    ultra_text = String("U1:") + String(ultra1Dist_new) + "mm";
+    display.oledDisplayRightln(line_number, size, ultra_text, clearDisplay);
+  }
+}
+
+void showUltra2Dist_new(COLUMN column, int line_number, int size, bool clearDisplay){
+  static String ultra_text = String("U2:") + String(ultra2Dist_new) + "mm";
+  display.oledSetTextColour(BLACK);
+  if (column == LEFT){
+    display.oledDisplayLeftln(line_number, size, ultra_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    ultra_text = String("U2:") + String(ultra2Dist_new) + "mm";
+    display.oledDisplayLeftln(line_number, size, ultra_text, clearDisplay);
+  } else if (column == MID) {
+    display.oledDisplayCenterln(line_number, size, ultra_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    ultra_text = String("U2:") + String(ultra2Dist_new) + "mm";
+    display.oledDisplayCenterln(line_number, size, ultra_text, clearDisplay);
+  } else {
+    display.oledDisplayRightln(line_number, size, ultra_text, clearDisplay);
+    display.oledSetTextColour(WHITE);
+    ultra_text = String("U2:") + String(ultra2Dist_new) + "mm";
+    display.oledDisplayRightln(line_number, size, ultra_text, clearDisplay);
+  }
+}

@@ -879,7 +879,7 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
       } else {
         if (anticlockwise){
           if (ultra1Dist_new > dist_threshold && !dash_forward){
-            imu_threshold = 20;
+            imu_threshold = 15;
             wait_turn = true;
           } else {
             wait_turn = false;
@@ -940,10 +940,10 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
         // Dash forward for a while after turning to avoid re-activate the turning state
         if (dash_forward){
           // end_game = true;
-          if (num_turn >= 12) dash_time = (start_sector_endtime - start_sector_starttime) / 2;
+          if (num_turn >= 12) dash_time = 800; //(start_sector_endtime - start_sector_starttime) / 2
           // EDITABLE: If the dash time after turning is too short/long, edit the value of dash_time in the following two lines
           else if (num_turn == 1) dash_time = 1200;
-          else dash_time = 150;
+          else dash_time = 200;
           // END OF EDITABLE
 
           if (num_turn >= 12 && last_turn_cali) {
@@ -975,8 +975,8 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
           // Keep the car in a safe distance with the inner wall using PID with values from the active ultrasonic sensor
           // EDITABLE: If the car is too close/far from the inner wall, edit the value of innerWall_dist in the following two lines
           if (anticlockwise){
-            if (num_turn == 1) innerWall_dist = 110;
-            else innerWall_dist = 120;
+            if (num_turn == 1) innerWall_dist = 130;
+            else innerWall_dist = 140;
           } else {
             if (num_turn == 1) innerWall_dist = 140;
             else innerWall_dist = 90;
@@ -985,18 +985,18 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
           // END OF EDITABLE
           if (anticlockwise){
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
+            // if (ultra1Dist_new = 0) ultra1Dist_new = 2000;          //set it as a very large distance for ultra 1 detection
             if (ultra1Dist_new < (innerWall_dist + 50)) steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.65;
-            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
-            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.08;
+            else if (num_turn == 0) steering_percentage = getIMU() * 3; //(ultra1Dist_new - ultra2Dist_new) * 0.2;
+            else if (num_turn < 2 && num_turn != 0) steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.15;
             else steering_percentage = (ultra1Dist_new - innerWall_dist) * 0.5;
             // END OF EDITABLE
-            if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
+            if (steering_percentage > 100 && num_turn != 0) steering_percentage = 100;
             steering(steering_percentage);
-            //last_error1 = ultra1Dist_new;
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
-            if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist_new - innerWall_dist) * 1.2;
-            else if (num_turn == 0) steering_percentage = getIMU() * 3; // (ultra1Dist - ultra2Dist) * 0.2;
+            if (ultra2Dist_new < innerWall_dist) steering_percentage = -(ultra2Dist_new - innerWall_dist) * 1.2;
+            else if (num_turn == 0) steering_percentage = (ultra1Dist_new - ultra2Dist_new) * 0.2; // getIMU() * 3;
             else if (num_turn < 2 && num_turn != 0) steering_percentage = -(ultra2Dist_new - innerWall_dist) * 0.3;
             else steering_percentage = -(ultra2Dist_new - innerWall_dist) * 0.50;
             // END OF EDITABLE
@@ -1008,9 +1008,10 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
       }
       // End of race case
       if (num_turn >= 12 && !dash_forward){
+        motor_power = 0;
         MiniR4.M2.setBrake(true);
         steering(0);
-        MiniR4.M2.setPower(0);
+        MiniR4.M2.setPower(motor_power);
         end_game = true;
         first_run = false;
         OC1_endtime = internalClock.read();
@@ -1021,12 +1022,16 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
     } else {
       // Stop the car after the end of race
       steering(0);
-      MiniR4.M2.setPower(0);
+      MiniR4.M2.setPower(motor_power);
       MiniR4.M2.setBrake(true);
       displayThread.enabled = true;
       Ultra1Thread.enabled = true;
       Ultra2Thread.enabled = true;
     }
+    Serial.print("ultra1: ");
+    Serial.println(ultra1Dist_new);
+    Serial.print("steering: ");
+    Serial.println(steering_percentage);
   }
 }
 /**
@@ -1035,7 +1040,8 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
  */
 void OC1main(){
   // OpenChallengeUltraFilter(84, 1000, -100);
-  OC1nothread(84, 900, -80);
+  // OC1nothread(84, 900, -80);
+  OC1_NewPing(84, 1000, -100);
   // LaserMode = CISTERN_DIST;
   // LaserElements = 8;
   // OpenChallenge300(MEDIAN_DIST, 10, 88.58, 1500, 300, -100);

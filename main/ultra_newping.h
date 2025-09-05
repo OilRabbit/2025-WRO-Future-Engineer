@@ -12,14 +12,14 @@ extern int ultra1Dist_new;
 extern int ultra2Dist_new;
 
 #define SONAR_NUM 2      // Number of sensors.
-#define MAX_DISTANCE 819 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm
+#define MAX_DISTANCE 1191 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm
 
 void ultra_testing();
 int getultra1Dist_cm();
 int getultra2Dist_cm();
 void ultra1Dist_cmloop();
 void ultra2Dist_cmloop();
-// void ultra1_event_timer_sketch();
-// void echoCheck();
+void showUltra1Dist_new(COLUMN column, int line_number, int size, bool clearDisplay);
+void showUltra2Dist_new(COLUMN column, int line_number, int size, bool clearDisplay);
 
 #endif

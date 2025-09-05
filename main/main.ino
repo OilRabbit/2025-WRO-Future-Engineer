@@ -3,11 +3,11 @@
 #define I2C
 
 // Define your threads here
-// Thread displayThread = Thread();
-// Thread OC1Thread = Thread();
-// Thread OC2Thread = Thread();
-// Thread Ultra1Thread = Thread();
-// Thread Ultra2Thread = Thread();
+Thread displayThread = Thread();
+Thread OC1Thread = Thread();
+Thread OC2Thread = Thread();
+Thread Ultra1Thread = Thread();
+Thread Ultra2Thread = Thread();
 // Thread pixy2Thread = Thread();
 // Thread huskylensThread = Thread();
 // Thread colorThread = Thread();
@@ -15,7 +15,7 @@
 // Thread Laser2Thread = Thread();
 
 // Controller to manage all threads
-// ThreadController controller = ThreadController();
+ThreadController controller = ThreadController();
 
 // #define SONAR_NUM 2      // Number of sensors.
 // #define MAX_DISTANCE 300 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm. 
@@ -50,24 +50,24 @@ void setup() {
   display.oledClear();
 
   // Follow this to create your own thread
-  // displayThread.onRun(displayData);
-  // displayThread.setInterval(0);
-  // controller.add(&displayThread);
+  displayThread.onRun(displayData);
+  displayThread.setInterval(0);
+  controller.add(&displayThread);
 
-  // OC1Thread.onRun(OC1main);
-  // OC1Thread.setInterval(10);
-  // controller.add(&OC1Thread);
+  OC1Thread.onRun(OC1main);
+  OC1Thread.setInterval(10);
+  controller.add(&OC1Thread);
 
   // // OC2Thread.onRun(OC2main);
   // // OC2Thread.setInterval(15);
   // // controller.add(&OC2Thread);
 
-  // Ultra1Thread.onRun(ultra1Dist_cmloop);
-  // Ultra1Thread.setInterval(10);
-  // controller.add(&Ultra1Thread);
-  // Ultra2Thread.onRun(ultra2Dist_cmloop);
-  // Ultra2Thread.setInterval(10);
-  // controller.add(&Ultra2Thread);
+  Ultra1Thread.onRun(ultra1Dist_cmloop);
+  Ultra1Thread.setInterval(30);
+  controller.add(&Ultra1Thread);
+  Ultra2Thread.onRun(ultra2Dist_cmloop);
+  Ultra2Thread.setInterval(30);
+  controller.add(&Ultra2Thread);
 
   // huskylensThread.onRun(getNearestPillarGlobal);
   // huskylensThread.setInterval(10);
@@ -90,8 +90,8 @@ void setup() {
 }
 
 void loop() {
-  // controller.run();
+  controller.run();
   // OC1main();
-  ultra_testing();
+  // ultra_testing();
   // ultra1_event_timer_sketch();
 }
