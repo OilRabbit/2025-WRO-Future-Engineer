@@ -819,6 +819,8 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
   static int start_sector_endtime = 0;    // Variable storing the instant time from the internal clock when the run ends
   static bool reset_OC1 = false;          // A flag determining whether the all the variables should be reseted
   static int imu_threshold = 15;
+  static int last_error1 = 0;             // last error for saving the value of ultra 1
+  static int last_error2 = 0;             // last error for saving the value of ultra 2
   int motor_power = power;
 
   if (!start_game){ 
@@ -990,6 +992,7 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
             // END OF EDITABLE
             if (steering_percentage > 30 && num_turn != 0) steering_percentage = 30;
             steering(steering_percentage);
+            //last_error1 = ultra1Dist_new;
           } else {
             // EDITABLE: If the car is not moving straigtly, edit the kp value in the following lines
             if (ultra2Dist < innerWall_dist) steering_percentage = -(ultra2Dist_new - innerWall_dist) * 1.2;
@@ -999,6 +1002,7 @@ void OC1_NewPing(double right_ang, int dist_threshold, int power){
             // END OF EDITABLE
             if (steering_percentage < -30 && num_turn != 0) steering_percentage = -30;
             steering(steering_percentage);
+            //last_error2 = ultra2Dist_new;
           }
         }
       }
