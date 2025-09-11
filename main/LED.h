@@ -1,18 +1,17 @@
 #ifndef LED_H
 #define LED_H
 
-#include <Arduino.h>
-#include <MatrixMiniR4.h>
+#include <Adafruit_NeoPixel.h>
 
-void led1_off();
-void led1_flashwhite();
-void led1_flashred();
-void led1_flashgreen();
-void led1_flashblue();
-void led2_off();
-void led2_flashwhite();
-void led2_flashred();
-void led2_flashgreen();
-void led2_flashblue();
+extern Adafruit_NeoPixel rgb;
+
+void led_init();
+void led_off();
+void led_white(uint8_t brightness);
+void led_red(uint8_t brightness);
+void led_green(uint8_t brightness);
+void led_blue(uint8_t brightness);
+void led_flash(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
+void blinkledLED_test(void *parameters); // For testing only
 
 #endif

@@ -10,5 +10,6 @@
         "list": "cpp",
         "string": "cpp",
         "vector": "cpp"
-    }
+    },
+    "idf.pythonInstallPath": "/Users/likayauelwin/miniconda3/bin/python"
 }

@@ -8,33 +8,14 @@ Timer internalClock;
  * 
  * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
  */
-void showInternalClock(bool clearDisplay){
+void showInternalClock(){
+  tft.clearln(TFT_LEFT_CLN, 0);
   static long total_ms = 0;
   static long seconds = 0;
   static long milliseconds = 0;
   total_ms = internalClock.read();
   seconds = total_ms / 1000;
   milliseconds = total_ms % 1000;
-  static String curr_time_text = String(seconds) + "." + String(milliseconds);
-  display.oledSetTextColour(BLACK);
-  display.oledDisplayLeftln(0, 1, curr_time_text, clearDisplay);
-  display.oledSetTextColour(WHITE);
-  curr_time_text = String(seconds) + "." + String(milliseconds);
-  display.oledDisplayLeftln(0, 1, curr_time_text, clearDisplay);
+  String curr_time_text = String(seconds) + "." + String(milliseconds);
+  tft.displayLeftln(0, 2, curr_time_text.c_str(), TFT_WHITE, false);
 }
-// void showInternalClock(bool clearDisplay){
-//   static long milliseconds = 0;
-//   static long seconds = 0;
-//   static long minutes = 0;
-//   milliseconds = internalClock.read();
-//   minutes = milliseconds / 60000;
-//   milliseconds = milliseconds - 60000 * minutes;
-//   seconds = milliseconds / 1000;
-//   milliseconds = (milliseconds - 1000 * seconds);
-//   static String curr_time_text = String(minutes) + ":" + String(seconds) + ":" + String(milliseconds);
-//   display.oledSetTextColour(BLACK);
-//   display.oledDisplayLeftln(0, 1, curr_time_text, clearDisplay);
-//   display.oledSetTextColour(WHITE);
-//   curr_time_text = String(minutes) + ":" + String(seconds) + ":" + String(milliseconds);
-//   display.oledDisplayLeftln(0, 1, curr_time_text, clearDisplay);
-// }

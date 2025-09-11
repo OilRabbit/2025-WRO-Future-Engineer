@@ -1,41 +1,57 @@
 #include "LED.h"
 
-void led1_off(){
-  MiniR4.LED.setColor(1, 0, 0, 0);
+#define RGB_PIN 38
+#define NUM_LEDS 1
+
+Adafruit_NeoPixel rgb(NUM_LEDS, RGB_PIN, NEO_GRB + NEO_KHZ800);
+
+void led_init(){
+  rgb.begin();
 }
 
-void led1_flashwhite(){
-  MiniR4.LED.setColor(1, 255, 255, 255);
+void led_off(){
+  rgb.clear();
+  rgb.show();
 }
 
-void led1_flashred(){
-  MiniR4.LED.setColor(1, 255, 0, 0);
+void led_white(uint8_t brightness = 32){
+  rgb.setBrightness(brightness);
+  rgb.setPixelColor(0, rgb.Color(255, 255, 255)); 
+  rgb.show();
 }
 
-void led1_flashgreen(){
-  MiniR4.LED.setColor(1, 0, 255, 0);
+void led_red(uint8_t brightness = 32){
+  rgb.setBrightness(255);
+  rgb.setPixelColor(0, rgb.Color(255, 0, 0)); 
+  rgb.show();
 }
 
-void led1_flashblue(){
-  MiniR4.LED.setColor(1, 0, 0, 255);
+void led_green(uint8_t brightness = 32){
+  rgb.setBrightness(255);
+  rgb.setPixelColor(0, rgb.Color(0, 255, 0)); 
+  rgb.show();
 }
 
-void led2_off(){
-  MiniR4.LED.setColor(2, 0, 0, 0);
+void led_blue(uint8_t brightness = 32){
+  rgb.setBrightness(255);
+  rgb.setPixelColor(0, rgb.Color(0, 0, 255)); 
+  rgb.show();
 }
 
-void led2_flashwhite(){
-  MiniR4.LED.setColor(2, 255, 255, 255);
+void led_flash(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness = 32){
+  rgb.setBrightness(255);
+  rgb.setPixelColor(0, rgb.Color(0, 0, 255)); 
+  rgb.show();
 }
 
-void led2_flashred(){
-  MiniR4.LED.setColor(2, 255, 0, 0);
-}
-
-void led2_flashgreen(){
-  MiniR4.LED.setColor(2, 0, 255, 0);
-}
-
-void led2_flashblue(){
-  MiniR4.LED.setColor(2, 0, 0, 255);
+// For testing only
+void blinkledLED_test(void *parameters){
+  led_init();
+  while(1){
+    led_blue(32);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    led_off();
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }
 }

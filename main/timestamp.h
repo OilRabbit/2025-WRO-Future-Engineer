@@ -1,10 +1,10 @@
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 
-#include "oled.h"
+#include "tft.h"
 #include "Timer.h"
 
-void showInternalClock(bool clearDisplay);
+void showInternalClock();
 
 extern Timer internalClock;
 

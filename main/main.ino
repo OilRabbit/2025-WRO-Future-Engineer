@@ -1,47 +1,80 @@
-#include <Adafruit_NeoPixel.h>
+#include "main.h"
 
-// If nothing lights, change this to 38 and upload again.
-#define RGB_PIN 38
-#define NUM_LEDS 1
-
-Adafruit_NeoPixel rgb(NUM_LEDS, RGB_PIN, NEO_GRB + NEO_KHZ800);
+TaskHandle_t blinkledThread = NULL;
+TaskHandle_t displayThread = NULL;
+TaskHandle_t Ultra1Thread = NULL;
+TaskHandle_t Ultra2Thread = NULL;
+TaskHandle_t OC1Thread = NULL;
+TaskHandle_t OC2Thread = NULL;
+TaskHandle_t huskylensThread = NULL;
+TaskHandle_t colorThread = NULL;
 
 void setup() {
+  tft.init();
+  tft.displayln(30, 0, 2, "Initializing...", TFT_WHITE, true);
+  tft.displayLeftln(1, 2, "LED Init:", TFT_WHITE, false);
+  tft.displayLeftln(2, 2, "Clk Init:", TFT_WHITE, false);
+  tft.displayLeftln(3, 2, "Ser Init:", TFT_WHITE, false);
+  tft.displayLeftln(4, 2, "Ut1 Init:", TFT_WHITE, false);
+  
+  led_init();
+  delay(1000);
+  tft.displayRightln(1, 2, "Done", TFT_GREEN, false);
+  internalClock.start();
+  delay(1000);
+  tft.displayRightln(2, 2, "Done", TFT_GREEN, false);
   Serial.begin(115200);
-  while (!Serial) { delay(10); }
+  delay(1000);
+  tft.displayRightln(3, 2, "Done", TFT_GREEN, false);
+  ultraInit();
+  delay(1000);
+  tft.displayRightln(4, 2, "Done", TFT_GREEN, false);
 
-  rgb.begin();
-  rgb.setBrightness(32);  // gentle brightness
+  xTaskCreatePinnedToCore(
+    blinkledLED_test,         // Task function
+    "Blink LED",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &blinkledThread,  // Task handle
+    1                  // Core 1
+  );
+
+  xTaskCreatePinnedToCore(
+    getultra1Distloop,         // Task function
+    "Get Ultra 1 Distance",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &Ultra1Thread,  // Task handle
+    1                  // Core 1
+  );
+
+  delay(1000);
+  tft.clear();
+
+  xTaskCreatePinnedToCore(
+    displayData,         // Task function
+    "Display info",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &displayThread,  // Task handle
+    1                  // Core 1
+  );
 }
 
 void loop() {
-  rgb.setPixelColor(0, rgb.Color(0, 0, 0)); 
-  rgb.show();
-  Serial.println("On");
-  delay(500);
-
-  rgb.clear();            // OFF
-  rgb.show();
-  Serial.println("Off");
-  delay(500);
+  Serial.println(ultra1Dist);
+  // led_blue(32);
+  // Serial.println("On");
+  // delay(500);
+  // led_off();
+  // Serial.println("Off");
+  // delay(500);
 }
 
 
-// #include "main.h"
-
-// // Define your threads here
-// Thread displayThread = Thread();
-// Thread OC1Thread = Thread();
-// Thread OC2Thread = Thread();
-// Thread Ultra1Thread = Thread();
-// Thread Ultra2Thread = Thread();
-// Thread huskylensThread = Thread();
-// Thread colorThread = Thread();
-// Thread Laser1Thread = Thread();
-// // Thread Laser2Thread = Thread();
-
-// // Controller to manage all threads
-// ThreadController controller = ThreadController();
 
 // void setup() {
 //   // Init
