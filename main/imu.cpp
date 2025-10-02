@@ -129,16 +129,16 @@ void getYPRloop(void *){
     imu_yaw   = yaw_unwrapped - yaw_zero_unwrapped;
     imu_pitch = p;
     imu_roll  = r;
+    vTaskDelay(5 / portTICK_PERIOD_MS);
   }
 }
-
 
 void imu_resetYaw(){
   yaw_zero_unwrapped = yaw_unwrapped;
 }
 
 void showIMU(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
-  String yaw_text = String("Yaw:") + String(imu_yaw);
+  String yaw_text = String("Y:") + String(imu_yaw);
   // String pitch_text = String("Pit:") + String(imu_pitch);
   // String roll_text = String("Rol:") + String(imu_roll);
   if (column == TFT_LEFT_CLN){

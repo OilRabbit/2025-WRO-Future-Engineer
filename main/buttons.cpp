@@ -35,7 +35,7 @@ bool is_btn_bumped(TFT_BTNS btn){
 
 // For testing only
 void showbtnState(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
-  String btn_text = String("BTN1:") + (is_btn_pressed(TFT_BTN1) ? "Pre" : "Rel");
+  String btn_text = String("Bt1:") + (is_btn_pressed(TFT_BTN1) ? "Pre" : "Rel");
   if (is_btn_pressed(TFT_BTN1)){
     imu_resetYaw();
     steering_percentage = 100;

@@ -1,34 +1,32 @@
 #pragma once
 #include <Arduino.h>
 #include "tft.h"
-#include <SPI.h>
+#include <Pixy2I2C.h>
+#include <Pixy2CCC.h>
 
-// Use HSPI for Pixy2, keep default SPI for TFT
-#define PIXY_SCK  17
-#define PIXY_MISO 16
-#define PIXY_MOSI 15
-#define PIXY_SS   18
+#define PIXY2_SDA 8
+#define PIXY2_SCL 9
 
-// ====== Pixy2 CCC protocol constants ======
-#define CCC_MAX_SIGNATURE      7
+typedef enum {
+  RED = 1,
+  GREEN = 2,
+  MAGENTA = 3,
+  NO_COLOUR = -1
+} COLOUR_BLOCK;
 
-#define CCC_RESPONSE_BLOCKS    0x21
-#define CCC_REQUEST_BLOCKS     0x20
-
-// Signature bitmasks
-#define CCC_SIG1               1
-#define CCC_SIG2               2
-#define CCC_SIG3               4
-#define CCC_SIG4               8
-#define CCC_SIG5               16
-#define CCC_SIG6               32
-#define CCC_SIG7               64
-#define CCC_COLOR_CODES        128
-
-#define CCC_SIG_ALL            0xFF   // all signatures
-
+typedef struct{
+  COLOUR_BLOCK colour;
+  uint16_t xpos;
+  uint16_t ypos;
+  uint16_t width;
+  uint16_t height;
+  int16_t angle;
+  uint8_t index;
+  uint8_t age;
+  uint16_t area;
+} COLOURED_OBJ;
 
 int pixy2_init();
-int pixy2_transaction(byte *req, int reqLen, byte *reply, int maxReply);
-void testing_print_pixy(TFT_COLUMN column, int line_number, int text_size,
-                        uint16_t text_colour, bool clearDisplay);
+COLOURED_OBJ getNearestPillar();
+void getNearestBlkloop(void *);
+void showNearestBlk(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);

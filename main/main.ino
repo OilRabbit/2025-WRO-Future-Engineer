@@ -79,7 +79,14 @@ void setup() {
     tft.displayRightln(10, 2, "Done", TFT_GREEN, false);
   #endif
 
-  int p2_init = pixy2_init();
+  Pixy2I2C pixy;
+
+  Serial.println("Init Pixy2...");
+  // assume Wire.begin() was already called in setup()
+  Wire.begin(PIXY2_SDA, PIXY2_SCL, 100000);
+  Wire.setClock(400000);
+  Serial.println("Init Pixy2...");
+  pixy.init();
   #ifdef FENZY_MODE
     delay(500);
     tft.displayRightln(11, 2, "Done", TFT_GREEN, false);
@@ -133,6 +140,16 @@ void setup() {
     1,                 // Priority
     &SteeringThread,  // Task handle
     1                  // Core 1
+  );
+
+  xTaskCreatePinnedToCore(
+    getNearestBlkloop,         // Task function
+    "Pixy2",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &Pixy2Thread,  // Task handle
+    0                  // Core 1
   );
 
   // xTaskCreatePinnedToCore(

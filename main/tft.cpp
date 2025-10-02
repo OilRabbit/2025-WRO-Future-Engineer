@@ -94,7 +94,7 @@ void displayData(void *parameters){
     showbtnState(TFT_LEFT_CLN, 5, 2, TFT_WHITE, false);
     showSteering(TFT_LEFT_CLN, 6, 2, TFT_WHITE, false);
     showEncoder(TFT_LEFT_CLN, 7, 2, TFT_WHITE, false);
-    testing_print_pixy(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
+    showNearestBlk(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
     // showBattPercentage(false);
     // showUltra2Dist(LEFT, 2, 1, false);
     // showNearestColour(RIGHT, 1, 1, false);
