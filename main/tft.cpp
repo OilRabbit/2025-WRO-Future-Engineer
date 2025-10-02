@@ -1,5 +1,10 @@
 #include "tft.h"
 #include "ultra.h"
+#include "buttons.h"
+#include "imu.h"
+#include "steering.h"
+#include "motor.h"
+#include "pixy2lib.h"
 
 #define TFT_SCLK 40   // HAT SCLK -> ESP32-S3 GPIO40
 #define TFT_MOSI 41   // HAT MOSI -> ESP32-S3 GPIO41
@@ -83,15 +88,18 @@ void displayData(void *parameters){
   while(1){
     // Put your display functions here. The first one MUST clear display, while those after that MUST NOT clear the display
     showInternalClock();
-    showUltra1Dist(TFT_LEFT_CLN, 1, 2, TFT_WHITE, false);
+    showUltra1Dist(TFT_LEFT_CLN, 2, 2, TFT_WHITE, false);
+    showUltra2Dist(TFT_LEFT_CLN, 3, 2, TFT_WHITE, false);
+    showIMU(TFT_LEFT_CLN, 4, 2, TFT_WHITE, false);
+    showbtnState(TFT_LEFT_CLN, 5, 2, TFT_WHITE, false);
+    showSteering(TFT_LEFT_CLN, 6, 2, TFT_WHITE, false);
+    showEncoder(TFT_LEFT_CLN, 7, 2, TFT_WHITE, false);
+    testing_print_pixy(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
     // showBattPercentage(false);
     // showUltra2Dist(LEFT, 2, 1, false);
-    // showIMU(IMU_ORIGIN, LEFT, 3, 1, false);
     // showNearestColour(RIGHT, 1, 1, false);
-    // showSteering(RIGHT, 3, 1, false);
     // showOC1Time(MID, 0, 1, false);
     // showColorType(RIGHT, 3, 1, false);
-    // showLaser1Dist(RIGHT, 3, 1, false);
-    vTaskDelay(50 / portTICK_PERIOD_MS);
+    vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }

@@ -4,31 +4,86 @@ TaskHandle_t blinkledThread = NULL;
 TaskHandle_t displayThread = NULL;
 TaskHandle_t Ultra1Thread = NULL;
 TaskHandle_t Ultra2Thread = NULL;
+TaskHandle_t IMUThread = NULL;
+TaskHandle_t SteeringThread = NULL;
+TaskHandle_t MotorEncThread = NULL;
+TaskHandle_t Pixy2Thread = NULL;
 TaskHandle_t OC1Thread = NULL;
 TaskHandle_t OC2Thread = NULL;
-TaskHandle_t huskylensThread = NULL;
 TaskHandle_t colorThread = NULL;
 
 void setup() {
+  Serial.begin(115200);
   tft.init();
   tft.displayln(30, 0, 2, "Initializing...", TFT_WHITE, true);
-  tft.displayLeftln(1, 2, "LED Init:", TFT_WHITE, false);
-  tft.displayLeftln(2, 2, "Clk Init:", TFT_WHITE, false);
-  tft.displayLeftln(3, 2, "Ser Init:", TFT_WHITE, false);
-  tft.displayLeftln(4, 2, "Ut1 Init:", TFT_WHITE, false);
+
+  #ifdef FENZY_MODE
+    tft.displayLeftln(2, 2, "LED Init:", TFT_WHITE, false);
+    tft.displayLeftln(3, 2, "Clk Init:", TFT_WHITE, false);
+    tft.displayLeftln(4, 2, "Ser Init:", TFT_WHITE, false);
+    tft.displayLeftln(5, 2, "Ut1 Init:", TFT_WHITE, false);
+    tft.displayLeftln(6, 2, "Ut1 Init:", TFT_WHITE, false);
+    tft.displayLeftln(7, 2, "Btn Init:", TFT_WHITE, false);
+    tft.displayLeftln(8, 2, "Imu Init:", TFT_WHITE, false);
+    tft.displayLeftln(9, 2, "Str Init:", TFT_WHITE, false);
+    tft.displayLeftln(10, 2, "Mtr Init:", TFT_WHITE, false);
+    tft.displayLeftln(11, 2, "Pxy Init:", TFT_WHITE, false);
+  #endif
   
   led_init();
-  delay(1000);
-  tft.displayRightln(1, 2, "Done", TFT_GREEN, false);
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(2, 2, "Done", TFT_GREEN, false);
+  #endif
   internalClock.start();
-  delay(1000);
-  tft.displayRightln(2, 2, "Done", TFT_GREEN, false);
+
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(3, 2, "Done", TFT_GREEN, false);
+  #endif
+
   Serial.begin(115200);
-  delay(1000);
-  tft.displayRightln(3, 2, "Done", TFT_GREEN, false);
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(4, 2, "Done", TFT_GREEN, false);
+  #endif
+
   ultraInit();
-  delay(1000);
-  tft.displayRightln(4, 2, "Done", TFT_GREEN, false);
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(5, 2, "Done", TFT_GREEN, false);
+    tft.displayRightln(6, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  btn_init();
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(7, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  imu_init();
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(8, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  steeringInit();
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(9, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  motor_init();
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(10, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  int p2_init = pixy2_init();
+  #ifdef FENZY_MODE
+    delay(500);
+    tft.displayRightln(11, 2, "Done", TFT_GREEN, false);
+  #endif
 
   xTaskCreatePinnedToCore(
     blinkledLED_test,         // Task function
@@ -50,7 +105,62 @@ void setup() {
     1                  // Core 1
   );
 
-  delay(1000);
+  xTaskCreatePinnedToCore(
+    getultra2Distloop,         // Task function
+    "Get Ultra 2 Distance",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &Ultra2Thread,  // Task handle
+    1                  // Core 1
+  );
+
+  xTaskCreatePinnedToCore(
+    getYPRloop,         // Task function
+    "Get IMU Data",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &IMUThread,  // Task handle
+    1                  // Core 1
+  );
+
+  xTaskCreatePinnedToCore(
+    steeringloop,         // Task function
+    "Steering",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &SteeringThread,  // Task handle
+    1                  // Core 1
+  );
+
+  // xTaskCreatePinnedToCore(
+  //   motor_encloop,         // Task function
+  //   "Pixy2",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &Pixy2Thread,  // Task handle
+  //   1                  // Core 1
+  // );
+
+  // xTaskCreatePinnedToCore(
+  //   serialprint,         // Task function
+  //   "Print on the Serial Monitor",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &SerialThread,  // Task handle
+  //   1                  // Core 1
+  // );
+
+  #ifdef FENZY_MODE
+    delay(500);
+  #else
+    delay(300);
+  #endif
+
   tft.clear();
 
   xTaskCreatePinnedToCore(
@@ -65,7 +175,6 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(ultra1Dist);
   // led_blue(32);
   // Serial.println("On");
   // delay(500);

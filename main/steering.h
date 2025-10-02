@@ -1,17 +1,20 @@
-// #ifndef STEERING_H
-// #define STEERING_H
+#ifndef STEERING_H
+#define STEERING_H
 
-// #include <Arduino.h>
-// #include <MatrixMiniR4.h>
-// #include "oled.h"
+#include <Arduino.h>
+#include <ESP32Servo.h>
+#include "tft.h"
 
-// #define MAX_STEERING_ANGLE 16
+#define SERVO_PIN 4
 
-// extern float steering_percentage; 
+#define MAX_STEERING_ANGLE 16
 
-// void steeringInit();
-// void reset_steering();
-// void steering(int steering_percentage);
-// void showSteering(COLUMN column, int line_number, int size, bool clearDisplay);
+extern float steering_percentage; 
+extern Servo steering_motor;
 
-// #endif
+void steeringInit();
+void reset_steering();
+void steeringloop(void* parameters);
+void showSteering(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);
+
+#endif

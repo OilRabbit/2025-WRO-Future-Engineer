@@ -1,27 +1,22 @@
+#ifndef IMU_H
+#define IMU_H
 
-// #ifndef IMU_H
-// #define IMU_H
+#include <Arduino.h>
+#include <Wire.h>
+#include <ICM_20948.h>
+#include <math.h>
+#include "tft.h"
 
-// #include <Arduino.h>
-// #include <MatrixMiniR4.h>
-// #include <Kalman.h>
-// #include "oled.h"
+extern ICM_20948_I2C icm;
 
-// /* A enum storing the method to get the angle from IMU */
-// typedef enum{
-//   IMU_ORIGIN,
-//   IMU_KALMAN
-// }IMU_METHOD;
+extern double imu_yaw;
+extern double imu_pitch;
+extern double imu_roll;
 
-// void imuInit();
-// void resetUnwrap();
-// void resetIMU();
-// double unwrapAngle(double current_angle);
-// double getIMU();
-// double getIMUKalman();
-// void showIMU(IMU_METHOD method, COLUMN column, int line_number, int size, bool clearDisplay);
+void imu_init();
+bool get_ypr(double& yaw, double& pitch, double& roll);
+void getYPRloop(void *parameters);
+void imu_resetYaw();
+void showIMU(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);
 
-// extern double unwrap_previous_angle;
-// extern double unwrap_accum_angle;
-
-// #endif
+#endif

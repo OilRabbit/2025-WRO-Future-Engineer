@@ -17,7 +17,7 @@
 #define TFT_YELLOW 0xFFE0
 #define TFT_ORANGE 0xFC00
 
-typedef enum{
+typedef enum {
   TFT_LEFT_CLN,
   TFT_RIGHT_CLN
 } TFT_COLUMN;
