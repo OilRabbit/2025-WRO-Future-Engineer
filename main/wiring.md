@@ -1,25 +1,26 @@
 ### SPI LCD (ST7789 HAT)
 
-* SCLK → **GPIO40**
-* MOSI → **GPIO41**
-* CS   → **GPIO21**
-* DC   → **GPIO42**
-* RST  → **GPIO1**
-* BL   → **GPIO2** (drive HIGH to turn backlight on)
-* VCC → 3V3, GND → GND
+* SCLK (1st row, pin 12) → **GPIO40**
+* MOSI (1st row, pin 10) → **GPIO41**
+* CS (2nd row, pin 12) → **GPIO21**
+* DC (2nd row, pin 11) → **GPIO42**
+* RST (1st row, pin 7) → **GPIO1**
+* BL (2nd row, pin 9) → **GPIO2** (drive HIGH to turn backlight on)
+* VCC (1st row, pin 1) → 3V3
+* GND (2nd row, pin 3) → GND
 
 ### HAT Buttons & Joystick  *(active-LOW, use `INPUT_PULLUP`)*
 
-* KEY1 → **GPIO12**
-* KEY2 → **GPIO13**
-* KEY3 → **GPIO14**
-* JOY UP → **GPIO15**
-* JOY DOWN → **GPIO16**
-* JOY LEFT → **GPIO17**
-* JOY RIGHT → **GPIO18**
-* JOY PRESS → **GPIO11**
+* KEY1 (2nd row, pin 20) → **GPIO12**
+* KEY2 (2nd row, pin 19) → **GPIO13**
+* KEY3 (2nd row, pin 18) → **GPIO14**
+(UNUSED) * JOY UP → **GPIO15**
+(UNUSED) * JOY DOWN → **GPIO16**
+(UNUSED) * JOY LEFT → **GPIO17**
+(UNUSED) * JOY RIGHT → **GPIO18**
+(UNUSED) * JOY PRESS → **GPIO11**
 
-### Qwiic IMU (ICM-20948, I²C @ 3.3 V)
+### Qwiic IMU (ICM-20948, I²C @ 3.3 V), share with Pixy2
 
 * SDA → **GPIO9**
 * SCL → **GPIO8**
@@ -27,9 +28,10 @@
 
 ### Pixy 2.1 (UART)
 
-* ESP32 **TX** → Pixy **RX** → **GPIO6**
-* ESP32 **RX** → Pixy **TX** → **GPIO7**
-* Power Pixy from **5V**; GND common
+* SDA (3rd row, pin 1) → **GPIO9**
+* SCL (5th row, pin 1) → **GPIO8**
+* VCC (1st row, pin 2) → 3V3
+* GND (3rd row, pin 2) → GND
 
 ### HC-SR04 x2  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
 
