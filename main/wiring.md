@@ -43,14 +43,16 @@
 * ENA (PWM) → **GPIO5**
 * IN1 → **GPIO6**
 * IN2 → **GPIO7**
-* ENCPinA → **GPIO38**
-* ENCPinB → **GPIO46**
+* ENCPinA → **GPIO38** (yellow)
+* ENCPinB → **GPIO46** (green)
+* blue wire from matrix motor (5V)
+* white wire from Matrix motor (GND)
 * L298N logic 5V → your 5 V rail; motor VIN → motor battery; GND common
 
 ### Servo
 
-* Signal → **GPIO4** (LEDC @ 50 Hz)
-* Power servo from 5–6 V (not 3V3); GND common
+* Signal (orang → **GPIO4** (LEDC @ 50 Hz)
+* Power servo (red) from 5–6 V (not 3V3); GND (brown) common
 
 #### Notes / gotchas
 
