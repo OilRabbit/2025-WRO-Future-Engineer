@@ -1,7 +1,7 @@
 #include "ultra.h"
 
-#define U1_TRIG 3
-#define U1_ECHO 45
+#define U1_TRIG 10
+#define U1_ECHO 11
 
 #define U2_TRIG 47
 #define U2_ECHO 48
@@ -47,7 +47,7 @@ int getUltra1DistMedian(int iter = 10, int max_dist_cm = 300){
  */
 void getultra1Distloop(void *parameters){
   while(1){
-    // ultra1Dist = getUltra1Dist(300);
+    ultra1Dist = getUltra1Dist(300);
 
     // If you choose to use Median Filter, 5 iteration and 5ms after each detection is the best
     ultra1Dist = getUltra1DistMedian(5, 300);

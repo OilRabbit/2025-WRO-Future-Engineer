@@ -22,21 +22,21 @@
 
 ### Qwiic IMU (ICM-20948, I²C @ 3.3 V), share with Pixy2
 
-* SDA → **GPIO9**
+* SDA → **GPIO9** (purple)
 * SCL → **GPIO8**
 * VCC → 3V3, GND → GND
 
 ### Pixy 2.1 (UART)
 
-* SDA (3rd row, pin 1) → **GPIO9**
-* SCL (5th row, pin 1) → **GPIO8**
+* SDA (3rd row, pin 1) → **GPIO8**
+* SCL (5th row, pin 1) → **GPIO9**
 * VCC (1st row, pin 2) → 3V3
 * GND (3rd row, pin 2) → GND
 
 ### HC-SR04 x2  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
 
-* Sensor A: **TRIG → GPIO3**, **ECHO → GPIO45** (through resistor divider)
-* Sensor B: **TRIG → GPIO47**, \*\*ECHO → **GPIO48** (through resistor divider)
+* Sensor A: **TRIG → GPIO10**, **ECHO → GPIO11** (through resistor divider)
+* Sensor B: **TRIG → GPIO47**, **ECHO → **GPIO48** (through resistor divider)
 
 ### L298N (single DC motor)
 
@@ -51,7 +51,7 @@
 
 ### Servo
 
-* Signal (orang → **GPIO4** (LEDC @ 50 Hz)
+* Signal (orang) → **GPIO4** (LEDC @ 50 Hz)
 * Power servo (red) from 5–6 V (not 3V3); GND (brown) common
 
 #### Notes / gotchas

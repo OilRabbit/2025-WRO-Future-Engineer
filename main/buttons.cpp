@@ -39,10 +39,10 @@ void showbtnState(TFT_COLUMN column, int line_number, int text_size, uint16_t te
   if (is_btn_pressed(TFT_BTN1)){
     imu_resetYaw();
     steering_percentage = 100;
-    motor_move(50);
+    // motor_move(50);
   } else {
     steering_percentage = -100;
-    motor_brake();
+    // motor_brake();
   }
   // static int nump = 0;
   // nump += is_btn_bumped(TFT_BTN1);

@@ -26,7 +26,7 @@ void setup() {
     tft.displayLeftln(7, 2, "Btn Init:", TFT_WHITE, false);
     tft.displayLeftln(8, 2, "Imu Init:", TFT_WHITE, false);
     tft.displayLeftln(9, 2, "Str Init:", TFT_WHITE, false);
-    tft.displayLeftln(10, 2, "Mtr Init:", TFT_WHITE, false);
+    // tft.displayLeftln(10, 2, "Mtr Init:", TFT_WHITE, false);
     tft.displayLeftln(11, 2, "Pxy Init:", TFT_WHITE, false);
   #endif
   
@@ -73,11 +73,11 @@ void setup() {
     tft.displayRightln(9, 2, "Done", TFT_GREEN, false);
   #endif
 
-  motor_init();
-  #ifdef FENZY_MODE
-    delay(500);
-    tft.displayRightln(10, 2, "Done", TFT_GREEN, false);
-  #endif
+  // motor_init();
+  // #ifdef FENZY_MODE
+  //   delay(500);
+  //   tft.displayRightln(10, 2, "Done", TFT_GREEN, false);
+  // #endif
 
   Pixy2I2C pixy;
 
@@ -109,7 +109,7 @@ void setup() {
     NULL,              // Parameters
     1,                 // Priority
     &Ultra1Thread,  // Task handle
-    1                  // Core 1
+    0                  // Core 1
   );
 
   xTaskCreatePinnedToCore(
@@ -119,7 +119,7 @@ void setup() {
     NULL,              // Parameters
     1,                 // Priority
     &Ultra2Thread,  // Task handle
-    1                  // Core 1
+    0                  // Core 1
   );
 
   xTaskCreatePinnedToCore(
@@ -149,7 +149,7 @@ void setup() {
     NULL,              // Parameters
     1,                 // Priority
     &Pixy2Thread,  // Task handle
-    0                  // Core 1
+    1                  // Core 1
   );
 
   // xTaskCreatePinnedToCore(
