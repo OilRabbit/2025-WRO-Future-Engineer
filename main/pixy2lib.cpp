@@ -38,7 +38,7 @@ COLOURED_OBJ getNearestPillar() {
 void getNearestBlkloop(void *){
   while(1){
     nearestPillarGlobal = getNearestPillar();
-    Serial.println(nearestPillarGlobal.colour);
+    // Serial.println(nearestPillarGlobal.colour);
     vTaskDelay(5 / portTICK_PERIOD_MS);
   }
 }

@@ -36,14 +36,13 @@ bool is_btn_bumped(TFT_BTNS btn){
 // For testing only
 void showbtnState(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   String btn_text = String("Bt1:") + (is_btn_pressed(TFT_BTN1) ? "Pre" : "Rel");
-  if (is_btn_pressed(TFT_BTN1)){
-    imu_resetYaw();
-    steering_percentage = 100;
-    // motor_move(50);
-  } else {
-    steering_percentage = -100;
-    // motor_brake();
-  }
+  if (is_btn_pressed(TFT_BTN2)) imu_resetYaw();
+  if (is_btn_pressed(TFT_BTN3)) tft.clear();
+  // if (is_btn_pressed(TFT_BTN1)){
+  //   motor_move(20);
+  // } else {
+  //   motor_stop(BRAKE);
+  // }
   // static int nump = 0;
   // nump += is_btn_bumped(TFT_BTN1);
   // String btn_text = String("NumP:") + String(nump);

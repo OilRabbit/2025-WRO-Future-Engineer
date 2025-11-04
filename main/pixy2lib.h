@@ -7,6 +7,8 @@
 #define PIXY2_SDA 8
 #define PIXY2_SCL 9
 
+extern Pixy2I2C pixy;
+
 typedef enum {
   RED = 1,
   GREEN = 2,

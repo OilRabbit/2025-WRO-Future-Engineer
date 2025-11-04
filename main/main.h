@@ -13,6 +13,18 @@
 #include "steering.h"
 #include "motor.h"
 #include "pixy2lib.h"
+#include "OC1.h"
+
+extern TaskHandle_t blinkledThread;
+extern TaskHandle_t displayThread;
+extern TaskHandle_t Ultra1Thread;
+extern TaskHandle_t Ultra2Thread;
+extern TaskHandle_t IMUThread;
+extern TaskHandle_t SteeringThread;
+extern TaskHandle_t MotorEncThread;
+extern TaskHandle_t Pixy2Thread;
+extern TaskHandle_t OC1Thread;
+extern TaskHandle_t OC2Thread;
 
 // #include "Timer.h"
 // #include "display.h"

@@ -9,9 +9,9 @@
 
 extern ICM_20948_I2C icm;
 
-extern double imu_yaw;
-extern double imu_pitch;
-extern double imu_roll;
+extern volatile double imu_yaw;
+extern volatile double imu_pitch;
+extern volatile double imu_roll;
 
 void imu_init();
 bool get_ypr(double& yaw, double& pitch, double& roll);

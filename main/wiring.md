@@ -38,16 +38,13 @@
 * Sensor A: **TRIG → GPIO10**, **ECHO → GPIO11** (through resistor divider)
 * Sensor B: **TRIG → GPIO47**, **ECHO → **GPIO48** (through resistor divider)
 
-### L298N (single DC motor)
+### <Motor>
 
-* ENA (PWM) → **GPIO5**
-* IN1 → **GPIO6**
-* IN2 → **GPIO7**
-* ENCPinA → **GPIO38** (yellow)
-* ENCPinB → **GPIO46** (green)
-* blue wire from matrix motor (5V)
-* white wire from Matrix motor (GND)
-* L298N logic 5V → your 5 V rail; motor VIN → motor battery; GND common
+* Brake (blue) → **GPIO5**
+* PWM (green) → **GPIO6**
+* Dir (brown) → **GPIO7**
+* ENCPinA → **GPIO39** (yellow)
+* ENCPinB → **GPIO17** (white)
 
 ### Servo
 
