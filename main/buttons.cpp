@@ -1,3 +1,4 @@
+#include "HardwareSerial.h"
 #include "buttons.h"
 #include "imu.h"
 #include "steering.h"
@@ -36,13 +37,22 @@ bool is_btn_bumped(TFT_BTNS btn){
 // For testing only
 void showbtnState(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   String btn_text = String("Bt1:") + (is_btn_pressed(TFT_BTN1) ? "Pre" : "Rel");
+  static bool run = false;
+  static bool finished = false;
   if (is_btn_pressed(TFT_BTN2)) imu_resetYaw();
   if (is_btn_pressed(TFT_BTN3)) tft.clear();
-  // if (is_btn_pressed(TFT_BTN1)){
-  //   motor_move(20);
-  // } else {
-  //   motor_stop(BRAKE);
-  // }
+  if (is_btn_bumped(TFT_BTN1)){
+    finished = false;
+    run = true;
+  }
+  if (run && !finished){
+    // Serial.println("hi");
+    finished = motor_degree_accel(1000, 300, 300, -20);
+    if (finished) {
+      run = false;
+      motor_stop(BRAKE);
+    }
+  }
   // static int nump = 0;
   // nump += is_btn_bumped(TFT_BTN1);
   // String btn_text = String("NumP:") + String(nump);

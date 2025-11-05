@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define FENZY_MODE 1
+// #define FENZY_MODE 1
 
 #include <string.h>
 #include "LED.h"

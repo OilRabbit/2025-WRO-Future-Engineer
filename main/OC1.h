@@ -21,8 +21,8 @@ typedef enum {
 } OC1_STATES;
 
 int sign(float num);
-void OC1(double right_ang, int dist_threshold, int power);
+void OC1_ultra(double right_ang, int dist_threshold, int power);
 void OC1main(void *parameters);
-// void showOC1Time(COLUMN column, int line_number, int size, bool clearDisplay);
+void showOC1Time(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);
 
 #endif

@@ -47,11 +47,15 @@ int getUltra1DistMedian(int iter = 10, int max_dist_cm = 300){
  */
 void getultra1Distloop(void *parameters){
   while(1){
-    ultra1Dist = getUltra1Dist(300);
+    int dist = getUltra1Dist(300);
+    if (dist == 0) ultra1Dist = 300;
+    else ultra1Dist = dist;
 
     // If you choose to use Median Filter, 5 iteration and 5ms after each detection is the best
-    ultra1Dist = getUltra1DistMedian(5, 300);
-    vTaskDelay(5 / portTICK_PERIOD_MS);
+    // int dist = getUltra1DistMedian(5, 300);
+    // if (dist == 0) ultra1Dist = 300;
+    // else ultra1Dist = dist;
+    vTaskDelay(30 / portTICK_PERIOD_MS);
   }
 }
 
@@ -101,11 +105,15 @@ int getUltra2DistMedian(int iter = 10, int max_dist_cm = 300){
  */
 void getultra2Distloop(void *parameters){
   while(1){
-    // ultra1Dist = getUltra2Dist(300);
+    int dist = getUltra2Dist(300);
+    if (dist == 0) ultra2Dist = 300;
+    else ultra2Dist = dist;
 
     // If you choose to use Median Filter, 5 iteration and 5ms after each detection is the best
-    ultra2Dist = getUltra2DistMedian(5, 300);
-    vTaskDelay(5 / portTICK_PERIOD_MS);
+    // int dist = getUltra2DistMedian(5, 300);
+    // if (dist == 0) ultra2Dist = 300;
+    // else ultra2Dist = dist;
+    vTaskDelay(30 / portTICK_PERIOD_MS);
   }
 }
 

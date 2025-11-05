@@ -1,3 +1,4 @@
+#include "HardwareSerial.h"
 #include "Motor.h"
 
 #include "motor.h"
@@ -150,8 +151,54 @@ void motor_on_degree(int deg, int speed_percentage, BRAKE_TYPE brake_method) {
   motor_stop(brake_method);
 }
 
-void motor_on_degree(int deg, int speed_percentage) {
-  motor_on_degree(deg, speed_percentage, BRAKE);
+typedef enum {
+  ACCEL,
+  CONST_SPEED,
+  DECEL,
+  ENDED,
+} MOTOR_ACCEL_STATE;
+
+bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float max_speed){
+  static bool init = true;
+  static float curr_speed;
+	static float start_pos;
+	static float acceleration;
+  static MOTOR_ACCEL_STATE state;
+
+  if (init){
+    if ((accel_dist + decel_dist) > dist){
+      accel_dist = dist / 2;
+      decel_dist = dist / 2;
+    }
+    start_pos = MOTOR_ENCODER_COUNT;
+    acceleration = (max_speed * 10 / (accel_dist + 1));
+    curr_speed += acceleration;
+    state = ACCEL;
+		init = false;
+	}
+
+  vTaskDelay(10 / portTICK_PERIOD_MS);
+  motor_move(curr_speed);
+  if (abs(MOTOR_ENCODER_COUNT - start_pos) < accel_dist){
+      if (abs(curr_speed) > abs(max_speed)){
+        curr_speed = max_speed;
+      }
+      curr_speed += acceleration;
+  } else if (abs(MOTOR_ENCODER_COUNT - start_pos) < abs(dist - decel_dist)) curr_speed = max_speed;
+  else if (abs(MOTOR_ENCODER_COUNT - start_pos) < dist){
+    acceleration = (-max_speed * 10 / (decel_dist + 1));
+    if (abs(curr_speed) <= 10){
+      if (abs(MOTOR_ENCODER_COUNT - start_pos) <= dist){
+        curr_speed = 10 * max_speed / abs(max_speed);
+      }
+    } else{
+      curr_speed += acceleration;
+    }
+  } else {
+    init = true;
+    return true;
+  }
+  return false;
 }
 
 void motor_encloop(void* parameters){

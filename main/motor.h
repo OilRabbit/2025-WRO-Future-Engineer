@@ -53,6 +53,6 @@ void motor_move(int speed_percentage);               // -100..100 (%)
 void motor_stop(BRAKE_TYPE brake_method);                   // BRAKE or COAST
 
 void motor_on_degree(int deg, int speed_percentage, BRAKE_TYPE brake_method);
-void motor_on_degree(int deg, int speed_percentage); // default brake = BRAKE
+bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float max_speed);
 void motor_encloop(void* parameters);
 void showEncoder(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);

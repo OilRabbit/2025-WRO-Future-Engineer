@@ -5,6 +5,7 @@
 #include "steering.h"
 #include "motor.h"
 #include "pixy2lib.h"
+#include "OC1.h"
 
 #define TFT_SCLK 40   // HAT SCLK -> ESP32-S3 GPIO40
 #define TFT_MOSI 41   // HAT MOSI -> ESP32-S3 GPIO41
@@ -95,6 +96,7 @@ void displayData(void *parameters){
     showSteering(TFT_LEFT_CLN, 6, 2, TFT_WHITE, false);
     showEncoder(TFT_LEFT_CLN, 7, 2, TFT_WHITE, false);
     showNearestBlk(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
+    showOC1Time(TFT_LEFT_CLN, 9, 2, TFT_WHITE, false);
     // showBattPercentage(false);
     // showUltra2Dist(LEFT, 2, 1, false);
     // showNearestColour(RIGHT, 1, 1, false);
