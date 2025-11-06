@@ -97,11 +97,7 @@ void displayData(void *parameters){
     showEncoder(TFT_LEFT_CLN, 7, 2, TFT_WHITE, false);
     showNearestBlk(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
     showOC1Time(TFT_LEFT_CLN, 9, 2, TFT_WHITE, false);
-    // showBattPercentage(false);
-    // showUltra2Dist(LEFT, 2, 1, false);
-    // showNearestColour(RIGHT, 1, 1, false);
-    // showOC1Time(MID, 0, 1, false);
-    // showColorType(RIGHT, 3, 1, false);
+    showOC2Time(TFT_LEFT_CLN, 9, 2, TFT_WHITE, false);
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }

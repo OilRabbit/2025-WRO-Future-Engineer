@@ -181,15 +181,15 @@ void setup() {
     1                  // Core 1
   );
 
-  // xTaskCreatePinnedToCore(
-  //   OC1main,         // Task function
-  //   "OC1",       // Task name
-  //   10000,             // Stack size (bytes)
-  //   NULL,              // Parameters
-  //   1,                 // Priority
-  //   &OC1Thread,  // Task handle
-  //   1                  // Core 1
-  // );
+  xTaskCreatePinnedToCore(
+    OC1main,         // Task function
+    "OC1",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &OC1Thread,  // Task handle
+    1                  // Core 1
+  );
 }
 
 void loop() {
