@@ -7,8 +7,6 @@
 #define PIXY2_SDA 8
 #define PIXY2_SCL 9
 
-extern Pixy2I2C pixy;
-
 typedef enum {
   RED = 1,
   GREEN = 2,
@@ -27,6 +25,9 @@ typedef struct{
   uint8_t age;
   uint16_t area;
 } COLOURED_OBJ;
+
+extern Pixy2I2C pixy;
+extern COLOURED_OBJ nearestPillarGlobal;
 
 int pixy2_init();
 COLOURED_OBJ getNearestPillar();

@@ -22,6 +22,8 @@
 #define PWM_MAX_DUTY  ((1u << PWM_BITS) - 1)
 extern const bool PWM_ACTIVE_LOW;   // defined in motor.cpp
 
+#define ENC_PER_CM 1.44
+
 // Stop modes
 typedef enum{
   COAST = 0, 
@@ -53,6 +55,6 @@ void motor_move(int speed_percentage);               // -100..100 (%)
 void motor_stop(BRAKE_TYPE brake_method);                   // BRAKE or COAST
 
 void motor_on_degree(int deg, int speed_percentage, BRAKE_TYPE brake_method);
-bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float max_speed);
+bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float init_speed, float max_speed);
 void motor_encloop(void* parameters);
 void showEncoder(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);

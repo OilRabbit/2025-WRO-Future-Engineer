@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-// #define FENZY_MODE 1
+#define FENZY_MODE 1
 
 #include <string.h>
 #include "LED.h"
@@ -14,6 +14,7 @@
 #include "motor.h"
 #include "pixy2lib.h"
 #include "OC1.h"
+#include "OC2.h"
 
 extern TaskHandle_t blinkledThread;
 extern TaskHandle_t displayThread;

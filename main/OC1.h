@@ -10,6 +10,8 @@
 #include "ultra.h"
 #include "main.h"
 #include "motor.h"
+#include "buttons.h"
+#include "calculation.h"
 
 typedef enum {
   DETECT_STATE,
@@ -21,7 +23,6 @@ typedef enum {
   DEBUG_STATE
 } OC1_STATES;
 
-int sign(float num);
 void OC1_ultra(double right_ang, int dist_threshold, int power);
 void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower);
 void OC1main(void *parameters);

@@ -39,8 +39,11 @@ void showbtnState(TFT_COLUMN column, int line_number, int text_size, uint16_t te
   String btn_text = String("Bt1:") + (is_btn_pressed(TFT_BTN1) ? "Pre" : "Rel");
   static bool run = false;
   static bool finished = false;
-  if (is_btn_pressed(TFT_BTN2)) imu_resetYaw();
-  if (is_btn_pressed(TFT_BTN3)) tft.clear();
+  if (is_btn_pressed(TFT_BTN3)){
+    imu_resetYaw();
+    reset_encoder();
+    tft.clear();
+  }
   // if (is_btn_bumped(TFT_BTN1)){
   //   finished = false;
   //   run = true;

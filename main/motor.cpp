@@ -158,7 +158,7 @@ typedef enum {
   ENDED,
 } MOTOR_ACCEL_STATE;
 
-bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float max_speed){
+bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float init_speed, float max_speed){
   static bool init = true;
   static float curr_speed;
 	static float start_pos;

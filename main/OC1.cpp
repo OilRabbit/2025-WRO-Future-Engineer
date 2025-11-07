@@ -1,4 +1,3 @@
-#include "motor.h"
 #include "OC1.h"
 
 static inline void safeSuspend(TaskHandle_t h){ if (h) vTaskSuspend(h); }
@@ -7,18 +6,6 @@ static inline void safeResume(TaskHandle_t h){ if (h) vTaskResume(h); }
 bool reset_OC1 = true;
 long OC1_starttime = 0; 
 long OC1_endtime = 0; 
-
-/**
- * @brief To get the sign of a variable
- * @param num; float; the variable to get the sign
- *
- * @return int; 1, -1 or 0
-*/
-int sign(float num){
-  if (num > 0) return 1;
-  else if (num < 0) return -1;
-  else return 0;
-}
 
 /**
  * @brief Function for OC1 using Ultrasonic sensors
@@ -32,7 +19,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
   // Disable the huskylens thread to boost the efficiency of this thread
   safeSuspend(blinkledThread);
   // safeSuspend(Pixy2Thread);
-  // safeSuspend(OC2Thread);
+  safeSuspend(OC2Thread);
 
   // Variables required for OC1
   static OC1_STATES state = DETECT_STATE;     // A variable storing the current state of OC2 run
@@ -51,6 +38,8 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
   String OC1_text = String("oc1:");
 
   if (reset_OC1){
+    state = DETECT_STATE;
+    prev_state = DETECT_STATE;
     tar_ang = 0;
     is_anticlockwise = false;
     num_turn = 0;
@@ -236,7 +225,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
   // Disable the huskylens thread to boost the efficiency of this thread
   safeSuspend(blinkledThread);
   // safeSuspend(Pixy2Thread);
-  // safeSuspend(OC2Thread);
+  safeSuspend(OC2Thread);
 
   // Variables required for OC1
   static OC1_STATES state = DETECT_STATE;     // A variable storing the current state of OC2 run
@@ -247,16 +236,23 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
   static int num_turn = 0;                // Variable storing the number of turns the car has made
   static long sector1_length = 0;
   static long sector2_length = 0;
+  static bool left_init_close_wall = false;
+  static bool right_init_close_wall = false;
   float imu_kp = 2;
+  float imu_kp_fast = 1.6;
   String OC1_text = String("oc1:");
 
   if (reset_OC1){
+    left_init_close_wall = false;
+    right_init_close_wall = false;
     tar_ang = 0;
     is_anticlockwise = false;
     num_turn = 0;
     sector1_length = 0;
     sector2_length = 0;
     steering_percentage = 0;
+    if (ultra1Dist < 15) left_init_close_wall = true;
+    if (ultra2Dist < 15) right_init_close_wall = true;
     end_game = false;
     OC1_starttime = internalClock.read();
     imu_resetYaw();
@@ -265,6 +261,12 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
 
   if (!end_game){
     // safeSuspend(displayThread);
+    String sector1_text = String(sector1_length);
+    String sector2_text = String(sector2_length);
+    tft.clearln(TFT_LEFT_CLN, 11);
+    tft.displayLeftln(11, 2, sector1_text.c_str(), TFT_WHITE, false);
+    tft.clearln(TFT_LEFT_CLN, 12);
+    tft.displayLeftln(12, 2, sector2_text.c_str(), TFT_WHITE, false);
     switch(state){
       case DETECT_STATE:
         Serial.println("DETECT_STATE");
@@ -273,12 +275,20 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           if (ultra1Dist > dist_threshold){
             is_anticlockwise = true;
             safeSuspend(Ultra2Thread);
+            if (left_init_close_wall) {
+              sector1_length += 5;
+              sector2_length += 0;
+            }
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             break;
           } else if (ultra2Dist > dist_threshold){
             is_anticlockwise = false;
             safeSuspend(Ultra1Thread);
+            if (right_init_close_wall) {
+              sector1_length += 5;
+              sector2_length += 0;
+            }
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             break;
@@ -288,8 +298,8 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
         } else {
           if (is_anticlockwise){
             if (ultra1Dist > dist_threshold){
-              if (num_turn == 1) sector1_length = abs(MOTOR_ENCODER_COUNT) - 20;
-              if (num_turn == 2) sector2_length = abs(MOTOR_ENCODER_COUNT) - 20;
+              if (num_turn == 1) sector1_length += abs(MOTOR_ENCODER_COUNT);
+              if (num_turn == 2) sector2_length += abs(MOTOR_ENCODER_COUNT);
               prev_state = DETECT_STATE;
               state = WAIT_TURN_STATE;
               break;
@@ -298,8 +308,8 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
             }
           } else {
             if (ultra2Dist > dist_threshold){
-              if (num_turn == 1) sector1_length = abs(MOTOR_ENCODER_COUNT);
-              if (num_turn == 2) sector2_length = abs(MOTOR_ENCODER_COUNT) - 10;
+              if (num_turn == 1) sector1_length += abs(MOTOR_ENCODER_COUNT);
+              if (num_turn == 2) sector2_length += abs(MOTOR_ENCODER_COUNT);
               prev_state = DETECT_STATE;
               state = WAIT_TURN_STATE;
               break;
@@ -311,22 +321,14 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
         break;
 
       case RUN_SECTOR_STATE:
-        if (num_turn % 4 == 1) {
-          if (is_anticlockwise) {
-            if (!motor_degree_accel(sector1_length - 20, (sector1_length - 20) / 2, (sector1_length - 20) / 2, hypower)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
-            else {
-              state = WAIT_TURN_STATE;
-              break;
-            }
-          } else {
-            if (!motor_degree_accel(sector1_length - 5, (sector1_length - 5) / 2, (sector1_length - 5) / 2, hypower)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
-            else {
-              state = WAIT_TURN_STATE;
-              break;
-            }
+        if (num_turn % 2 == 1) {
+          if (!motor_degree_accel(sector1_length, sector1_length / 2, sector1_length / 2, 10, hypower)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp_fast;
+          else {
+            state = WAIT_TURN_STATE;
+            break;
           }
         } else{
-          if (!motor_degree_accel(sector2_length, sector2_length / 2, sector2_length / 2, hypower)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
+          if (!motor_degree_accel(sector2_length, sector2_length / 2, sector2_length / 2, 10, hypower)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp_fast;
           else {
             state = WAIT_TURN_STATE;
             break;
@@ -340,11 +342,11 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
         tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
         num_turn++;
         if (is_anticlockwise){
-          if (num_turn == 5) {
-            sector1_length -= 35;
-            sector2_length -= 40;
-          }
-          if (num_turn == 7) sector2_length -= 15;
+          if (num_turn == 3) sector2_length -= 40;
+          if (num_turn == 4) sector2_length -= 25;
+          if (num_turn == 5) sector1_length -= 35;
+          if (num_turn == 6) sector2_length -= 15;
+          // if (num_turn == 7) sector1_length -= 15;
         }
         prev_state = WAIT_TURN_STATE;
         state = TURNING_STATE;
@@ -353,7 +355,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
       case TURNING_STATE:
         Serial.println("TURNING_STATE");
         motor_move(power);
-        if ((abs(tar_ang - imu_yaw) > 20) && (abs(tar_ang) > abs(imu_yaw))){
+        if ((abs(tar_ang - imu_yaw) > 35) && (abs(tar_ang) > abs(imu_yaw))){
           steering_percentage = (tar_ang > 0) ? 100 : -100;
         } else{
           steering_percentage = 0;
@@ -374,7 +376,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
 
       case ENDING_STATE:
         Serial.println("ENDING_STATE");
-        if (!motor_degree_accel(65, 30, 30, 20)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
+        if (!motor_degree_accel(65, 30, 30, 10, 20)) steering_percentage = -(imu_yaw - tar_ang) * imu_kp_fast;
         else {
           motor_stop(BRAKE);
           steering_percentage = 0;
@@ -385,6 +387,17 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           else safeResume(Ultra2Thread);
           end_game = true;
           OC1_endtime = internalClock.read();
+        }
+        break;
+
+      case DEBUG_STATE:
+        Serial.println("ENDING_STATE");
+        if (is_btn_bumped(TFT_BTN3)){
+          state = DETECT_STATE;
+          break;
+        } else {
+          motor_stop(BRAKE);
+          break;
         }
         break;
     }
@@ -404,7 +417,7 @@ void OC1main(void *){
       reset_OC1 = true;
     }
     if (run_OC1){
-      OC1_fixed(90, 85, 13, 55);
+      OC1_fixed(90, 85, 13, 30);
       // OC1_ultra(90, 85, 17);
     } else {
       // safeResume(displayThread);

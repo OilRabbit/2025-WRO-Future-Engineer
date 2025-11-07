@@ -6,6 +6,7 @@
 #include "motor.h"
 #include "pixy2lib.h"
 #include "OC1.h"
+#include "OC2.h"
 
 #define TFT_SCLK 40   // HAT SCLK -> ESP32-S3 GPIO40
 #define TFT_MOSI 41   // HAT MOSI -> ESP32-S3 GPIO41
@@ -96,8 +97,8 @@ void displayData(void *parameters){
     showSteering(TFT_LEFT_CLN, 6, 2, TFT_WHITE, false);
     showEncoder(TFT_LEFT_CLN, 7, 2, TFT_WHITE, false);
     showNearestBlk(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
-    showOC1Time(TFT_LEFT_CLN, 9, 2, TFT_WHITE, false);
-    showOC2Time(TFT_LEFT_CLN, 9, 2, TFT_WHITE, false);
+    showOC1Time(TFT_LEFT_CLN, 10, 2, TFT_WHITE, false);
+    // showOC2Time(TFT_LEFT_CLN, 11, 2, TFT_WHITE, false);
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }

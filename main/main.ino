@@ -35,50 +35,50 @@ void setup() {
 
   led_init();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
   internalClock.start();
 
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
   Serial.begin(115200);
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
   ultraInit();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
   btn_init();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
   imu_init();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
   steeringInit();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
   motor_init();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
@@ -89,7 +89,7 @@ void setup() {
   Serial.println("Init Pixy2...");
   pixy.init();
   #ifdef FENZY_MODE
-    delay(500);
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
@@ -188,6 +188,16 @@ void setup() {
     NULL,              // Parameters
     1,                 // Priority
     &OC1Thread,  // Task handle
+    1                  // Core 1
+  );
+
+  xTaskCreatePinnedToCore(
+    OC2main,         // Task function
+    "OC2",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &OC2Thread,  // Task handle
     1                  // Core 1
   );
 }
