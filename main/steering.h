@@ -7,7 +7,7 @@
 
 #define SERVO_PIN 4
 
-#define MAX_STEERING_ANGLE 14
+#define MAX_STEERING_ANGLE 13
 
 extern float steering_percentage; 
 extern Servo steering_motor;
