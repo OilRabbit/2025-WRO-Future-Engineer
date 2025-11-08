@@ -88,17 +88,20 @@ void TFT::displayRightln(int line_number, int textsize, const char text[], uint1
 
 void displayData(void *parameters){
   while(1){
+    int ln = 2;
     // Put your display functions here. The first one MUST clear display, while those after that MUST NOT clear the display
     showInternalClock();
-    showUltra1Dist(TFT_LEFT_CLN, 2, 2, TFT_WHITE, false);
-    showUltra2Dist(TFT_LEFT_CLN, 3, 2, TFT_WHITE, false);
-    showIMU(TFT_LEFT_CLN, 4, 2, TFT_WHITE, false);
-    showbtnState(TFT_LEFT_CLN, 5, 2, TFT_WHITE, false);
-    showSteering(TFT_LEFT_CLN, 6, 2, TFT_WHITE, false);
-    showEncoder(TFT_LEFT_CLN, 7, 2, TFT_WHITE, false);
-    showNearestBlk(TFT_LEFT_CLN, 8, 2, TFT_WHITE, false);
-    showOC1Time(TFT_LEFT_CLN, 10, 2, TFT_WHITE, false);
-    // showOC2Time(TFT_LEFT_CLN, 11, 2, TFT_WHITE, false);
+    showUltra1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showUltra2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showUltra3Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showIMU(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showbtnState(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showSteering(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showEncoder(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showNearestBlk(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    ln++;
+    showOC1Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showOC2Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }
