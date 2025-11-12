@@ -8,6 +8,7 @@
 #include "timestamp.h"
 #include <algorithm>
 #include "ultra.h"
+#include "tof.h"
 #include "main.h"
 #include "motor.h"
 #include "buttons.h"

@@ -2,7 +2,7 @@
 
 TaskHandle_t blinkledThread = NULL;
 TaskHandle_t displayThread = NULL;
-TaskHandle_t Ultra1Thread = NULL;
+TaskHandle_t ToF1Thread = NULL;
 TaskHandle_t Ultra2Thread = NULL;
 TaskHandle_t Ultra3Thread = NULL;
 TaskHandle_t IMUThread = NULL;
@@ -23,7 +23,7 @@ void setup() {
     tft.displayLeftln(line_iter++, 2, "LED Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Clk Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Ser Init:", TFT_WHITE, false);
-    tft.displayLeftln(line_iter++, 2, "Ut1 Init:", TFT_WHITE, false);
+    tft.displayLeftln(line_iter++, 2, "Tf1 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Ut2 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Ut3 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Btn Init:", TFT_WHITE, false);
@@ -53,10 +53,16 @@ void setup() {
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
-  ultraInit();
+  tofInit();
   #ifdef FENZY_MODE
     delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  ultraInit();
+  #ifdef FENZY_MODE
+    delay(100);
+    // tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
@@ -106,13 +112,23 @@ void setup() {
     1                  // Core 1
   );
 
+  // xTaskCreatePinnedToCore(
+  //   getultra1Distloop,         // Task function
+  //   "Get Ultra 1 Distance",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &Ultra1Thread,  // Task handle
+  //   0                  // Core 0
+  // );
+
   xTaskCreatePinnedToCore(
-    getultra1Distloop,         // Task function
-    "Get Ultra 1 Distance",       // Task name
+    getToF1Distloop,         // Task function
+    "Get ToF 1 Distance",       // Task name
     10000,             // Stack size (bytes)
     NULL,              // Parameters
     1,                 // Priority
-    &Ultra1Thread,  // Task handle
+    &ToF1Thread,  // Task handle
     0                  // Core 0
   );
 
@@ -216,4 +232,6 @@ void setup() {
 }
 
 void loop() {
+  while (Serial2.available()) Serial.write(Serial2.read());
+
 }

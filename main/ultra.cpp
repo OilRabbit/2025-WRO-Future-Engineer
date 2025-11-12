@@ -5,7 +5,7 @@ int ultra1Dist;
 int ultra2Dist;
 int ultra3Dist;
 
-NewPing ultra1(U1_TRIG, U1_ECHO, 250);
+// NewPing ultra1(U1_TRIG, U1_ECHO, 250);
 NewPing ultra2(U2_TRIG, U2_ECHO, 250);
 NewPing ultra3(U3_TRIG, U3_ECHO, 250);
 
@@ -16,44 +16,44 @@ void ultraInit(){
   // Basically do nothing since we are using the NewPing libraries
 }
 
-// Write two functions to prevent data crashing
-/**
- * @brief Get the distance measured by a specific laser
- * 
- * @param port; (enum) LASERPORT; The port of the laser
- * @return int; The distance in mm measured by the laser
- */
-int getUltra1Dist(int max_dist_cm = 300){
-  return ultra1.ping_cm(max_dist_cm);
-}
+// // Write two functions to prevent data crashing
+// /**
+//  * @brief Get the distance measured by a specific laser
+//  * 
+//  * @param port; (enum) LASERPORT; The port of the laser
+//  * @return int; The distance in mm measured by the laser
+//  */
+// int getUltra1Dist(int max_dist_cm = 300){
+//   return ultra1.ping_cm(max_dist_cm);
+// }
 
-int getUltra1DistMedian(int iter = 10, int max_dist_cm = 300){
-  float temp = 25.0; // Temperature in Celsius (this value would probably come from a temperature sensor).
-  float factor = sqrt(1 + temp / 273.15) / 60.368; // Speed of sound calculation based on temperature.
-  return (float)ultra1.ping_median(iter, max_dist_cm) * factor;
-}
+// int getUltra1DistMedian(int iter = 10, int max_dist_cm = 300){
+//   float temp = 25.0; // Temperature in Celsius (this value would probably come from a temperature sensor).
+//   float factor = sqrt(1 + temp / 273.15) / 60.368; // Speed of sound calculation based on temperature.
+//   return (float)ultra1.ping_median(iter, max_dist_cm) * factor;
+// }
 
-/**
- * @brief A threading function for getting the distance measured by Laser 1 (the one on the LHS).
- * 
- * Uses global variables:
- * - LaserMode: (enum) indicating mode of distance calculation (MEANDIST, MEDIANDIST, DEFAULT)
- * - LaserElements: (int) number of data points used for calculation
- * - ultra1Dist: (int) stores measured distance (global output)
- */
-void getultra1Distloop(void *parameters){
-  while(1){
-    int dist = getUltra1Dist(300);
-    if (dist == 0) ultra1Dist = 300;
-    else ultra1Dist = dist;
+// /**
+//  * @brief A threading function for getting the distance measured by Laser 1 (the one on the LHS).
+//  * 
+//  * Uses global variables:
+//  * - LaserMode: (enum) indicating mode of distance calculation (MEANDIST, MEDIANDIST, DEFAULT)
+//  * - LaserElements: (int) number of data points used for calculation
+//  * - ultra1Dist: (int) stores measured distance (global output)
+//  */
+// void getultra1Distloop(void *parameters){
+//   while(1){
+//     int dist = getUltra1Dist(300);
+//     if (dist == 0) ultra1Dist = 300;
+//     else ultra1Dist = dist;
 
-    // If you choose to use Median Filter, 5 iteration and 5ms after each detection is the best
-    // int dist = getUltra1DistMedian(5, 300);
-    // if (dist == 0) ultra1Dist = 300;
-    // else ultra1Dist = dist;
-    vTaskDelay(30 / portTICK_PERIOD_MS);
-  }
-}
+//     // If you choose to use Median Filter, 5 iteration and 5ms after each detection is the best
+//     // int dist = getUltra1DistMedian(5, 300);
+//     // if (dist == 0) ultra1Dist = 300;
+//     // else ultra1Dist = dist;
+//     vTaskDelay(30 / portTICK_PERIOD_MS);
+//   }
+// }
 
 /**
   * @brief A function to put into display thread for showing the distance measured by Laser 1 (the one on the LHS)

@@ -15,10 +15,11 @@
 #include "pixy2lib.h"
 #include "OC1.h"
 #include "OC2.h"
+#include "tof.h"
 
 extern TaskHandle_t blinkledThread;
 extern TaskHandle_t displayThread;
-extern TaskHandle_t Ultra1Thread;
+extern TaskHandle_t ToF1Thread;
 extern TaskHandle_t Ultra2Thread;
 extern TaskHandle_t Ultra3Thread;
 extern TaskHandle_t IMUThread;

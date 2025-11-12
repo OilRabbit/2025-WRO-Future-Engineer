@@ -10,6 +10,7 @@
 #include "timestamp.h"
 #include <algorithm>
 #include "ultra.h"
+#include "tof.h"
 #include "main.h"
 #include "OC1.h"
 #include <cmath>

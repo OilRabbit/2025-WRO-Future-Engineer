@@ -161,7 +161,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         Serial.println("INIT_STATE_OC2");
         motor_move(tar_power);
         tar_power = 0;
-        if (ultra1Dist > ultra2Dist) is_anticlockwise = true;
+        if (dist_t1 > ultra2Dist) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
         state = DETECT_STATE_OC2;
@@ -187,7 +187,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             break;
           }
         }
-        if (((is_anticlockwise && ultra1Dist > dist_threshold) || (!is_anticlockwise && ultra2Dist > dist_threshold)) && (abs(MOTOR_ENCODER_COUNT) > 50 * ENC_PER_CM)){
+        if (((is_anticlockwise && dist_t1 > dist_threshold) || (!is_anticlockwise && ultra2Dist > dist_threshold)) && (abs(MOTOR_ENCODER_COUNT) > 50 * ENC_PER_CM)){
           prev_state = DETECT_STATE_OC2;
           state = TURNING_STATE_OC2;
           tar_ang_calibrate = 0;
@@ -232,7 +232,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           reset_encoder();
           break;
         } 
-        else if (ultra1Dist < 20) {
+        else if (dist_t1 < 20) {
           tar_ang_calibrate = 5;
         } else if (ultra2Dist < 20) {
           tar_ang_calibrate = -5;
@@ -361,7 +361,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           steering_percentage = 0;
           safeResume(blinkledThread);
           safeResume(OC1Thread);
-          if (!is_anticlockwise) safeResume(Ultra1Thread);
+          if (!is_anticlockwise) safeResume(ToF1Thread);
           else safeResume(Ultra2Thread);
           end_game = true;
           OC2_endtime = internalClock.read();
@@ -433,7 +433,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
         Serial.println("INIT_STATE_OC2");
         motor_move(tar_power);
         tar_power = 0;
-        if (ultra1Dist > ultra2Dist) is_anticlockwise = true;
+        if (dist_t1 > ultra2Dist) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
         state = DETECT_STATE_OC2;
@@ -465,7 +465,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
           prev_state = DETECT_STATE_OC2;
           state = STOP_OC2;
           if (!is_anticlockwise) {
-            outer_wall_dist = ultra1Dist;
+            outer_wall_dist = dist_t1;
           } else {
             outer_wall_dist = ultra2Dist;
           }
@@ -502,7 +502,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
               break;
             }
           }  
-        } else if (ultra1Dist < 20) {
+        } else if (dist_t1 < 20) {
           tar_ang_calibrate = 5;
         } else if (ultra2Dist < 20) {
           tar_ang_calibrate = -5;
@@ -637,7 +637,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
           steering_percentage = 0;
           safeResume(blinkledThread);
           safeResume(OC1Thread);
-          if (!is_anticlockwise) safeResume(Ultra1Thread);
+          if (!is_anticlockwise) safeResume(ToF1Thread);
           else safeResume(Ultra2Thread);
           end_game = true;
           OC2_endtime = internalClock.read();
@@ -782,7 +782,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
       //         reset_encoder();
       //         prev_state = OUT_PARKING_P6_STATE;
       //         Laser1Thread.enabled = false;
-      //         Ultra1Thread.enabled = false;
+      //         ToF1Thread.enabled = false;
       //         Ultra2Thread.enabled = false;
       //         huskylensThread.enabled = false;
       //         state = DETECT_STATE;
@@ -801,7 +801,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
       //           reset_encoder();
       //           prev_state = OUT_PARKING_P6_STATE;
       //           Laser1Thread.enabled = false;
-      //           Ultra1Thread.enabled = false;
+      //           ToF1Thread.enabled = false;
       //           Ultra2Thread.enabled = false;
       //           huskylensThread.enabled = false;
       //           state = DETECT_STATE;
@@ -829,7 +829,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
       // case MID_P1_STATE:
       //   Serial.print("MID_P1_STATE ");
       //   Laser1Thread.enabled = false;
-      //   Ultra1Thread.enabled = false;
+      //   ToF1Thread.enabled = false;
       //   Ultra2Thread.enabled = false;
       //   if (sign(inner_wall_dist) < 0){
       //     Serial.println("Right");
@@ -850,7 +850,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
       //       steering_percentage = 0;
       //       state = CURVE_P1_STATE;
       //       break;
-      //     } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area) && getUltra1Dist() < dist_threshold){
+      //     } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area) && getdist_t1() < dist_threshold){
       //       green_block_flash(is_anticlockwise);
       //       pillars_array.push_back({nearestPillarGlobal.colour, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area});
       //       pillar_front = {GREEN, nearestPillarGlobal.xpos, CAM_LOWEST_YPOS - nearestPillarGlobal.ypos, nearestPillarGlobal.height, nearestPillarGlobal.width, nearestPillarGlobal.area};
@@ -1275,20 +1275,20 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
       // case CHECK_MID_RACINGLN_STATE:
       //   Serial.println("CHECK_MID_RACINGLN_STATE");
       //   Laser1Thread.enabled = true;
-      //   if (is_anticlockwise) Ultra1Thread.enabled = true;
+      //   if (is_anticlockwise) ToF1Thread.enabled = true;
       //   else Ultra2Thread.enabled = true;
       //   motor_move(-60);
       //   front_wall_dist = getLaser1DistMedian(7);
       //   if (!mid_already){
       //     if (is_anticlockwise){
-      //       if (abs(ultra1Dist - MID_RACINGLN_POS) > 30 && ultra1Dist < MID_RACINGLN_POS){
+      //       if (abs(dist_t1 - MID_RACINGLN_POS) > 30 && dist_t1 < MID_RACINGLN_POS){
       //         motor_last_counter = MiniR4.M2.getCounter();
       //         prev_state = CHECK_MID_RACINGLN_STATE;
       //         state = CHECK_MID_TWICE;
       //         break;
       //       }
-      //       if (abs(ultra1Dist - MID_RACINGLN_POS) > 30 && ultra1Dist < dist_threshold && front_wall_dist > 2000){ // && MiniR4.M2.getCounter() < 1000
-      //         inner_wall_dist = ultra1Dist - MID_RACINGLN_POS;
+      //       if (abs(dist_t1 - MID_RACINGLN_POS) > 30 && dist_t1 < dist_threshold && front_wall_dist > 2000){ // && MiniR4.M2.getCounter() < 1000
+      //         inner_wall_dist = dist_t1 - MID_RACINGLN_POS;
       //         gyro_ang_detect_phase = imu_yaw;
       //         prev_state = CHECK_MID_RACINGLN_STATE;
       //         state = MID_P1_STATE;
@@ -1331,14 +1331,14 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
 
       // case CHECK_MID_TWICE:
       //   Serial.println("CHECK_MID_TWICE");
-      //   if (is_anticlockwise) Ultra1Thread.enabled = true;
+      //   if (is_anticlockwise) ToF1Thread.enabled = true;
       //   else Ultra2Thread.enabled = true;
       //   if (abs(MiniR4.M2.getCounter() - motor_last_counter) < 500){ // 1000 degree = 254mm
       //     motor_move(-60);
       //   }
       //   else{
-      //     if (is_anticlockwise && abs(ultra1Dist - MID_RACINGLN_POS) > 60){
-      //       inner_wall_dist = ultra1Dist - MID_RACINGLN_POS;
+      //     if (is_anticlockwise && abs(dist_t1 - MID_RACINGLN_POS) > 60){
+      //       inner_wall_dist = dist_t1 - MID_RACINGLN_POS;
       //       gyro_ang_detect_phase = imu_yaw;
       //       prev_state = CHECK_MID_TWICE;
       //       state = MID_P1_STATE;
@@ -1537,7 +1537,7 @@ void OC2main(void *){
       OC2_slow(90, 85, 5); //-80
     } else {
       // safeResume(displayThread);
-      safeResume(Ultra1Thread);
+      safeResume(ToF1Thread);
       safeResume(Ultra2Thread);
       safeResume(OC1Thread);
       motor_stop(BRAKE);

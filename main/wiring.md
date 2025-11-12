@@ -30,7 +30,7 @@
 
 * SDA (3rd row, pin 1) → **GPIO8**
 * SCL (5th row, pin 1) → **GPIO9**
-* VCC (1st row, pin 2) → 3V3
+* VCC (1st row, pin 2) → 5V
 * GND (3rd row, pin 2) → GND
 
 ### HC-SR04 x2  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
