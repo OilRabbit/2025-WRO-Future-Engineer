@@ -78,6 +78,7 @@ extern float steering_percentage;
 float min_xpos_Gcase(int area);
 float min_xpos_Rcase(int area);
 void OC2_pixy2(double right_ang, int dist_threshold, int power);
+void OC2_slow(double right_ang, int dist_threshold, int power);
 void OC2main(void *parameters);
 void showOC2Time(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);
 
