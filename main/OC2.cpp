@@ -331,7 +331,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             break;
           }
         } else {
-          if (!motor_degree_accel(area2dist_green(pillar_front.area), area2dist_green(pillar_front.area) / 2, area2dist_green(pillar_front.area) / 2, 8, 13)) steering_percentage = 0;
+          if (!motor_degree_accel(area2dist_green(pillar_front.area), area2dist_green(pillar_front.area) / 2, area2dist_green(pillar_front.area) / 2, 8, 12)) steering_percentage = 0;
           else {
             prev_state = SKIP_BLK_STATE_OC2;
             state = TURN_STRAIGHT_STATE_OC2;
@@ -459,19 +459,19 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
             break;
           }
         }
-        if (ultra3Dist < 30 && nearestPillarGlobal.colour == NO_COLOUR ){
-          last_u3_error = ultra3Dist;
-          if(ultra3Dist)
-          prev_state = DETECT_STATE_OC2;
-          state = STOP_OC2;
-          if (!is_anticlockwise) {
-            outer_wall_dist = dist_t1;
+        if ((is_anticlockwise && dist_t1 > dist_threshold) || (!is_anticlockwise && ultra2Dist > dist_threshold)){
+          if (ultra3Dist > 30) {
+            motor_move(tar_power);
+            break;
           } else {
-            outer_wall_dist = ultra2Dist;
-          }
-          tar_ang_calibrate = 0;
-          tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
-          break;
+            motor_stop(BRAKE);
+            prev_state = DETECT_STATE_OC2;
+            state = BACKWARD_STATE_OC2;
+            tar_ang_calibrate = 0;
+            tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
+            reset_encoder();
+            break;
+          }  
         }else if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 3){
           if (nearestPillarGlobal.colour == RED){
             if (nearestPillarGlobal.xpos >= min_xpos_Rcase(nearestPillarGlobal.area)){
@@ -514,21 +514,19 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
 
       case BACKWARD_STATE_OC2:
         Serial.println("BACKWARD_STATE_OC2");
-        reset_encoder();
-        if (abs(MOTOR_ENCODER_COUNT) < 10 * ENC_PER_CM) {
-          motor_move(-tar_power);
+        if (abs(MOTOR_ENCODER_COUNT) < 20 * ENC_PER_CM) {
+          motor_move(-8);
           break;
         } else {
           motor_stop(BRAKE);
           prev_state = BACKWARD_STATE_OC2;
-          state = STOP_OC2;
+          state = TURNING_P1_STATE;
           break;
         }
         break;
 
       case TURNING_P1_STATE:
         Serial.println("TURNING_P1_STATE_OC2");
-        tar_power = 5;
         if (abs(imu_yaw - tar_ang) > 40){
           if(is_anticlockwise) steering_percentage = -100;
           else steering_percentage = 100;
@@ -537,7 +535,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
         } else {
           motor_stop(BRAKE);
           prev_state = TURNING_P1_STATE;
-          state = TURNING_P2_STATE;
+          state = STOP_OC2;
           break;
         }
         break;
@@ -834,8 +832,8 @@ void OC2main(void *){
       reset_OC2 = true;
     }
     if (run_OC2){
-      OC2_pixy2(90, 85, 10);
-      // OC2_slow(90, 85, 5); //-80
+      // OC2_pixy2(90, 85, 10);
+      OC2_slow(90, 85, 8); //-80
     } else {
       // safeResume(displayThread);
       safeResume(ToF1Thread);
