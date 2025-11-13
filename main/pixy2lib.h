@@ -7,6 +7,9 @@
 #define PIXY2_SDA 8
 #define PIXY2_SCL 9
 
+#define CAM_MID_XPOS 145
+#define CAM_MID_YPOS 102
+
 typedef enum {
   RED = 1,
   GREEN = 2,

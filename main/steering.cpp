@@ -29,7 +29,7 @@ void reset_steering(){
 void steeringloop(void* parameters){
   while(1){
     steering_motor.write(int(91 + MAX_STEERING_ANGLE * steering_percentage / 100));
-    vTaskDelay(10 / portTICK_PERIOD_MS);
+    vTaskDelay(5 / portTICK_PERIOD_MS);
   }
 }
 

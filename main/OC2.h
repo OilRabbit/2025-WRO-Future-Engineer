@@ -20,8 +20,6 @@
 #include "calculation.h"
 using namespace std;
 
-#define CAM_MID_XPOS 145
-
 struct POINT {
   float x;
   float y;
@@ -37,6 +35,7 @@ typedef enum {
   TURNING_P2_STATE,
   CURVE_BLK_STATE_OC2,
   SKIP_BLK_STATE_OC2,
+  FW_AFTER_BLK_OC2,
   TURN_STRAIGHT_STATE_OC2,
   ENDING_STATE_OC2,
   STOP_OC2,

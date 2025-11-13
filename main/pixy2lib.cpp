@@ -14,20 +14,38 @@ COLOURED_OBJ getNearestPillar() {
   int count = pixy.ccc.getBlocks();
   Block* blocks = pixy.ccc.blocks;
   int largestArea = 0;
+  int largest_ypos = 0;
   if (count == 0) {
     nearest_pillar.colour = NO_COLOUR;
     return nearest_pillar;
   } else {
     for (int i = 0; i < count; i++) {
-      if (blocks[i].m_height * blocks[i].m_width > largestArea) {
+      if (blocks[i].m_y > largest_ypos) {
         if (blocks[i].m_signature != 3) {
-          largestArea = blocks[i].m_height * blocks[i].m_width;
+          largest_ypos = blocks[i].m_y;
+          // largestArea = blocks[i].m_height * blocks[i].m_width;
           nearest_pillar.height = blocks[i].m_height;
           nearest_pillar.width = blocks[i].m_width;
-          nearest_pillar.area = largestArea / 100;
+          nearest_pillar.area = blocks[i].m_height * blocks[i].m_width / 100;
           nearest_pillar.xpos = blocks[i].m_x;
           nearest_pillar.ypos = blocks[i].m_y;
           nearest_pillar.colour = (blocks[i].m_signature == RED) ? RED : (blocks[i].m_signature == GREEN) ? GREEN : NO_COLOUR;
+        }
+      }
+    }
+    if (nearest_pillar.ypos < CAM_MID_YPOS){
+      for (int i = 0; i < count; i++){
+        if (blocks[i].m_height * blocks[i].m_width > largestArea){
+          if (blocks[i].m_signature != 3) {
+            // largest_ypos = blocks[i].m_y;
+            largestArea = blocks[i].m_height * blocks[i].m_width;
+            nearest_pillar.height = blocks[i].m_height;
+            nearest_pillar.width = blocks[i].m_width;
+            nearest_pillar.area = blocks[i].m_height * blocks[i].m_width / 100;
+            nearest_pillar.xpos = blocks[i].m_x;
+            nearest_pillar.ypos = blocks[i].m_y;
+            nearest_pillar.colour = (blocks[i].m_signature == RED) ? RED : (blocks[i].m_signature == GREEN) ? GREEN : NO_COLOUR;
+          }
         }
       }
     }

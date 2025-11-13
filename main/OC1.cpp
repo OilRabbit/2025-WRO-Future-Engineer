@@ -405,12 +405,12 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
   vTaskDelay(5 / portTICK_PERIOD_MS);
 }
 
+bool run_OC1 = false;
 /**
  * @brief The main thread function for OC1
  * 
  */
 void OC1main(void *){
-  static bool run_OC1 = false;
   while (1){
     if (is_btn_bumped(TFT_BTN1)){
       run_OC1 = !run_OC1;
@@ -438,11 +438,9 @@ void showOC1Time(TFT_COLUMN column, int line_number, int text_size, uint16_t tex
   seconds = total_ms / 1000;
   milliseconds = total_ms % 1000;
   String OC1_time_text = String(seconds) + "." + String(milliseconds);
-  if (column == TFT_LEFT_CLN){
-    tft.clearln(TFT_LEFT_CLN, line_number);
-    tft.displayLeftln(line_number, text_size, OC1_time_text.c_str(), text_colour, false);
-  } else {
-    tft.clearln(TFT_RIGHT_CLN, line_number);
-    tft.displayRightln(line_number, text_size, OC1_time_text.c_str(), text_colour, false);
-  }
+  String OC1_onoff_text = run_OC1 ? "OC1 ON" : "OC1 OFF";
+  tft.clearln(TFT_LEFT_CLN, line_number);
+  tft.clearln(TFT_RIGHT_CLN, line_number);
+  tft.displayLeftln(line_number, text_size, OC1_time_text.c_str(), text_colour, false);
+  tft.displayRightln(line_number, text_size, OC1_onoff_text.c_str(), run_OC1 ? TFT_GREEN : TFT_RED, false);
 }

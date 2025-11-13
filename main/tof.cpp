@@ -95,18 +95,31 @@ static void parseLoopOne(HardwareSerial &U,
           if (!checksumOK(hdr6, pay, len, csum)) break;
 
           // Select nearest valid point
+          // Use point #0 to minimize CPU
           uint8_t pts = dataBytes / BYTES_PER_PT;
-          int best_mm = 32767; uint8_t best_i = 255;
-          for (uint8_t i = 0; i < pts; ++i){
-            const uint8_t *p = pay + i * BYTES_PER_PT;
-            int16_t d_mm = (int16_t)(p[0] | (p[1] << 8));
-            uint8_t cf   = p[8];
-            if (cf >= 1 && d_mm > 0 && d_mm < best_mm){ best_mm = d_mm; best_i = i; }
+          if (pts >= 1 && dataBytes >= BYTES_PER_PT) {
+            const uint8_t *p0 = pay; // first point
+            int16_t d_mm = (int16_t)(p0[0] | (p0[1] << 8));
+            // optional tiny gate: also check confidence p0[8] >= 1
+            if (d_mm > 0 /* && p0[8] >= 1 */) {
+              fillExport(p0, dist_cm, noise, peak, conf, intg, reftof);
+              have_flag = true;
+            }
+          } else {
+            break; // malformed frame (no points)
           }
-          if (best_i == 255) break;
+          // uint8_t pts = dataBytes / BYTES_PER_PT;
+          // int best_mm = 32767; uint8_t best_i = 255;
+          // for (uint8_t i = 0; i < pts; ++i){
+          //   const uint8_t *p = pay + i * BYTES_PER_PT;
+          //   int16_t d_mm = (int16_t)(p[0] | (p[1] << 8));
+          //   uint8_t cf   = p[8];
+          //   if (cf >= 1 && d_mm > 0 && d_mm < best_mm){ best_mm = d_mm; best_i = i; }
+          // }
+          // if (best_i == 255) break;
 
-          fillExport(pay + best_i * BYTES_PER_PT, dist_cm, noise, peak, conf, intg, reftof);
-          have_flag = true;
+          // fillExport(pay + best_i * BYTES_PER_PT, dist_cm, noise, peak, conf, intg, reftof);
+          // have_flag = true;
         } while (0);
 
         resetSM();
@@ -146,7 +159,7 @@ void getToF1Distloop(void *){
                  pay_t1,  pay_i_t1, csum_t1,
                  dist_t1, noise_t1, peak_t1, conf_t1, intg_t1, reftof_t1,
                  have_t1);
-    vTaskDelay(5 / portTICK_PERIOD_MS);
+    vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }
 
