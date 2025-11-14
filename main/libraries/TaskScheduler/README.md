@@ -1,12 +1,12 @@
 # Task Scheduler
 ### Cooperative multitasking for Arduino, ESPx, STM32 and other microcontrollers
-#### Version 3.8.5: 2024-06-17 [Latest updates](https://github.com/arkhipenko/TaskScheduler/wiki/Latest-Updates)
+#### Version 4.0.3: 2025-11-02 [Latest updates](https://github.com/arkhipenko/TaskScheduler/wiki/Latest-Updates)
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/TaskScheduler.svg?)](https://www.ardu-badge.com/TaskScheduler)[![xscode](https://img.shields.io/badge/Available%20on-xs%3Acode-blue?style=?style=plastic&logo=appveyor&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRF////////VXz1bAAAAAJ0Uk5T/wDltzBKAAAAlUlEQVR42uzXSwqAMAwE0Mn9L+3Ggtgkk35QwcnSJo9S+yGwM9DCooCbgn4YrJ4CIPUcQF7/XSBbx2TEz4sAZ2q1RAECBAiYBlCtvwN+KiYAlG7UDGj59MViT9hOwEqAhYCtAsUZvL6I6W8c2wcbd+LIWSCHSTeSAAECngN4xxIDSK9f4B9t377Wd7H5Nt7/Xz8eAgwAvesLRjYYPuUAAAAASUVORK5CYII=)](https://xscode.com/arkhipenko/TaskScheduler)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/TaskScheduler.svg?)](https://www.ardu-badge.com/TaskScheduler)
 
 #### Get expedited support or integration consultation for TaskScheduler [from xs:code](https://xscode.com/arkhipenko/TaskScheduler)
 
-[![xscode](https://github.com/arkhipenko/resources/blob/master/taskscheduler-banner.png)](https://xscode.com/arkhipenko/TaskScheduler)
+[![github](https://github.com/arkhipenko/resources/blob/master/taskscheduler-banner.png)](https://github.com/arkhipenko/TaskScheduler)
 ---
 
 ### OVERVIEW:
@@ -37,36 +37,47 @@ _“Everybody who learns concurrency and thinks they understand it, ends up find
 16. Thread-safe scheduling while running under preemptive scheduler (i. e., FreeRTOS)
 17. Optional self-destruction of dynamically created tasks upon disable
 18. Support for "tickless" execution under FreeRTOS (continous sleep until next scheduled task invocation)
+19. Support for both Arduino IDE stype (headers only) and PlatformIO style (Header + CPP files)
+20. Support for non-Arduino platforms
 
 Scheduling overhead: between `15` and `18` microseconds per scheduling pass (Arduino UNO rev 3 @ `16MHz` clock, single scheduler w/o prioritization)
 
 **TaskScheduler** was tested on the following platforms:
-* Arduino Uno R3
-* Arduino Nano
-* Arduino Micro
+* Arduino Uno R3, Nano, Micro
 * ATtiny85
-* ESP8266
-* ESP32
+* ESP8266, ESP32
 * Teensy (tested on Teensy 3.5)
-* nRF52 (tested on nRF52832)
-* nRF52 Adafruit Core (tested on nRF52840 with v3.6.2 workround)
+* nRF52832, nRF52 Adafruit Core (tested on nRF52840 with v3.6.2 workround)
 * STM32 (tested on Mini USB STM32F103RCBT6 ARM Cortex-M3 leaflabs Leaf maple mini module F)
 * MSP430 and MSP432 boards
-* Raspberry Pi (requires external `Arduino.h` and `millis()` implementation)
+* Raspberry Pi (requires external `_TASK_NON_ARDUINO` and `_task_millis()` implementation)
+* Any Linux (requires external `_TASK_NON_ARDUINO` and `_task_millis()` implementation - that's how Unit tests are done)
 
 
-
-​                                                 **Don't just take my word for it - try it for yourself on [Wokwi](https://wokwi.com/playground/task-scheduler)**
-
+​**Don't just take my word for it - try it for yourself on [Wokwi](https://wokwi.com/playground/task-scheduler)**
 
 
 ---
 ![TaskScheduler process diagram](https://github.com/arkhipenko/TaskScheduler/raw/master/extras/TaskScheduler_html.png)
 ---
-### Changelog is located [here.](https://github.com/arkhipenko/TaskScheduler/wiki/Changelog)
+### Changelog 
+
+Changelog is located [here.](https://github.com/arkhipenko/TaskScheduler/wiki/Changelog)
 
 
-#### For detailed functionality overview please refer to TaskScheduler documentation in the 'extras' folder or in the [Wiki page](https://github.com/arkhipenko/TaskScheduler/wiki).
+#### For detailed functionality overview 
+
+Please refer to TaskScheduler documentation on [GitHub Pages](https://arkhipenko.github.io/ts) or in the [Wiki page](https://github.com/arkhipenko/TaskScheduler/wiki).
+
+### Contributing
+
+#### Code 
+
+As of version 4.0.0 TaskScheduler has a comprehensive set of compilation and unit tests. Please submit a PR with your changes and make sure that your code passes all the tests. 
+
+#### More unit tests
+
+There is no such thing as enough testing. If you come up with another test scenario - please contribute!
 
 ### User Feedback:
 
@@ -88,6 +99,11 @@ Scheduling overhead: between `15` and `18` microseconds per scheduling pass (Ard
 
 ### Check out what TaskScheduler can do:
 
+#### A picture is worth 1024 words:
+
+* Video tutorial of TaskScheduler
+  https://youtu.be/eoJUlH_rWOE?si=eatgXMDMzwLPXrVP
+  
 #### Around the world:
 
 * Ninja Timer: Giant 7-Segment Display at Adafruit.com
