@@ -33,10 +33,15 @@
 * VCC (1st row, pin 2) → 5V
 * GND (3rd row, pin 2) → GND
 
+### ToF  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
+
+* ToF 1 (Left): **TX → GPIO11**, **RX → GPIO10**
+
 ### HC-SR04 x2  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
 
-* Sensor A: **TRIG → GPIO10**, **ECHO → GPIO11** (through resistor divider)
-* Sensor B: **TRIG → GPIO47**, **ECHO → **GPIO48** (through resistor divider)
+* (UNUSED) Sensor A (Left): **TRIG → GPIO10**, **ECHO → GPIO11** (through resistor divider)
+* Sensor B (Right): **TRIG → GPIO47**, **ECHO → **GPIO48** (through resistor divider)
+* Sensor C (Front): **TRIG → GPIO15**, **ECHO → **GPIO16** (through resistor divider)
 
 ### <Motor>
 
