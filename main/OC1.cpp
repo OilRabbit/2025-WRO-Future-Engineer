@@ -65,7 +65,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
         Serial.print("num_turn = ");
         Serial.println(num_turn);
         if (num_turn == 0) {
-          if (dist_t1 > dist_threshold){
+          if (ultra1Dist > dist_threshold){ //dist_t1
             is_anticlockwise = true;
             safeSuspend(Ultra2Thread);
             prev_state = DETECT_STATE;
@@ -75,7 +75,8 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
             break;
           } else if (ultra2Dist > dist_threshold){
             is_anticlockwise = false;
-            safeSuspend(ToF1Thread);
+            // safeSuspend(ToF1Thread);
+            safeResume(Ultra1Thread);
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             // turn_waittime = 150;
@@ -86,7 +87,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
           }
         } else {
           if (is_anticlockwise){
-            if (dist_t1 > dist_threshold){
+            if (ultra1Dist > dist_threshold){ //dist_t1
               prev_state = DETECT_STATE;
               state = WAIT_TURN_STATE;
               // turn_waittime = 150;
@@ -202,7 +203,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
           safeResume(blinkledThread);
           // safeResume(Pixy2Thread);
           // safeResume(OC2Thread);
-          if (!is_anticlockwise) safeResume(ToF1Thread);
+          if (!is_anticlockwise) safeResume(Ultra1Thread);//safeResume(ToF1Thread);
           else safeResume(Ultra2Thread);
           end_game = true;
           OC1_endtime = internalClock.read();
@@ -251,7 +252,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
     sector1_length = 0;
     sector2_length = 0;
     steering_percentage = 0;
-    if (dist_t1 < 15) left_init_close_wall = true;
+    if (ultra1Dist< 15) left_init_close_wall = true; //dist_t1
     if (ultra2Dist < 15) right_init_close_wall = true;
     end_game = false;
     OC1_starttime = internalClock.read();
@@ -272,7 +273,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
         Serial.println("DETECT_STATE");
         if (num_turn == 0) {
           motor_move(power);
-          if (dist_t1 > dist_threshold){
+          if (ultra1Dist > dist_threshold){ //dist_t1
             is_anticlockwise = true;
             safeSuspend(Ultra2Thread);
             if (left_init_close_wall) {
@@ -284,7 +285,8 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
             break;
           } else if (ultra2Dist > dist_threshold){
             is_anticlockwise = false;
-            safeSuspend(ToF1Thread);
+            // safeSuspend(ToF1Thread);
+            safeResume(Ultra1Thread);
             if (right_init_close_wall) {
               sector1_length += 5;
               sector2_length += 0;
@@ -297,7 +299,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           }
         } else {
           if (is_anticlockwise){
-            if (dist_t1 > dist_threshold){
+            if (ultra1Dist > dist_threshold){ //dist_t1
               if (num_turn == 1) sector1_length += abs(MOTOR_ENCODER_COUNT);
               if (num_turn == 2) sector2_length += abs(MOTOR_ENCODER_COUNT);
               prev_state = DETECT_STATE;
@@ -383,7 +385,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           safeResume(blinkledThread);
           // safeResume(Pixy2Thread);
           // safeResume(OC2Thread);
-          if (!is_anticlockwise) safeResume(ToF1Thread);
+          if (!is_anticlockwise) safeResume(Ultra1Thread);//safeResume(ToF1Thread);
           else safeResume(Ultra2Thread);
           end_game = true;
           OC1_endtime = internalClock.read();
@@ -421,7 +423,8 @@ void OC1main(void *){
       // OC1_ultra(90, 85, 17);
     } else {
       // safeResume(displayThread);
-      safeResume(ToF1Thread);
+      // safeResume(ToF1Thread);
+      safeResume(Ultra1Thread);
       safeResume(Ultra2Thread);
       motor_stop(BRAKE);
       steering_percentage = 0;
