@@ -28,9 +28,10 @@ void reset_steering(){
  */
 void steeringloop(void* parameters){
   while(1){
-    int servo_angle = int(91 + MAX_STEERING_ANGLE * steering_percentage / 100);
-    if (servo_angle > 100) servo_angle = 100;
-    if (servo_angle < -100) servo_angle = -100;
+    int servo_angle = 0;
+    if (steering_percentage > 100) servo_angle = int(91 + MAX_STEERING_ANGLE);
+    else if (steering_percentage < -100) servo_angle = int(91 - MAX_STEERING_ANGLE);
+    else servo_angle = int(91 + MAX_STEERING_ANGLE * steering_percentage / 100);
     steering_motor.write(servo_angle);
     vTaskDelay(5 / portTICK_PERIOD_MS);
   }

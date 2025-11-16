@@ -4,10 +4,10 @@
 #include <Arduino.h>
 #include "tft.h"
 
-#define TOF1_TX 11
-#define TOF1_RX 10
-#define TOF2_TX 47
-#define TOF2_RX 48
+#define TOF1_TX 10
+#define TOF1_RX 11
+#define TOF2_TX 48
+#define TOF2_RX 47
 #define TOF3_TX 15
 #define TOF3_RX 16
 
