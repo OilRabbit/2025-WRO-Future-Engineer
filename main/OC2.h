@@ -42,6 +42,7 @@ typedef enum {
   TURN_STRAIGHT_STATE_OC2,
   ENDING_STATE_OC2,
   STOP_OC2,
+  test,
   // MID_P1_STATE,
   // MID_P2_STATE,
   // MID_P3_STATE,
