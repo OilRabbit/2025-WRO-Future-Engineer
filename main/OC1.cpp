@@ -384,7 +384,6 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           steering_percentage = 0;
           safeResume(blinkledThread);
           // safeResume(Pixy2Thread);
-          // safeResume(OC2Thread);
           if (!is_anticlockwise) safeResume(ToF1Thread);//safeResume(ToF1Thread);
           else safeResume(ToF2Thread);
           end_game = true;
@@ -426,6 +425,7 @@ void OC1main(void *){
       // safeResume(ToF1Thread);
       safeResume(ToF1Thread);
       safeResume(ToF2Thread);
+      safeResume(OC2Thread);
       motor_stop(BRAKE);
       steering_percentage = 0;
     }

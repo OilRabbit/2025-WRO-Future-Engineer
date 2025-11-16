@@ -105,6 +105,6 @@ void displayData(void *parameters){
     ln++;
     showOC1Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showOC2Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    vTaskDelay(1 / portTICK_PERIOD_MS);
+    vTaskDelay(5 / portTICK_PERIOD_MS);
   }
 }
