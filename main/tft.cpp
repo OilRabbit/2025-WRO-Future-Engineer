@@ -92,9 +92,10 @@ void displayData(void *parameters){
     int ln = 2;
     // Put your display functions here. The first one MUST clear display, while those after that MUST NOT clear the display
     showInternalClock();
-    showUltra1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    // showToF1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    showUltra2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showToF1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showToF2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    // showUltra1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    // showUltra2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showUltra3Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showIMU(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showbtnState(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);

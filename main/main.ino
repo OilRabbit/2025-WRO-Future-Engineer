@@ -2,9 +2,10 @@
 
 TaskHandle_t blinkledThread = NULL;
 TaskHandle_t displayThread = NULL;
-// TaskHandle_t ToF1Thread = NULL;
-TaskHandle_t Ultra1Thread = NULL;
-TaskHandle_t Ultra2Thread = NULL;
+TaskHandle_t ToF1Thread = NULL;
+TaskHandle_t ToF2Thread = NULL;
+// TaskHandle_t Ultra1Thread = NULL;
+// TaskHandle_t Ultra2Thread = NULL;
 TaskHandle_t Ultra3Thread = NULL;
 TaskHandle_t IMUThread = NULL;
 TaskHandle_t SteeringThread = NULL;
@@ -25,7 +26,7 @@ void setup() {
     tft.displayLeftln(line_iter++, 2, "Clk Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Ser Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Tf1 Init:", TFT_WHITE, false);
-    tft.displayLeftln(line_iter++, 2, "Ut2 Init:", TFT_WHITE, false);
+    tft.displayLeftln(line_iter++, 2, "Tf2 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Ut3 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Btn Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Imu Init:", TFT_WHITE, false);
@@ -54,17 +55,16 @@ void setup() {
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
-  // tofInit();
-  // #ifdef FENZY_MODE
-  //   delay(100);
-  //   tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
-  // #endif
-
-  ultraInit();
+  tofInit();
   #ifdef FENZY_MODE
     delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
+  #endif
+
+  ultraInit();
+  #ifdef FENZY_MODE
+    delay(100);
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
@@ -114,34 +114,44 @@ void setup() {
   );
 
   xTaskCreatePinnedToCore(
-    getultra1Distloop,         // Task function
-    "Get Ultra 1 Distance",       // Task name
+    getToF1Distloop,         // Task function
+    "Get ToF 1 Distance",       // Task name
     10000,             // Stack size (bytes)
     NULL,              // Parameters
     1,                 // Priority
-    &Ultra1Thread,  // Task handle
+    &ToF1Thread,  // Task handle
+    0                  // Core 0
+  );
+
+  xTaskCreatePinnedToCore(
+    getToF2Distloop,         // Task function
+    "Get ToF 2 Distance",       // Task name
+    10000,             // Stack size (bytes)
+    NULL,              // Parameters
+    1,                 // Priority
+    &ToF2Thread,  // Task handle
     0                  // Core 0
   );
 
   // xTaskCreatePinnedToCore(
-  //   getToF1Distloop,         // Task function
-  //   "Get ToF 1 Distance",       // Task name
+  //   getultra1Distloop,         // Task function
+  //   "Get Ultra 1 Distance",       // Task name
   //   10000,             // Stack size (bytes)
   //   NULL,              // Parameters
   //   1,                 // Priority
-  //   &ToF1Thread,  // Task handle
+  //   &Ultra1Thread,  // Task handle
   //   0                  // Core 0
   // );
 
-  xTaskCreatePinnedToCore(
-    getultra2Distloop,         // Task function
-    "Get Ultra 2 Distance",       // Task name
-    10000,             // Stack size (bytes)
-    NULL,              // Parameters
-    1,                 // Priority
-    &Ultra2Thread,  // Task handle
-    0                  // Core 0
-  );
+  // xTaskCreatePinnedToCore(
+  //   getultra2Distloop,         // Task function
+  //   "Get Ultra 2 Distance",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &Ultra2Thread,  // Task handle
+  //   0                  // Core 0
+  // );
 
   xTaskCreatePinnedToCore(
     getultra3Distloop,         // Task function

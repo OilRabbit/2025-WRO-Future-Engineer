@@ -65,18 +65,18 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
         Serial.print("num_turn = ");
         Serial.println(num_turn);
         if (num_turn == 0) {
-          if (ultra1Dist > dist_threshold){ //dist_t1
+          if (dist_t1 > dist_threshold){ //dist_t1
             is_anticlockwise = true;
-            safeSuspend(Ultra2Thread);
+            safeSuspend(ToF2Thread);
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             // turn_waittime = 150;
             turn_waittimeZero = internalClock.read();
             break;
-          } else if (ultra2Dist > dist_threshold){
+          } else if (dist_t2 > dist_threshold){
             is_anticlockwise = false;
             // safeSuspend(ToF1Thread);
-            safeResume(Ultra1Thread);
+            safeResume(ToF1Thread);
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             // turn_waittime = 150;
@@ -87,7 +87,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
           }
         } else {
           if (is_anticlockwise){
-            if (ultra1Dist > dist_threshold){ //dist_t1
+            if (dist_t1 > dist_threshold){ //dist_t1
               prev_state = DETECT_STATE;
               state = WAIT_TURN_STATE;
               // turn_waittime = 150;
@@ -99,7 +99,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
               // steering_percentage = -(dist_t1 - innerWall_dist) * 0.7; // TODO: Verify whether a minus sign is needed
             }
           } else {
-            if (ultra2Dist > dist_threshold){
+            if (dist_t2 > dist_threshold){
               prev_state = DETECT_STATE;
               state = WAIT_TURN_STATE;
               // turn_waittime = 150;
@@ -108,7 +108,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
               break;
             } else {
               steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
-              // steering_percentage = (ultra2Dist - innerWall_dist) * 0.7; // TODO: Verify whether a minus sign is needed
+              // steering_percentage = (dist_t2 - innerWall_dist) * 0.7; // TODO: Verify whether a minus sign is needed
             }
           }
         }
@@ -134,7 +134,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
               // break;
             // }
           // } else {
-            // if (ultra2Dist < dist_threshold){
+            // if (dist_t2 < dist_threshold){
             //   prev_state = WAIT_TURN_STATE;
             //   state = DETECT_STATE;
             //   break;
@@ -174,7 +174,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
           break;
         } else {
           if (is_anticlockwise){
-            if ((internalClock.read() - dash_timeZero) < dash_time){ // dist_t1 > dist_threshold || && ultra2Dist > dist_threshold
+            if ((internalClock.read() - dash_timeZero) < dash_time){ // dist_t1 > dist_threshold || && dist_t2 > dist_threshold
               steering_percentage = -(imu_yaw - tar_ang) * imu_kp; // TODO: Verify whether a minus sign is needed
             } else {
               prev_state = DASH_AFTER_TURNING_STATE;
@@ -182,7 +182,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
               break;
             }
           } else {
-            if ((internalClock.read() - dash_timeZero) < dash_time){ // dist_t1 > dist_threshold || && ultra2Dist > dist_threshold
+            if ((internalClock.read() - dash_timeZero) < dash_time){ // dist_t1 > dist_threshold || && dist_t2 > dist_threshold
               steering_percentage = -(imu_yaw - tar_ang) * imu_kp; // TODO: Verify whether a minus sign is needed
             } else {
               prev_state = DASH_AFTER_TURNING_STATE;
@@ -203,8 +203,8 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
           safeResume(blinkledThread);
           // safeResume(Pixy2Thread);
           // safeResume(OC2Thread);
-          if (!is_anticlockwise) safeResume(Ultra1Thread);//safeResume(ToF1Thread);
-          else safeResume(Ultra2Thread);
+          if (!is_anticlockwise) safeResume(ToF1Thread);//safeResume(ToF1Thread);
+          else safeResume(ToF2Thread);
           end_game = true;
           OC1_endtime = internalClock.read();
         }
@@ -252,8 +252,8 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
     sector1_length = 0;
     sector2_length = 0;
     steering_percentage = 0;
-    if (ultra1Dist< 15) left_init_close_wall = true; //dist_t1
-    if (ultra2Dist < 15) right_init_close_wall = true;
+    if (dist_t1< 15) left_init_close_wall = true; //dist_t1
+    if (dist_t2 < 15) right_init_close_wall = true;
     end_game = false;
     OC1_starttime = internalClock.read();
     imu_resetYaw();
@@ -273,9 +273,9 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
         Serial.println("DETECT_STATE");
         if (num_turn == 0) {
           motor_move(power);
-          if (ultra1Dist > dist_threshold){ //dist_t1
+          if (dist_t1 > dist_threshold){ //dist_t1
             is_anticlockwise = true;
-            safeSuspend(Ultra2Thread);
+            safeSuspend(ToF2Thread);
             if (left_init_close_wall) {
               sector1_length += 5;
               sector2_length += 0;
@@ -283,10 +283,10 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             break;
-          } else if (ultra2Dist > dist_threshold){
+          } else if (dist_t2 > dist_threshold){
             is_anticlockwise = false;
             // safeSuspend(ToF1Thread);
-            safeResume(Ultra1Thread);
+            safeResume(ToF1Thread);
             if (right_init_close_wall) {
               sector1_length += 5;
               sector2_length += 0;
@@ -299,7 +299,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           }
         } else {
           if (is_anticlockwise){
-            if (ultra1Dist > dist_threshold){ //dist_t1
+            if (dist_t1 > dist_threshold){ //dist_t1
               if (num_turn == 1) sector1_length += abs(MOTOR_ENCODER_COUNT);
               if (num_turn == 2) sector2_length += abs(MOTOR_ENCODER_COUNT);
               prev_state = DETECT_STATE;
@@ -309,7 +309,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
               steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
             }
           } else {
-            if (ultra2Dist > dist_threshold){
+            if (dist_t2 > dist_threshold){
               if (num_turn == 1) sector1_length += abs(MOTOR_ENCODER_COUNT);
               if (num_turn == 2) sector2_length += abs(MOTOR_ENCODER_COUNT);
               prev_state = DETECT_STATE;
@@ -385,8 +385,8 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           safeResume(blinkledThread);
           // safeResume(Pixy2Thread);
           // safeResume(OC2Thread);
-          if (!is_anticlockwise) safeResume(Ultra1Thread);//safeResume(ToF1Thread);
-          else safeResume(Ultra2Thread);
+          if (!is_anticlockwise) safeResume(ToF1Thread);//safeResume(ToF1Thread);
+          else safeResume(ToF2Thread);
           end_game = true;
           OC1_endtime = internalClock.read();
         }
@@ -424,8 +424,8 @@ void OC1main(void *){
     } else {
       // safeResume(displayThread);
       // safeResume(ToF1Thread);
-      safeResume(Ultra1Thread);
-      safeResume(Ultra2Thread);
+      safeResume(ToF1Thread);
+      safeResume(ToF2Thread);
       motor_stop(BRAKE);
       steering_percentage = 0;
     }
