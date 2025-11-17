@@ -362,6 +362,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             // Serial.println(min_xpos_Rcase_skip(nearestPillarGlobal.area));
             // Serial.println(nearestPillarGlobal.xpos);
             // if (!is_anticlockwise){
+            //   if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.xpos > pillar_front.xpos) steering_percentage = -2;
             //   else steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
             // } else 
             steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
