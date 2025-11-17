@@ -48,6 +48,7 @@ COLOURED_OBJ getNearestPillar() {
           }
         }
       }
+      nearest_pillar.num_signitures = count;
     }
   }
   return nearest_pillar;

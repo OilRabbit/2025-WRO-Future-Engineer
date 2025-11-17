@@ -69,95 +69,30 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
   static bool end_game = false;               // A flag determining whether the run has ended
   std::vector<COLOURED_OBJ> pillars_array;    // An array storing all the pillars detected
   static COLOURED_OBJ pillar_front;           // A struct storing all the info of the nearest pillar detected during DETECT_STATE
-  const int area_dangerzone = 40;             // A variable representing the area of a pillar which is identified as danger when its area is larger than this value
-  const float steering_amp_fact1 = 250; // 150       // An amplification factor for calculating the steering percentage during CURVE_P1_STATE
-  const float steering_amp_fact2 = 3;         // An amplification factor for calculating the steering percentage during CURVE_P3_STATE
-  static int gyro_ang_detect_phase = 0;       // A variable storing the current IMU angle
-  static int pillar_avoid_save_t = 0;         // A variable storing the instant time for avoiding pillars
-  static float curve_phase2_chk_t = 300;      // A variable storing the time required for the car to move straight forward during CURVE_P2_STATE. Non-editable as it will be recalculated during the run
-  static float curve_sphase3_chk_t = 300;     // A variable storing the time required for the car to move straight forward during CURVE_P2_5_STATE. Non-editable as it will be recalculated during the run
-  static int curve_phase1_gyro_chkpt = 45;    // A variable storing the IMU value for the car to turn to during CURVE_P1_STATE. Non-editable as it will be recalculated during the run
-  static int mid_phase1_gyro_chkpt = 60;      // A variable storing the IMU value for the car to turn to during MID_P1_STATE. Non-editable as it will be recalculated during the run
-  static float inner_wall_dist = 0;           // A variable storing the distance between the car and the inner wall (measured using ultrasonic sensor)
-  static int mid_save_t = 0;                  // A variable storing the instant time for going back to mid racing line
-  static float mid_phase2_chk_t = 0;          // A variable storing the time required for the car to move straight forward during MID_P2_STATE. Non-editable as it will be recalculated during the run
-  static int mid_dash_save_t = 0;             // A variable storing the time required for the car to move straight forward during MID_DASH_STATE. Non-editable as it will be recalculated during the run
-  static double tar_ang = 0;                  // The target angle which the car should be facing
-  static double tar_ang_calibrate = 0;
-  static long dash_timeZero = 0;              // Variable to store the instant time from the internal clock for dashing
-  static long dash_time = 0;                  // The time required for the car to run before using the ultrasonic sensors for detection again after turning
   static bool is_anticlockwise = true;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
-  static int num_turn = 0;                    // Variable storing the number of turns the car has made
-  static long turn_waittimeZero = 0;          // Variable to store the instant time from the internal clock for waiting to turning
-  static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
-  static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
-  static int change_state_time = 0;
-  static double prev_inner_dist = 0;
-  static double cur_inner_dist = 0;
-  static double drift_ang = 0;
-  static double steering_for_drift = 0;
-  static double detect_drifting_t = 0;
-  static double drift_tuning_t = 0;
-  static int num_reset_imu = 0;
-  static double reset_imu_t = 0;
-  static bool initial_drift_detect = true;
-  static double speed_amp_factor = -80 / power;
-  static double encoder_counter = 0;
-  static bool last_sector_no_blk = false;
-  static int CP4_t = 0;
-  static bool from_tNa_state = false;
-  static int u1_ind = 0;
-  static int u2_ind = 0;
-  static int motor_last_counter = 0;
-  static int dir_color = 2; // 8 // 2: blue, 8: orange
-  static int front_wall_dist = 0;
-  static int side_wall_dist = 0;
-  static double mid_dist = 0;
-  static int check_front_t = 0;
-  static int gyro_offset = 0;
-  static bool blk_be4_turning = false;
-  static int check_mid_t = 0;
-  static bool mid_already = false;
-  static int turn4_deg = 0;
   static int tar_power = power;
   static String OC2_text = "INIT_STATE_OC2";
   static bool far_blk = false;
+  static double tar_ang = 0;                  // The target angle which the car should be facing
+  static double tar_ang_calibrate = 0;
+  static int num_turn = 0;
 
   if (reset_OC2){
     tar_ang = 0;
     tar_ang_calibrate = 0;
-    mid_already = false;
-    gyro_offset = 0;
-    turn4_deg = 0;
-    check_mid_t = 0;
-    blk_be4_turning = false;
     is_anticlockwise = false;
     num_turn = 0;
     steering_percentage = 0;
     end_game = false;
+    prev_state = INIT_STATE_OC2;
     state = INIT_STATE_OC2;
     OC2_text = "INIT_STATE_OC2";
-    gyro_ang_detect_phase = 0;
     pillars_array.clear();
-    pillar_avoid_save_t = 0;
-    curve_phase2_chk_t = 300;
-    curve_sphase3_chk_t = 300;
-    curve_phase1_gyro_chkpt = 45;
-    mid_phase1_gyro_chkpt = 50;
-    inner_wall_dist = 0;
-    mid_save_t = 0;
-    mid_phase2_chk_t = 0;
-    mid_dash_save_t = 0;
-    dash_timeZero = 0;
-    dash_time = 0;
-    num_turn = 0;
-    turn_waittimeZero = 0;
-    turn_waittime = 150;
-    blk_while_turning = false;
     tar_power = power;
     OC2_starttime = internalClock.read();
     safeSuspend(blinkledThread);
     imu_resetYaw();
+    reset_encoder();
     reset_OC2 = false;
   }
 
@@ -174,7 +109,6 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
         state = DETECT_STATE_OC2;
-        motor_last_counter = abs(MOTOR_ENCODER_COUNT);
         break;
 
       case DETECT_STATE_OC2:

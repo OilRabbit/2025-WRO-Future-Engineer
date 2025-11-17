@@ -27,6 +27,7 @@ typedef struct{
   uint8_t index;
   uint8_t age;
   uint16_t area;
+  int num_signitures;
 } COLOURED_OBJ;
 
 extern Pixy2I2C pixy;
