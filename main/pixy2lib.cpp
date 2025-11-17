@@ -65,11 +65,11 @@ void showNearestBlk(TFT_COLUMN column, int line_number, int text_size, uint16_t 
   String red_text;
   String green_text;
   if (nearestPillarGlobal.colour == RED){
-    red_text = String("R:") + String(nearestPillarGlobal.xpos) + String(", ") + String(nearestPillarGlobal.area);
+    red_text = String("R:") + String(nearestPillarGlobal.ypos) + String(", ") + String(nearestPillarGlobal.area);
     green_text = String("G:") + String("NA");
   } else if (nearestPillarGlobal.colour == GREEN){
     red_text = String("R:") + String("NA");
-    green_text = String("G:") + String(nearestPillarGlobal.xpos) + String(", ") + String(nearestPillarGlobal.area);
+    green_text = String("G:") + String(nearestPillarGlobal.ypos) + String(", ") + String(nearestPillarGlobal.area);
   } else {
     red_text = String("R:") + String("NA");
     green_text = String("G:") + String("NA");

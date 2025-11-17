@@ -354,12 +354,16 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
               steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
               break;
             } else {
+              pillar_front = nearestPillarGlobal;
               far_blk = false;
               break;
             }
           } else if (dist_t1 > 20){ //dist_t1
             // Serial.println(min_xpos_Rcase_skip(nearestPillarGlobal.area));
             // Serial.println(nearestPillarGlobal.xpos);
+            // if (!is_anticlockwise){
+            //   else steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
+            // } else 
             steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
             break;
           } 
@@ -380,10 +384,15 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
               steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
               break;
             } else {
+              pillar_front = nearestPillarGlobal;
               far_blk = false;
               break;
             }
           } else if (dist_t2 > 20){
+            // if (is_anticlockwise){
+            //   if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.xpos < pillar_front.xpos) steering_percentage = 2;
+            //   else steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
+            // } else 
             steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
             break;
           } 
@@ -448,397 +457,396 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
   vTaskDelay(5 / portTICK_PERIOD_MS);
 }
 
-void OC2_slow(double right_ang, int dist_threshold, int power){
-  safeSuspend(blinkledThread);
-  safeSuspend(OC1Thread);
+// void OC2_slow(double right_ang, int dist_threshold, int power){
+//   safeSuspend(blinkledThread);
+//   safeSuspend(OC1Thread);
+  
+//   float imu_kp = 4.5;
+//   static OC2_STATES state = INIT_STATE_OC2; // A variable storing the current state of OC2 run
+//   static OC2_STATES prev_state = INIT_STATE_OC2;
+//   static bool end_game = false;               // A flag determining whether the run has ended
+//   std::vector<COLOURED_OBJ> pillars_array;    // An array storing all the pillars detected
+//   static COLOURED_OBJ pillar_front;           // A struct storing all the info of the nearest pillar detected during DETECT_STATE
+//   static float inner_wall_dist = 0;           // A variable storing the distance between the car and the inner wall (measured using ultrasonic sensor)
+//   static int side_wall_dist = 0;
+//   static double tar_ang = 0;                  // The target angle which the car should be facing
+//   static double tar_ang_calibrate = 0;
+//   static long dash_timeZero = 0;              // Variable to store the instant time from the internal clock for dashing
+//   static long dash_time = 0;                  // The time required for the car to run before using the ultrasonic sensors for detection again after turning
+//   static bool is_anticlockwise = true;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
+//   static int num_turn = 0;                    // Variable storing the number of turns the car has made
+//   static long turn_waittimeZero = 0;          // Variable to store the instant time from the internal clock for waiting to turning
+//   static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
+//   static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
+//   static int change_state_time = 0;
+//   static double prev_inner_dist = 0;
+//   static double cur_inner_dist = 0;
+//   static int motor_last_counter = 0;
+//   static int gyro_ang_detect_phase = 0;
+//   static int last_u3_error = 0;
+//   static int tar_power = power;
+//   static float dist = 0;
+//   static bool far_blk = false;
 
-  float imu_kp = 4.5;
-  static OC2_STATES state = INIT_STATE_OC2; // A variable storing the current state of OC2 run
-  static OC2_STATES prev_state = INIT_STATE_OC2;
-  static bool end_game = false;               // A flag determining whether the run has ended
-  std::vector<COLOURED_OBJ> pillars_array;    // An array storing all the pillars detected
-  static COLOURED_OBJ pillar_front;           // A struct storing all the info of the nearest pillar detected during DETECT_STATE
-  static float inner_wall_dist = 0;           // A variable storing the distance between the car and the inner wall (measured using ultrasonic sensor)
-  static int side_wall_dist = 0;
-  static double tar_ang = 0;                  // The target angle which the car should be facing
-  static double tar_ang_calibrate = 0;
-  static long dash_timeZero = 0;              // Variable to store the instant time from the internal clock for dashing
-  static long dash_time = 0;                  // The time required for the car to run before using the ultrasonic sensors for detection again after turning
-  static bool is_anticlockwise = true;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
-  static int num_turn = 0;                    // Variable storing the number of turns the car has made
-  static long turn_waittimeZero = 0;          // Variable to store the instant time from the internal clock for waiting to turning
-  static int turn_waittime = 150;             // Variable storing the time in ms that required to wait before the car turn 
-  static bool blk_while_turning = false;      // A flag determining whether any pillars in close distance is detected during the turning
-  static int change_state_time = 0;
-  static double prev_inner_dist = 0;
-  static double cur_inner_dist = 0;
-  static int motor_last_counter = 0;
-  static int gyro_ang_detect_phase = 0;
-  static int last_u3_error = 0;
-  static int tar_power = power;
-  static float dist = 0;
-  static bool far_blk = false;
+//   if (reset_OC2){
+//     tar_ang = 0;
+//     tar_ang_calibrate = 0;
+//     is_anticlockwise = false;
+//     num_turn = 0;
+//     steering_percentage = 0;
+//     end_game = false;
+//     state = INIT_STATE_OC2;
+//     gyro_ang_detect_phase = 0;
+//     pillars_array.clear();
+//     inner_wall_dist = 0;
+//     // dash_timeZero = 0;
+//     dash_time = 0;
+//     num_turn = 0;
+//     // turn_waittimeZero = 0;
+//     // turn_waittime = 150;
+//     blk_while_turning = false;
+//     tar_power = power;
+//     OC2_starttime = internalClock.read();
+//     safeSuspend(blinkledThread);
+//     imu_resetYaw();
+//     reset_OC2 = false;
+//   }
 
-  if (reset_OC2){
-    tar_ang = 0;
-    tar_ang_calibrate = 0;
-    is_anticlockwise = false;
-    num_turn = 0;
-    steering_percentage = 0;
-    end_game = false;
-    state = INIT_STATE_OC2;
-    gyro_ang_detect_phase = 0;
-    pillars_array.clear();
-    inner_wall_dist = 0;
-    // dash_timeZero = 0;
-    dash_time = 0;
-    num_turn = 0;
-    // turn_waittimeZero = 0;
-    // turn_waittime = 150;
-    blk_while_turning = false;
-    tar_power = power;
-    OC2_starttime = internalClock.read();
-    safeSuspend(blinkledThread);
-    imu_resetYaw();
-    reset_OC2 = false;
-  }
+//   if (!end_game){
+//     OC2_endtime = internalClock.read();
+//     switch (state) {
+//       case INIT_STATE_OC2:
+//         Serial.println("INIT_STATE_OC2");
+//         motor_move(tar_power);
+//         tar_power = 0;
+//         // if (dist_t1 > dist_t2) is_anticlockwise = true; //dist_t1
+//         // else is_anticlockwise = false;
+//         is_anticlockwise = true;
+//         prev_state = INIT_STATE_OC2;
+//         dash_time = millis();
+//         state = DETECT_STATE_OC2;
+//         reset_encoder();
+//         break;
 
-  if (!end_game){
-    OC2_endtime = internalClock.read();
+//       case DETECT_STATE_OC2:
+//         Serial.println("DETECT_STATE_OC2");
+//         motor_move(tar_power);
+//         tar_power = 10;
+//         if (!is_anticlockwise){
+//           if (imu_yaw >= 315){
+//             prev_state = DETECT_STATE_OC2;
+//             state = ENDING_STATE_OC2;
+//             tar_ang_calibrate = 0;
+//             break;
+//           }
+//         } else {
+//           if (imu_yaw <= -315){
+//             prev_state = DETECT_STATE_OC2;
+//             state = ENDING_STATE_OC2;
+//             tar_ang_calibrate = 0;
+//             break;
+//           }
+//         }
+//         if (ultra3Dist <= 38 && nearestPillarGlobal.colour == NO_COLOUR && millis() - dash_time > 2500){ // && MOTOR_ENCODER_VALUE > 80
+//             motor_stop(BRAKE);
+//             prev_state = DETECT_STATE_OC2;
+//             tar_ang_calibrate = 0;
+//             tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
+//             motor_last_counter = abs(MOTOR_ENCODER_COUNT);
+//             side_wall_dist = (is_anticlockwise) ? dist_t2 : dist_t1;
+//             if (side_wall_dist >= 50){
+//               state = TURNING_P2_1_STATE;
+//             }
+//             else{
+//               state = TURNING_P1_1_STATE;
+//             }
+//             break;
+//         }
+//         else if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 3){
+//           if (nearestPillarGlobal.colour == RED){
+//             if (nearestPillarGlobal.xpos >= min_xpos_Rcase_detect(nearestPillarGlobal.area)){
+//               pillars_array.push_back(nearestPillarGlobal);
+//               pillar_front = nearestPillarGlobal;
+//               prev_state = DETECT_STATE_OC2;
+//               state = CURVE_BLK_STATE_OC2;
+//               tar_ang_calibrate = 0;
+//               break;
+//             } else {
+//               prev_state = DETECT_STATE_OC2;
+//               state = SKIP_BLK_STATE_OC2;
+//               tar_ang_calibrate = 0;
+//               break;
+//             }
+//           } else {
+//             if (nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area)){
+//               pillars_array.push_back(nearestPillarGlobal);
+//               pillar_front = nearestPillarGlobal;
+//               prev_state = DETECT_STATE_OC2;
+//               state = CURVE_BLK_STATE_OC2;
+//               tar_ang_calibrate = 0;
+//               break; 
+//             } else {
+//               prev_state = DETECT_STATE_OC2;
+//               state = SKIP_BLK_STATE_OC2;
+//               tar_ang_calibrate = 0;
+//               break;
+//             }
+//           }  
+//         } else if (dist_t1 < 20) {
+//           tar_ang_calibrate = 5;
+//         } else if (dist_t2 < 20) {
+//           tar_ang_calibrate = -5;
+//         } else {
+//           steering_percentage = -(imu_yaw - (tar_ang + tar_ang_calibrate)) * imu_kp;
+//           break;
+//         }
+//         break;
 
-    switch (state) {
-      case INIT_STATE_OC2:
-        Serial.println("INIT_STATE_OC2");
-        motor_move(tar_power);
-        tar_power = 0;
-        // if (dist_t1 > dist_t2) is_anticlockwise = true; //dist_t1
-        // else is_anticlockwise = false;
-        is_anticlockwise = true;
-        prev_state = INIT_STATE_OC2;
-        dash_time = millis();
-        state = DETECT_STATE_OC2;
-        reset_encoder();
-        break;
+//       case BACKWARD_STATE_OC2:
+//         Serial.println("BACKWARD_STATE_OC2");
+//         if (abs(MOTOR_ENCODER_COUNT) - motor_last_counter < 20 * ENC_PER_CM) {
+//           steering_percentage = 0;
+//           motor_move(-10);
+//           break;
+//         } else {
+//           motor_stop(BRAKE);
+//           prev_state = BACKWARD_STATE_OC2;
+//           state = DETECT_STATE_OC2;
+//           break;
+//         }
+//         break;
 
-      case DETECT_STATE_OC2:
-        Serial.println("DETECT_STATE_OC2");
-        motor_move(tar_power);
-        tar_power = 10;
-        if (!is_anticlockwise){
-          if (imu_yaw >= 315){
-            prev_state = DETECT_STATE_OC2;
-            state = ENDING_STATE_OC2;
-            tar_ang_calibrate = 0;
-            break;
-          }
-        } else {
-          if (imu_yaw <= -315){
-            prev_state = DETECT_STATE_OC2;
-            state = ENDING_STATE_OC2;
-            tar_ang_calibrate = 0;
-            break;
-          }
-        }
-        if (ultra3Dist <= 38 && nearestPillarGlobal.colour == NO_COLOUR && millis() - dash_time > 2500){ // && MOTOR_ENCODER_VALUE > 80
-            motor_stop(BRAKE);
-            prev_state = DETECT_STATE_OC2;
-            tar_ang_calibrate = 0;
-            tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
-            motor_last_counter = abs(MOTOR_ENCODER_COUNT);
-            side_wall_dist = (is_anticlockwise) ? dist_t2 : dist_t1;
-            if (side_wall_dist >= 50){
-              state = TURNING_P2_1_STATE;
-            }
-            else{
-              state = TURNING_P1_1_STATE;
-            }
-            break;
-        }
-        else if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 3){
-          if (nearestPillarGlobal.colour == RED){
-            if (nearestPillarGlobal.xpos >= min_xpos_Rcase_detect(nearestPillarGlobal.area)){
-              pillars_array.push_back(nearestPillarGlobal);
-              pillar_front = nearestPillarGlobal;
-              prev_state = DETECT_STATE_OC2;
-              state = CURVE_BLK_STATE_OC2;
-              tar_ang_calibrate = 0;
-              break;
-            } else {
-              prev_state = DETECT_STATE_OC2;
-              state = SKIP_BLK_STATE_OC2;
-              tar_ang_calibrate = 0;
-              break;
-            }
-          } else {
-            if (nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area)){
-              pillars_array.push_back(nearestPillarGlobal);
-              pillar_front = nearestPillarGlobal;
-              prev_state = DETECT_STATE_OC2;
-              state = CURVE_BLK_STATE_OC2;
-              tar_ang_calibrate = 0;
-              break; 
-            } else {
-              prev_state = DETECT_STATE_OC2;
-              state = SKIP_BLK_STATE_OC2;
-              tar_ang_calibrate = 0;
-              break;
-            }
-          }  
-        } else if (dist_t1 < 20) {
-          tar_ang_calibrate = 5;
-        } else if (dist_t2 < 20) {
-          tar_ang_calibrate = -5;
-        } else {
-          steering_percentage = -(imu_yaw - (tar_ang + tar_ang_calibrate)) * imu_kp;
-          break;
-        }
-        break;
+//       case TURNING_P1_1_STATE:
+//         Serial.println("TURNING_P1_1_STATE");
+//         tar_power = 10;
+//         if (abs(imu_yaw - tar_ang) > 60){
+//           steering_percentage = (is_anticlockwise) ? -100 : 100;
+//           motor_move(tar_power);
+//           break;
+//         } else {
+//           motor_stop(BRAKE);
+//           prev_state = TURNING_P1_1_STATE;
+//           state = TURNING_P1_2_STATE;
+//           break;
+//         }
+//         break;
 
-      case BACKWARD_STATE_OC2:
-        Serial.println("BACKWARD_STATE_OC2");
-        if (abs(MOTOR_ENCODER_COUNT) - motor_last_counter < 20 * ENC_PER_CM) {
-          steering_percentage = 0;
-          motor_move(-10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          prev_state = BACKWARD_STATE_OC2;
-          state = DETECT_STATE_OC2;
-          break;
-        }
-        break;
+//       case TURNING_P1_2_STATE:
+//         Serial.println("TURNING_P1_2_STATE");
+//         tar_power = -10;
+//         if (abs(imu_yaw - tar_ang) > 20){
+//           steering_percentage = (is_anticlockwise) ? 80 : -80;
+//           motor_move(tar_power);
+//           break;
+//         } else {
+//           motor_stop(BRAKE);
+//           prev_state = TURNING_P1_2_STATE;
+//           state = TURNING_END_STATE;
+//           break;
+//         }
+//         break;
 
-      case TURNING_P1_1_STATE:
-        Serial.println("TURNING_P1_1_STATE");
-        tar_power = 10;
-        if (abs(imu_yaw - tar_ang) > 60){
-          steering_percentage = (is_anticlockwise) ? -100 : 100;
-          motor_move(tar_power);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          prev_state = TURNING_P1_1_STATE;
-          state = TURNING_P1_2_STATE;
-          break;
-        }
-        break;
+//       case TURNING_P2_1_STATE:
+//         Serial.println("TURNING_P2_1_STATE");
+//         tar_power = 10;
+//         if (ultra3Dist > 12){
+//           steering_percentage = 0;
+//           motor_move(tar_power);
+//           break;
+//         } else {
+//           motor_stop(BRAKE);
+//           prev_state = TURNING_P2_1_STATE;
+//           state = TURNING_P2_2_STATE;
+//           break;
+//         }
+//         break;
 
-      case TURNING_P1_2_STATE:
-        Serial.println("TURNING_P1_2_STATE");
-        tar_power = -10;
-        if (abs(imu_yaw - tar_ang) > 20){
-          steering_percentage = (is_anticlockwise) ? 80 : -80;
-          motor_move(tar_power);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          prev_state = TURNING_P1_2_STATE;
-          state = TURNING_END_STATE;
-          break;
-        }
-        break;
+//       case TURNING_P2_2_STATE:
+//         Serial.println("TURNING_P2_2_STATE");
+//         tar_power = -10;
+//         if (abs(imu_yaw - tar_ang) > 20){
+//           steering_percentage = (is_anticlockwise) ? 100 : -100;
+//           motor_move(tar_power);
+//           break;
+//         } else {
+//           motor_stop(BRAKE);
+//           tar_power = power;
+//           reset_encoder();
+//           prev_state = TURNING_P2_2_STATE;
+//           state = TURNING_P2_3_STATE;
+//           break;
+//         }
+//         break;
 
-      case TURNING_P2_1_STATE:
-        Serial.println("TURNING_P2_1_STATE");
-        tar_power = 10;
-        if (ultra3Dist > 12){
-          steering_percentage = 0;
-          motor_move(tar_power);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          prev_state = TURNING_P2_1_STATE;
-          state = TURNING_P2_2_STATE;
-          break;
-        }
-        break;
+//       case TURNING_P2_3_STATE:
+//         Serial.println("TURNING_P2_2_STATE");
+//         tar_power = -8;
+//         if (abs(MOTOR_ENCODER_COUNT) < (side_wall_dist - 50) * 0.8){
+//           motor_move(tar_power);
+//           steering_percentage = 0;
+//           break;
+//         } else {
+//           motor_stop(BRAKE);
+//           tar_power = 0;
+//           prev_state = TURNING_P2_3_STATE;
+//           state = TURNING_END_STATE;
+//           break;
+//         }
+//         break;
 
-      case TURNING_P2_2_STATE:
-        Serial.println("TURNING_P2_2_STATE");
-        tar_power = -10;
-        if (abs(imu_yaw - tar_ang) > 20){
-          steering_percentage = (is_anticlockwise) ? 100 : -100;
-          motor_move(tar_power);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          tar_power = power;
-          reset_encoder();
-          prev_state = TURNING_P2_2_STATE;
-          state = TURNING_P2_3_STATE;
-          break;
-        }
-        break;
+//       case TURNING_END_STATE:
+//         Serial.println("TURNING_P_3_STATE");
+//         reset_encoder();
+//         dash_time = millis();
+//         prev_state = TURNING_END_STATE;
+//         state = DETECT_STATE_OC2;
+//         break;
 
-      case TURNING_P2_3_STATE:
-        Serial.println("TURNING_P2_2_STATE");
-        tar_power = -8;
-        if (abs(MOTOR_ENCODER_COUNT) < (side_wall_dist - 50) * 0.8){
-          motor_move(tar_power);
-          steering_percentage = 0;
-          break;
-        } else {
-          motor_stop(BRAKE);
-          tar_power = 0;
-          prev_state = TURNING_P2_3_STATE;
-          state = TURNING_END_STATE;
-          break;
-        }
-        break;
+//       case CURVE_BLK_STATE_OC2:
+//         Serial.println("CURVE_BLK_STATE_OC2");
+//         motor_move(tar_power);
+//         if (pillar_front.colour == RED){
+//           if (nearestPillarGlobal.xpos >= min_xpos_Rcase_detect(nearestPillarGlobal.area)) {
+//             steering_percentage = 100;
+//             break;
+//           } else {
+//             steering_percentage = 0;
+//             prev_state = CURVE_BLK_STATE_OC2;
+//             state = SKIP_BLK_STATE_OC2;
+//             break;
+//           }
+//         } else {
+//           if (nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area)) {
+//             steering_percentage = -100;
+//             break;
+//           } else {
+//             steering_percentage = 0;
+//             prev_state = CURVE_BLK_STATE_OC2;
+//             state = SKIP_BLK_STATE_OC2;
+//             break;
+//           }
+//         }
+//         break;
 
-      case TURNING_END_STATE:
-        Serial.println("TURNING_P_3_STATE");
-        reset_encoder();
-        dash_time = millis();
-        prev_state = TURNING_END_STATE;
-        state = DETECT_STATE_OC2;
-        break;
+//       case SKIP_BLK_STATE_OC2:
+//         Serial.println("SKIP_BLK_STATE_OC2");
+//         motor_move(tar_power);
+//         if (pillar_front.colour == RED){
+//           if (far_blk) {
+//             if (nearestPillarGlobal.ypos < CAM_MID_YPOS) {
+//               steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
+//               break;
+//             } else {
+//               far_blk = false;
+//               break;
+//             }
+//           } else if (dist_t1 > 20){ //dist_t1
+//             // Serial.println(min_xpos_Rcase_skip(nearestPillarGlobal.area));
+//             // Serial.println(nearestPillarGlobal.xpos);
+//             steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
+//             break;
+//           } 
+//           else {
+//             if (prev_state == DETECT_STATE_OC2) {
+//               prev_state = SKIP_BLK_STATE_OC2;
+//               state = DETECT_STATE_OC2;
+//               break;
+//             } else {
+//               prev_state = SKIP_BLK_STATE_OC2;
+//               state = FW_AFTER_BLK_OC2;
+//               break;
+//             }
+//           }
+//         } else {
+//           if (far_blk) {
+//             if (nearestPillarGlobal.ypos < CAM_MID_YPOS) {
+//               steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
+//               break;
+//             } else {
+//               far_blk = false;
+//               break;
+//             }
+//           } else if (dist_t2 > 20){
+//             steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
+//             break;
+//           } 
+//           else {
+//             if (prev_state == DETECT_STATE_OC2) {
+//               prev_state = SKIP_BLK_STATE_OC2;
+//               state = DETECT_STATE_OC2;
+//               break;
+//             } else {
+//               prev_state = SKIP_BLK_STATE_OC2;
+//               state = FW_AFTER_BLK_OC2;
+//               break;
+//             }
+//           }
 
-      case CURVE_BLK_STATE_OC2:
-        Serial.println("CURVE_BLK_STATE_OC2");
-        motor_move(tar_power);
-        if (pillar_front.colour == RED){
-          if (nearestPillarGlobal.xpos >= min_xpos_Rcase_detect(nearestPillarGlobal.area)) {
-            steering_percentage = 100;
-            break;
-          } else {
-            steering_percentage = 0;
-            prev_state = CURVE_BLK_STATE_OC2;
-            state = SKIP_BLK_STATE_OC2;
-            break;
-          }
-        } else {
-          if (nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area)) {
-            steering_percentage = -100;
-            break;
-          } else {
-            steering_percentage = 0;
-            prev_state = CURVE_BLK_STATE_OC2;
-            state = SKIP_BLK_STATE_OC2;
-            break;
-          }
-        }
-        break;
+//         }
+//         break;
 
-      case SKIP_BLK_STATE_OC2:
-        Serial.println("SKIP_BLK_STATE_OC2");
-        motor_move(tar_power);
-        if (pillar_front.colour == RED){
-          if (far_blk) {
-            if (nearestPillarGlobal.ypos < CAM_MID_YPOS) {
-              steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
-              break;
-            } else {
-              far_blk = false;
-              break;
-            }
-          } else if (dist_t1 > 20){ //dist_t1
-            // Serial.println(min_xpos_Rcase_skip(nearestPillarGlobal.area));
-            // Serial.println(nearestPillarGlobal.xpos);
-            steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
-            break;
-          } 
-          else {
-            if (prev_state == DETECT_STATE_OC2) {
-              prev_state = SKIP_BLK_STATE_OC2;
-              state = DETECT_STATE_OC2;
-              break;
-            } else {
-              prev_state = SKIP_BLK_STATE_OC2;
-              state = FW_AFTER_BLK_OC2;
-              break;
-            }
-          }
-        } else {
-          if (far_blk) {
-            if (nearestPillarGlobal.ypos < CAM_MID_YPOS) {
-              steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
-              break;
-            } else {
-              far_blk = false;
-              break;
-            }
-          } else if (dist_t2 > 20){
-            steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
-            break;
-          } 
-          else {
-            if (prev_state == DETECT_STATE_OC2) {
-              prev_state = SKIP_BLK_STATE_OC2;
-              state = DETECT_STATE_OC2;
-              break;
-            } else {
-              prev_state = SKIP_BLK_STATE_OC2;
-              state = FW_AFTER_BLK_OC2;
-              break;
-            }
-          }
-
-        }
-        break;
-
-      case FW_AFTER_BLK_OC2:
-        Serial.println("FW_AFTER_BLK_OC2");
-        if (!motor_degree_accel(8, 4, 4, 10, 12)){
-          steering_percentage = 0;
-        } else {
-          prev_state = FW_AFTER_BLK_OC2;
-          state = TURN_STRAIGHT_STATE_OC2;
-          break;
-        }
-        break;
+//       case FW_AFTER_BLK_OC2:
+//         Serial.println("FW_AFTER_BLK_OC2");
+//         if (!motor_degree_accel(8, 4, 4, 10, 12)){
+//           steering_percentage = 0;
+//         } else {
+//           prev_state = FW_AFTER_BLK_OC2;
+//           state = TURN_STRAIGHT_STATE_OC2;
+//           break;
+//         }
+//         break;
       
-      case TURN_STRAIGHT_STATE_OC2:
-        Serial.println("TURN_STRAIGHT_STATE_OC2");
-        motor_move(tar_power);
-        if (abs(tar_ang - imu_yaw) > 5){
-          steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
-        } else{
-          prev_state = TURN_STRAIGHT_STATE_OC2;
-          state = DETECT_STATE_OC2;
-          break;
-        }
-        break;
-      
-      case ENDING_STATE_OC2:
-        Serial.println("ENDING_STATE_OC2");
-        // if (MOTOR_ENCODER_COUNT < abs(lane_length) / 2){
-        //   steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
-        // } else {
-          motor_stop(BRAKE);
-          steering_percentage = 0;
-          safeResume(blinkledThread);
-          safeResume(OC1Thread);
-          if (!is_anticlockwise) safeResume(ToF1Thread);    //safeResume(ToF1Thread);
-          else safeResume(ToF2Thread);
-          end_game = true;
-          OC2_endtime = internalClock.read();
-        // }
-        break;
+//       case TURN_STRAIGHT_STATE_OC2:
+//         Serial.println("TURN_STRAIGHT_STATE_OC2");
+//         motor_move(tar_power);
+//         if (abs(tar_ang - imu_yaw) > 5){
+//           steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
+//         } else{
+//           prev_state = TURN_STRAIGHT_STATE_OC2;
+//           state = DETECT_STATE_OC2;
+//           break;
+//         }
+//         break;
 
-        case test:
-          Serial.println("test");
-          if (MOTOR_ENCODER_VALUE < 300){
-            steering_percentage = 0;
-            motor_move(8);
-            break;
-          } else {
-            motor_stop(BRAKE);
-            state = STOP_OC2;
-            break;
-          }
-          break;
+//       case ENDING_STATE_OC2:
+//         Serial.println("ENDING_STATE_OC2");
+//         // if (MOTOR_ENCODER_COUNT < abs(lane_length) / 2){
+//         //   steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
+//         // } else {
+//           motor_stop(BRAKE);
+//           steering_percentage = 0;
+//           safeResume(blinkledThread);
+//           safeResume(OC1Thread);
+//           if (!is_anticlockwise) safeResume(ToF1Thread);    //safeResume(ToF1Thread);
+//           else safeResume(ToF2Thread);
+//           end_game = true;
+//           OC2_endtime = internalClock.read();
+//         // }
+//         break;
 
-        case STOP_OC2:
-        Serial.print("STOP ");
-        Serial.println(imu_yaw);
-        motor_move(0);
-        motor_stop(BRAKE);
-        break;
-    }
-  }
-  vTaskDelay(5 / portTICK_PERIOD_MS);
-} 
+//         case test:
+//           Serial.println("test");
+//           if (MOTOR_ENCODER_VALUE < 300){
+//             steering_percentage = 0;
+//             motor_move(8);
+//             break;
+//           } else {
+//             motor_stop(BRAKE);
+//             state = STOP_OC2;
+//             break;
+//           }
+//           break;
+
+//         case STOP_OC2:
+//         Serial.print("STOP ");
+//         Serial.println(imu_yaw);
+//         motor_move(0);
+//         motor_stop(BRAKE);
+//         break;
+//     }
+//   }
+//   vTaskDelay(5 / portTICK_PERIOD_MS);
+// } 
 
 bool run_OC2 = false;
 void OC2main(void *){
@@ -849,8 +857,8 @@ void OC2main(void *){
       reset_OC2 = true;
     }
     if (run_OC2){
-      // OC2_pixy2(90, 85, 12);
-      OC2_slow(90, 85, 8); //-80
+      OC2_pixy2(90, 85, 12);
+      // OC2_slow(90, 85, 8); //-80
     } else {
       // safeResume(displayThread);
       // safeResume(ToF1Thread);
