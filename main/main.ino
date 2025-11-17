@@ -27,7 +27,7 @@ void setup() {
     tft.displayLeftln(line_iter++, 2, "Ser Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Tf1 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Tf2 Init:", TFT_WHITE, false);
-    tft.displayLeftln(line_iter++, 2, "Ut3 Init:", TFT_WHITE, false);
+    // tft.displayLeftln(line_iter++, 2, "Ut3 Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Btn Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Imu Init:", TFT_WHITE, false);
     tft.displayLeftln(line_iter++, 2, "Str Init:", TFT_WHITE, false);
@@ -62,11 +62,11 @@ void setup() {
     tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
   #endif
 
-  ultraInit();
-  #ifdef FENZY_MODE
-    delay(100);
-    tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
-  #endif
+  // ultraInit();
+  // #ifdef FENZY_MODE
+  //   delay(100);
+  //   tft.displayRightln(line_iter++, 2, "Done", TFT_GREEN, false);
+  // #endif
 
   btn_init();
   #ifdef FENZY_MODE
@@ -153,15 +153,15 @@ void setup() {
   //   0                  // Core 0
   // );
 
-  xTaskCreatePinnedToCore(
-    getultra3Distloop,         // Task function
-    "Get Ultra 3 Distance",       // Task name
-    10000,             // Stack size (bytes)
-    NULL,              // Parameters
-    1,                 // Priority
-    &Ultra3Thread,  // Task handle
-    0                  // Core 0
-  );
+  // xTaskCreatePinnedToCore(
+  //   getultra3Distloop,         // Task function
+  //   "Get Ultra 3 Distance",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &Ultra3Thread,  // Task handle
+  //   0                  // Core 0
+  // );
 
   xTaskCreatePinnedToCore(
     getYPRloop,         // Task function
@@ -221,15 +221,15 @@ void setup() {
     1                  // Core 1
   );
 
-  xTaskCreatePinnedToCore(
-    OC1main,         // Task function
-    "OC1",       // Task name
-    10000,             // Stack size (bytes)
-    NULL,              // Parameters
-    1,                 // Priority
-    &OC1Thread,  // Task handle
-    1                  // Core 1
-  );
+  // xTaskCreatePinnedToCore(
+  //   OC1main,         // Task function
+  //   "OC1",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &OC1Thread,  // Task handle
+  //   1                  // Core 1
+  // );
 
   xTaskCreatePinnedToCore(
     OC2main,         // Task function

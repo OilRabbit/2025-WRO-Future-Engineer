@@ -103,7 +103,9 @@ void displayData(void *parameters){
     showEncoder(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showNearestBlk(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     ln++;
-    showOC1Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    // showSecondNearestBlk(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    // ln++;
+    // showOC1Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showOC2Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     vTaskDelay(5 / portTICK_PERIOD_MS);
   }

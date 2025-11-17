@@ -57,23 +57,23 @@ static void parseLoopOne(HardwareSerial &U,
 {
   auto resetSM = [&](){ state = SEEK_AA1; hdr_i = 0; pay_i = 0; };
 
-  while (U.available()){
+  while (U.available()) {
     uint8_t b = (uint8_t)U.read();
 
-    switch (state){
+    switch (state) {
       case SEEK_AA1:
         if (b == 0xAA) state = SEEK_AA2PLUS;
         break;
 
       case SEEK_AA2PLUS:
-        if (b != 0xAA){ hdr6[0] = b; hdr_i = 1; state = READ_HDR6; }
+        if (b != 0xAA) { hdr6[0] = b; hdr_i = 1; state = READ_HDR6; }
         break;
 
       case READ_HDR6:
         hdr6[hdr_i++] = b;
-        if (hdr_i >= 6){
+        if (hdr_i >= 6) {
           len = (uint16_t)hdr6[4] | ((uint16_t)hdr6[5] << 8);
-          if (len == 0 || len > MAX_PAYLOAD){ resetSM(); break; }
+          if (len == 0 || len > MAX_PAYLOAD) { resetSM(); break; }
           pay_i = 0; state = READ_PAY;
         }
         break;
@@ -87,39 +87,20 @@ static void parseLoopOne(HardwareSerial &U,
         csum = b;
 
         do {
-          uint8_t cmd = hdr6[1];
-          if (!((cmd == CMD_DISTANCE_A) || (cmd == CMD_DISTANCE_B))) break;
-          if (len < 4) break; // needs timestamp at end
-          uint16_t dataBytes = len - 4;
-          if ((dataBytes % BYTES_PER_PT) != 0 || dataBytes == 0) break;
-          if (!checksumOK(hdr6, pay, len, csum)) break;
+          const uint8_t cmd = hdr6[1];
+          if ((cmd != CMD_DISTANCE_A) && (cmd != CMD_DISTANCE_B)) break;
+          if (len < 4) break;                         // need timestamp tail
+          const uint16_t dataBytes = len - 4;
+          if ((dataBytes < BYTES_PER_PT) || (dataBytes % BYTES_PER_PT)) break; // must have at least one point
+          if (!checksumOK(hdr6, pay, len, csum)) break; // require valid checksum
 
-          // Select nearest valid point
-          // Use point #0 to minimize CPU
-          uint8_t pts = dataBytes / BYTES_PER_PT;
-          if (pts >= 1 && dataBytes >= BYTES_PER_PT) {
-            const uint8_t *p0 = pay; // first point
-            int16_t d_mm = (int16_t)(p0[0] | (p0[1] << 8));
-            // optional tiny gate: also check confidence p0[8] >= 1
-            if (d_mm > 0 /* && p0[8] >= 1 */) {
-              fillExport(p0, dist_cm, noise, peak, conf, intg, reftof);
-              have_flag = true;
-            }
-          } else {
-            break; // malformed frame (no points)
+          // ---- Only use point #0 ----
+          const uint8_t *p0 = pay; // first point starts at offset 0
+          const int16_t d_mm = (int16_t)(p0[0] | (p0[1] << 8));
+          if (d_mm > 0) { // optional: also gate by confidence p0[8] >= 1
+            fillExport(p0, dist_cm, noise, peak, conf, intg, reftof);
+            have_flag = true;
           }
-          // uint8_t pts = dataBytes / BYTES_PER_PT;
-          // int best_mm = 32767; uint8_t best_i = 255;
-          // for (uint8_t i = 0; i < pts; ++i){
-          //   const uint8_t *p = pay + i * BYTES_PER_PT;
-          //   int16_t d_mm = (int16_t)(p[0] | (p[1] << 8));
-          //   uint8_t cf   = p[8];
-          //   if (cf >= 1 && d_mm > 0 && d_mm < best_mm){ best_mm = d_mm; best_i = i; }
-          // }
-          // if (best_i == 255) break;
-
-          // fillExport(pay + best_i * BYTES_PER_PT, dist_cm, noise, peak, conf, intg, reftof);
-          // have_flag = true;
         } while (0);
 
         resetSM();
@@ -127,6 +108,7 @@ static void parseLoopOne(HardwareSerial &U,
     }
   }
 }
+
 
 // ====== init all three UARTs ======
 void tofInit() {
@@ -170,7 +152,7 @@ void getToF2Distloop(void *){
                  pay_t2,  pay_i_t2, csum_t2,
                  dist_t2, noise_t2, peak_t2, conf_t2, intg_t2, reftof_t2,
                  have_t2);
-    vTaskDelay(5 / portTICK_PERIOD_MS);
+    vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }
 
