@@ -20,14 +20,27 @@
 #include "calculation.h"
 using namespace std;
 
-struct POINT {
-  float x;
-  float y;
+struct BLK_INFO {
+  COLOURED_OBJ pillar;
+  int enc_value;
+  int tof1_dist;
+  int tof2_dist;
 };
 
 typedef enum {
   INIT_STATE_OC2,
   DETECT_STATE_OC2,
+  SCAN_SECTOR_STATE_OC2,
+  CURVE_BLK_STATE_OC2,
+  SKIP_BLK_STATE_OC2,
+  TURN_STRAIGHT_STATE_OC2,
+  FW2CORNER_OC2,
+  INTO_SECTOR_OC2,
+
+
+
+
+
   BACKWARD_STATE_OC2,
   TURNING_STATE_OC2,
   TURNING_P1_1_STATE,
@@ -36,10 +49,7 @@ typedef enum {
   TURNING_P2_2_STATE,
   TURNING_P2_3_STATE,
   TURNING_END_STATE,
-  CURVE_BLK_STATE_OC2,
-  SKIP_BLK_STATE_OC2,
   FW_AFTER_BLK_OC2,
-  TURN_STRAIGHT_STATE_OC2,
   ENDING_STATE_OC2,
   STOP_OC2,
   test,

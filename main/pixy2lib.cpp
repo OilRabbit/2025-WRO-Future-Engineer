@@ -19,6 +19,7 @@ COLOURED_OBJ getNearestPillar() {
     nearest_pillar.colour = NO_COLOUR;
     return nearest_pillar;
   } else {
+    nearest_pillar.num_signitures = count;
     for (int i = 0; i < count; i++) {
       if (blocks[i].m_y > largest_ypos) {
         if (blocks[i].m_signature != 3) {
@@ -26,7 +27,8 @@ COLOURED_OBJ getNearestPillar() {
           // largestArea = blocks[i].m_height * blocks[i].m_width;
           nearest_pillar.height = blocks[i].m_height;
           nearest_pillar.width = blocks[i].m_width;
-          nearest_pillar.area = blocks[i].m_height * blocks[i].m_width / 100;
+          nearest_pillar.index = blocks[i].m_index;
+          nearest_pillar.area = (blocks[i].m_height * blocks[i].m_width) / 100;
           nearest_pillar.xpos = blocks[i].m_x;
           nearest_pillar.ypos = blocks[i].m_y;
           nearest_pillar.colour = (blocks[i].m_signature == RED) ? RED : (blocks[i].m_signature == GREEN) ? GREEN : NO_COLOUR;
@@ -41,7 +43,8 @@ COLOURED_OBJ getNearestPillar() {
             largestArea = blocks[i].m_height * blocks[i].m_width;
             nearest_pillar.height = blocks[i].m_height;
             nearest_pillar.width = blocks[i].m_width;
-            nearest_pillar.area = blocks[i].m_height * blocks[i].m_width / 100;
+            nearest_pillar.index = blocks[i].m_index;
+            nearest_pillar.area = precision(blocks[i].m_height * blocks[i].m_width / 100, 1);
             nearest_pillar.xpos = blocks[i].m_x;
             nearest_pillar.ypos = blocks[i].m_y;
             nearest_pillar.colour = (blocks[i].m_signature == RED) ? RED : (blocks[i].m_signature == GREEN) ? GREEN : NO_COLOUR;
@@ -66,11 +69,11 @@ void showNearestBlk(TFT_COLUMN column, int line_number, int text_size, uint16_t 
   String red_text;
   String green_text;
   if (nearestPillarGlobal.colour == RED){
-    red_text = String("R:") + String(nearestPillarGlobal.ypos) + String(", ") + String(nearestPillarGlobal.area);
+    red_text = String("R:") + String(nearestPillarGlobal.num_signitures) + String(", ") + String(nearestPillarGlobal.area);
     green_text = String("G:") + String("NA");
   } else if (nearestPillarGlobal.colour == GREEN){
     red_text = String("R:") + String("NA");
-    green_text = String("G:") + String(nearestPillarGlobal.ypos) + String(", ") + String(nearestPillarGlobal.area);
+    green_text = String("G:") + String(nearestPillarGlobal.num_signitures) + String(", ") + String(nearestPillarGlobal.area);
   } else {
     red_text = String("R:") + String("NA");
     green_text = String("G:") + String("NA");

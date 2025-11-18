@@ -11,3 +11,8 @@ int sign(float num){
   else if (num < 0) return -1;
   else return 0;
 }
+
+float precision(float f,int places){
+  float n = std::pow(10.0f, places ) ;
+  return std::round(f * n) / n ;
+}

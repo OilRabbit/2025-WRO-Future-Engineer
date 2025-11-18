@@ -3,6 +3,7 @@
 #include "tft.h"
 #include <Pixy2I2C.h>
 #include <Pixy2CCC.h>
+#include "calculation.h"
 
 #define PIXY2_SDA 8
 #define PIXY2_SCL 9
@@ -26,7 +27,7 @@ typedef struct{
   int16_t angle;
   uint8_t index;
   uint8_t age;
-  uint16_t area;
+  int area;
   int num_signitures;
 } COLOURED_OBJ;
 
