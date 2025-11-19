@@ -861,6 +861,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
               break;
             } else {
               prev_state = DETECT_STATE_OC2;
+              blk_area_after_turn = nearestPillarGlobal.area;
               state = SKIP_BLK_STATE_OC2;
               tar_ang_calibrate = 0;
               break;
@@ -868,6 +869,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
           } else {
             if (nearestPillarGlobal.xpos <= min_xpos_Gcase(nearestPillarGlobal.area)){
               pillars_array.push_back(nearestPillarGlobal);
+              
               pillar_front = nearestPillarGlobal;
               prev_state = DETECT_STATE_OC2;
               state = CURVE_BLK_STATE_OC2;
@@ -875,6 +877,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
               break; 
             } else {
               prev_state = DETECT_STATE_OC2;
+              blk_area_after_turn = nearestPillarGlobal.area;
               state = SKIP_BLK_STATE_OC2;
               tar_ang_calibrate = 0;
               break;
@@ -985,6 +988,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
             break;
           } else {
             steering_percentage = 0;
+            blk_area_after_turn = nearestPillarGlobal.area;
             prev_state = CURVE_BLK_STATE_OC2;
             state = SKIP_BLK_STATE_OC2;
             break;
@@ -995,6 +999,7 @@ void OC2_slow(double right_ang, int dist_threshold, int power){
             break;
           } else {
             steering_percentage = 0;
+            blk_area_after_turn = nearestPillarGlobal.area;
             prev_state = CURVE_BLK_STATE_OC2;
             state = SKIP_BLK_STATE_OC2;
             break;
