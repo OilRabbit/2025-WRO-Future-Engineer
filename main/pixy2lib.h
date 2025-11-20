@@ -8,6 +8,7 @@
 #define PIXY2_SDA 8
 #define PIXY2_SCL 9
 
+// Note that the upper left corner of the Pixy is its origin. The positive x- and y-axis is to the right and down respectively
 #define CAM_MID_XPOS 145
 #define CAM_MID_YPOS 102
 

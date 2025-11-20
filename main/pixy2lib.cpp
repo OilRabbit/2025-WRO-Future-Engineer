@@ -44,7 +44,7 @@ COLOURED_OBJ getNearestPillar() {
             nearest_pillar.height = blocks[i].m_height;
             nearest_pillar.width = blocks[i].m_width;
             nearest_pillar.index = blocks[i].m_index;
-            nearest_pillar.area = precision(blocks[i].m_height * blocks[i].m_width / 100, 1);
+            nearest_pillar.area = blocks[i].m_height * blocks[i].m_width / 100, 1;
             nearest_pillar.xpos = blocks[i].m_x;
             nearest_pillar.ypos = blocks[i].m_y;
             nearest_pillar.colour = (blocks[i].m_signature == RED) ? RED : (blocks[i].m_signature == GREEN) ? GREEN : NO_COLOUR;

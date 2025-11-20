@@ -9,6 +9,7 @@
 
 extern ICM_20948_I2C icm;
 
+// Anti-Clockwise is +ve
 extern volatile double imu_yaw;
 extern volatile double imu_pitch;
 extern volatile double imu_roll;

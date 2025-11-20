@@ -9,6 +9,7 @@
 
 #define MAX_STEERING_ANGLE 20
 
+// Clockwise is +ve
 extern float steering_percentage; 
 extern Servo steering_motor;
 
