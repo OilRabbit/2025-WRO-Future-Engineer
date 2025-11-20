@@ -96,7 +96,7 @@ void displayData(void *parameters){
     showToF2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     // showUltra1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     // showUltra2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    showUltra3Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    // showUltra3Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showIMU(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showbtnState(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showSteering(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);

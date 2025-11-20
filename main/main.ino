@@ -153,15 +153,15 @@ void setup() {
   //   0                  // Core 0
   // );
 
-  xTaskCreatePinnedToCore(
-    getultra3Distloop,         // Task function
-    "Get Ultra 3 Distance",       // Task name
-    10000,             // Stack size (bytes)
-    NULL,              // Parameters
-    1,                 // Priority
-    &Ultra3Thread,  // Task handle
-    0                  // Core 0
-  );
+  // xTaskCreatePinnedToCore(
+  //   getultra3Distloop,         // Task function
+  //   "Get Ultra 3 Distance",       // Task name
+  //   10000,             // Stack size (bytes)
+  //   NULL,              // Parameters
+  //   1,                 // Priority
+  //   &Ultra3Thread,  // Task handle
+  //   0                  // Core 0
+  // );
 
   xTaskCreatePinnedToCore(
     getYPRloop,         // Task function
