@@ -87,7 +87,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
           }
         } else {
           if (is_anticlockwise){
-            if (dist_t1 > dist_threshold){ //dist_t1
+            if (dist_t1 > dist_threshold){
               prev_state = DETECT_STATE;
               state = WAIT_TURN_STATE;
               // turn_waittime = 150;
@@ -151,7 +151,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
       
       case TURNING_STATE:
         Serial.println("TURNING_STATE");
-        if ((abs(tar_ang - imu_yaw) > 20) && (abs(tar_ang) > abs(imu_yaw))){
+        if ((abs(tar_ang - imu_yaw) > 16) && (abs(tar_ang) > abs(imu_yaw))){
           steering_percentage = (tar_ang > 0) ? 100 : -100;
           dash_timeZero = internalClock.read();
         } else{
@@ -195,7 +195,7 @@ void OC1_ultra(double right_ang, int dist_threshold, int power){
 
       case ENDING_STATE:
         Serial.println("ENDING_STATE");
-        if (MOTOR_ENCODER_COUNT < abs(lane_length) / 2){
+        if (abs(MOTOR_ENCODER_COUNT) < 50){
           steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
         } else {
           motor_stop(BRAKE);
@@ -252,7 +252,7 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
     sector1_length = 0;
     sector2_length = 0;
     steering_percentage = 0;
-    if (dist_t1< 15) left_init_close_wall = true; //dist_t1
+    if (dist_t1 < 15) left_init_close_wall = true;
     if (dist_t2 < 15) right_init_close_wall = true;
     end_game = false;
     OC1_starttime = internalClock.read();
@@ -418,8 +418,8 @@ void OC1main(void *){
       reset_OC1 = true;
     }
     if (run_OC1){
-      OC1_fixed(90, 85, 13, 30);
-      // OC1_ultra(90, 85, 17);
+      // OC1_fixed(90, 85, 12, 20);
+      OC1_ultra(90, 85, 13);
     } else {
       // safeResume(displayThread);
       // safeResume(ToF1Thread);
