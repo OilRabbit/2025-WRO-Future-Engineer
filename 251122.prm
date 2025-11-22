@@ -2,7 +2,7 @@
  <data type="INT8_ARRAY" value="gQAAgSAAAACnPgAAE1gAAFxLAABtAwAAewkAAHQGAAAeF2AAAAAAAA==" key="signature1"/>
  <data type="FLOAT32" value="2" key="Signature 1 range"/>
  <data type="STRING" value="Red" key="Signature label 1"/>
- <data type="INT8_ARRAY" value="gQAAgSAAAADp8f//J/T//wjz//+b8P//1/L//7jx//98qYAAAAAAAA==" key="signature2"/>
+ <data type="INT8_ARRAY" value="gXwAgSAAAADj7///rfL//0jx//9b6f//z+v//5Tq//9utYQAAAAAAA==" key="signature2"/>
  <data type="FLOAT32" value="5.400000095367432" key="Signature 2 range"/>
  <data type="STRING" value="Green" key="Signature label 2"/>
  <data type="INT8_ARRAY" value="gQAAgSAAAACnIwAAZTAAAAYqAADXFgAAiyAAALAbAABZJnMAAAAAAA==" key="signature3"/>
@@ -34,7 +34,7 @@
  <data type="INT8" value="84" key="I2C address"/>
  <data type="INT32" value="19200" key="UART baudrate"/>
  <data type="INT8" value="0" key="Pixy 1.0 compatibility mode"/>
- <data type="INT8" value="180" key="Camera brightness"/>
+ <data type="INT8" value="175" key="Camera brightness"/>
  <data type="INT8" value="0" key="Auto Exposure Correction"/>
  <data type="INT32" value="5439651" key="AEC Value"/>
  <data type="INT8" value="130" key="Color saturation"/>
