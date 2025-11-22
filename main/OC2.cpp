@@ -182,9 +182,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             }
           }
         } else {
-          if (millis() - time_count < 2000){
+          if (internalClock.read() - time_count < 2000){
             steering_percentage = 0;
-            motor_move(0);
+            motor_stop(BRAKE);
             break;
           } else {     
           // if (abs(MOTOR_ENCODER_COUNT) < 20) break;
@@ -199,8 +199,8 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       case FW2CORNER_OC2:
         Serial.println("FW2CORNER_OC2");
         OC2_text = "FW2CORNER_OC2";
-        tar_power = power;
-        // motor_move(tar_power);
+        tar_power = 10;
+        motor_move(tar_power);
         if (((is_anticlockwise && dist_t1 > dist_threshold) || (!is_anticlockwise && dist_t2 > dist_threshold)) && (abs(MOTOR_ENCODER_COUNT) > 70 || (num_turn == 0 && abs(MOTOR_ENCODER_COUNT) > 10))){
           prev_state = FW2CORNER_OC2;
           state = SCAN_CORNER_OC2;
@@ -427,7 +427,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (pillar_front.colour == RED){
           if (prev_state == UNKNOWN_TURNING_OC2 && is_anticlockwise) skip_blk_dist = area2dist_red(blk_area_after_turn) * ENC_PER_CM - 30;
           else skip_blk_dist = area2dist_red(blk_area_after_turn) * ENC_PER_CM - 20;
-          if (skip_blk_dist < 0) skip_blk_dist = 5;
+          if (skip_blk_dist <= 0) skip_blk_dist = 5;
           Serial.println(skip_blk_dist);
           if (!motor_degree_accel(skip_blk_dist, skip_blk_dist / 2, skip_blk_dist / 2, tar_power, tar_power + 2)) {
             if (clone_blk_xpos - nearestPillarGlobal.xpos < 100 && nearestPillarGlobal.colour != NO_COLOUR) steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
@@ -440,7 +440,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           if (prev_state == UNKNOWN_TURNING_OC2 && !is_anticlockwise) skip_blk_dist = area2dist_green(blk_area_after_turn) - 20;
           skip_blk_dist = area2dist_green(blk_area_after_turn) - 15;
-          if (skip_blk_dist < 0) skip_blk_dist = 5;
+          if (skip_blk_dist <= 0) skip_blk_dist = 5;
           Serial.println(skip_blk_dist);
           if (!motor_degree_accel(skip_blk_dist, skip_blk_dist / 2, skip_blk_dist / 2, tar_power, tar_power + 2)) {
             if (nearestPillarGlobal.xpos - clone_blk_xpos < 100 && nearestPillarGlobal.colour != NO_COLOUR) steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
@@ -541,7 +541,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           if (dist_t1 + dist_t2 < 80) state = CHECK_BLK_BESIDES_OC2;
           else {
             state = SCAN_SECTOR_STATE_OC2;
-            time_count = millis();
+            time_count = internalClock.read();
           }
           break;
         }
@@ -554,7 +554,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (dist_t1 + dist_t2 < 80) steering_percentage = -(imu_yaw - (tar_ang + tar_ang_calibrate)) * imu_kp;
         else {
           prev_state = CHECK_BLK_BESIDES_OC2;
-          time_count = millis();
+          time_count = internalClock.read();
           state = SCAN_SECTOR_STATE_OC2;
           break;
         }
