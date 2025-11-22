@@ -138,6 +138,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
         state = OUT_PARKING_P1_STATE;
+        // state = anti_in_parking_p1;
         tar_power = power;
         break;
 
@@ -146,11 +147,11 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         OC2_text = "SCAN_SECTOR_STATE_OC2";
         tar_power = power;
         motor_move(tar_power);
-        if (num_turn >= 12){
-          prev_state = SCAN_SECTOR_STATE_OC2;
-          state = ENDING_STATE_OC2;
-          break;
-        }
+        // if (num_turn >= 12){
+        //   prev_state = SCAN_SECTOR_STATE_OC2;
+        //   state = ENDING_STATE_OC2;
+        //   break;
+        // }
         if (nearestPillarGlobal.colour == RED || nearestPillarGlobal.colour == GREEN){
           pillar_front = nearestPillarGlobal;
           pillar_front_info.pillar = pillar_front;
@@ -221,6 +222,13 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
+        if (num_turn >= 5){
+          prev_state = Backward_until_threshold;
+          state = anti_in_parking_p1;
+          reset_encoder();
+          tar_ang += (is_anticlockwise == true) ? right_ang : -right_ang;
+          break;
+        }
         if ((is_anticlockwise && dist_t1 > dist_threshold) || (!is_anticlockwise && dist_t2 > dist_threshold)){
           steering_percentage = 0;
           motor_move(-8);
@@ -236,6 +244,11 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       case Forward_for_turn:
         Serial.println("Forward_for_turn");
         OC2_text = "Forard_for_turn";
+        if (num_turn >= 12){
+          prev_state = SCAN_SECTOR_STATE_OC2;
+          state = ENDING_STATE_OC2;
+          break;
+        }
         if(abs(MOTOR_ENCODER_COUNT) < 20){
           steering_percentage = 0;
           motor_move(8);
@@ -594,6 +607,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      
       case ENDING_STATE_OC2:
         Serial.println("ENDING_STATE_OC2");
         OC2_text = "ENDING_STATE_OC2";
@@ -687,6 +701,87 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         steering_percentage = 0;
         motor_stop(BRAKE);
         break;
+
+      case anti_in_parking_p1:
+        if (abs(MOTOR_ENCODER_COUNT) < 25){
+          steering_percentage = 0;
+          motor_move(-8);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          inner_wall_dist = dist_t1;
+          state = anti_in_parking_p2;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case anti_in_parking_p2:
+        if (abs(MOTOR_ENCODER_COUNT) < 35){
+          steering_percentage = 0;
+          motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = anti_in_parking_p3;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case anti_in_parking_p3:
+        if (abs(imu_yaw - tar_ang) < 75){
+          steering_percentage = 100;
+          motor_move(-9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = anti_in_parking_p4;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case anti_in_parking_p4:
+        if (abs(MOTOR_ENCODER_COUNT) < 1.28 * abs(41.5 - inner_wall_dist)){
+          steering_percentage = 0;
+          if (41.0 - inner_wall_dist > 0) motor_move(-9);
+          else motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = anti_in_parking_p5;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case anti_in_parking_p5:
+        if (abs(imu_yaw - tar_ang) < 172){
+          steering_percentage = 100;
+          motor_move(-9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = anti_in_parking_p6;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case anti_in_parking_p6:
+        if (abs(MOTOR_ENCODER_COUNT) < 20){
+          steering_percentage = 0;
+          motor_move(8);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = ENDING_STATE_OC2;
+          reset_encoder();
+          break;
+        }
+        break;
+
     }
   }
   vTaskDelay(5 / portTICK_PERIOD_MS);

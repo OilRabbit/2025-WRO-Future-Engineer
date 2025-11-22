@@ -51,7 +51,13 @@ typedef enum {
   OUT_PARKING_P3_STATE,
   OUT_PARKING_P4_STATE,
   OUT_PARKING_P5_STATE,
-  STOP_OC2
+  STOP_OC2,
+  anti_in_parking_p1,
+  anti_in_parking_p2,
+  anti_in_parking_p3,
+  anti_in_parking_p4,
+  anti_in_parking_p5,
+  anti_in_parking_p6
 } OC2_STATES;
 
 // typedef enum {
