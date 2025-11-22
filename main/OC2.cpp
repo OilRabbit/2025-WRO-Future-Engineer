@@ -703,7 +703,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         break;
 
       case anti_in_parking_p1:
-        if (abs(MOTOR_ENCODER_COUNT) < 25){
+        if (abs(MOTOR_ENCODER_COUNT) < 28){
           steering_percentage = 0;
           motor_move(-8);
           break;
