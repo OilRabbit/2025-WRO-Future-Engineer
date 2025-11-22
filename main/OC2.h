@@ -31,6 +31,8 @@ typedef enum {
   INIT_STATE_OC2,
   SCAN_SECTOR_STATE_OC2,
   FW2CORNER_OC2,
+  Backward_until_threshold,
+  Forward_for_turn,
   SCAN_CORNER_OC2,
   CHANGE_LANE_P1_OC2,
   CHANGE_LANE_P2_OC2,
