@@ -61,7 +61,13 @@ typedef enum {
   anti_in_parking_p3,
   anti_in_parking_p4,
   anti_in_parking_p5,
-  anti_in_parking_p6
+  anti_in_parking_p6,
+  clkw_in_parking_p1,
+  clkw_in_parking_p2,
+  clkw_in_parking_p3,
+  clkw_in_parking_p4,
+  clkw_in_parking_p5
+  // clkw_in_parking_p6
 } OC2_STATES;
 
 // typedef enum {

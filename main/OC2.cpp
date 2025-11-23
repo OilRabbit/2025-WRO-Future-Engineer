@@ -167,7 +167,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
               prev_state = SCAN_SECTOR_STATE_OC2;
               state = CHANGE_LANE_P1_OC2;
               if(is_anticlockwise){
-                if (num_turn % 4 == 0) change_lane_run_ang = min_val(30, change_lane_ang(100 - pillar_front_info.tof1_dist));
+                if (num_turn % 4 == 0) change_lane_run_ang = min_val(40, change_lane_ang(100 - pillar_front_info.tof1_dist));
                 else change_lane_run_ang = change_lane_ang(100 - pillar_front_info.tof1_dist);
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, imu_yaw - tar_ang, change_lane_run_ang);
                 Serial.println(pillar_front_info.tof1_dist);
@@ -178,6 +178,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
               }
               Serial.println(change_lane_run_ang);
               Serial.println(change_lane_run_dist);
+              if (change_lane_run_dist == 0) change_lane_run_dist = 1;//idk
               break;
             } else {
               prev_state = SCAN_SECTOR_STATE_OC2;
@@ -192,12 +193,13 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
                 change_lane_run_ang = change_lane_ang(pillar_front_info.tof1_dist);
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, tar_ang - imu_yaw, change_lane_run_ang);
               } else{
-                if (num_turn % 4 == 0) change_lane_run_ang = min_val(30, change_lane_ang(100 - pillar_front_info.tof2_dist));
+                if (num_turn % 4 == 0) change_lane_run_ang = min_val(40, change_lane_ang(100 - pillar_front_info.tof2_dist));
                 else change_lane_run_ang = change_lane_ang(100 - pillar_front_info.tof2_dist);
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof2_dist, tar_ang - imu_yaw, change_lane_run_ang);
               }
               Serial.println(change_lane_run_ang);
               Serial.println(change_lane_run_dist);
+              if (change_lane_run_dist == 0) change_lane_run_dist = 1;//idk
               break; 
             } else {
               prev_state = SCAN_SECTOR_STATE_OC2;
@@ -206,16 +208,16 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             }
           }
         } else {
-          if (internalClock.read() - time_count < 1000){
-            steering_percentage = 0;
-            motor_stop(BRAKE);
-            break;
-          } else {
+          // if (internalClock.read() - time_count < 1000){
+          //   steering_percentage = 0;
+          //   motor_stop(BRAKE);
+          //   break;
+          // } else {
             Serial.println("cant_see");
             prev_state = SCAN_SECTOR_STATE_OC2;
             state = FW2CORNER_OC2;
             break;
-          }
+          // }
         }
         break;
 
@@ -239,9 +241,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
-        if (num_turn >= 5){
+        if (num_turn >= 13){
           prev_state = Backward_until_threshold;
-          state = (is_anticlockwise) ? anti_in_parking_p1 : STOP_OC2;
+          state = (is_anticlockwise) ? anti_in_parking_p1 : clkw_in_parking_p1;
           reset_encoder();
           tar_ang += (is_anticlockwise == true) ? right_ang : -right_ang;
           break;
@@ -261,12 +263,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       case Forward_for_turn:
         Serial.println("Forward_for_turn");
         OC2_text = "Forard_for_turn";
-        if (num_turn >= 12){
-          prev_state = SCAN_SECTOR_STATE_OC2;
-          state = ENDING_STATE_OC2;
-          break;
-        }
-        if(abs(MOTOR_ENCODER_COUNT) < 20){
+        if(abs(MOTOR_ENCODER_COUNT) < 22){
           steering_percentage = 0;
           motor_move(9);
           break;
@@ -326,7 +323,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         OC2_text = "CHANGE_LANE_P2_OC2";
         tar_power = power;
         if (pillar_front.colour == RED){
-          if (!motor_degree_accel(change_lane_run_dist - 0, (change_lane_run_dist - 0) / 2, (change_lane_run_dist - 0) / 2, tar_power, tar_power + 2)){
+          if (!motor_degree_accel(change_lane_run_dist - 0, (change_lane_run_dist - 0) / 2, (change_lane_run_dist - 0) / 2, tar_power, tar_power)){
             steering_percentage = -(imu_yaw - (tar_ang + change_lane_run_ang)) * imu_kp;
           } else {
             prev_state = CHANGE_LANE_P2_OC2;
@@ -334,7 +331,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             break;
           }
         } else {
-          if (!motor_degree_accel((change_lane_run_dist - 0), (change_lane_run_dist - 0) / 2, (change_lane_run_dist - 0) / 2, tar_power, tar_power + 2)){
+          if (!motor_degree_accel((change_lane_run_dist - 0), (change_lane_run_dist - 0) / 2, (change_lane_run_dist - 0) / 2, tar_power, tar_power)){
             steering_percentage = -(imu_yaw - (tar_ang - change_lane_run_ang)) * imu_kp;
           } else {
             prev_state = CHANGE_LANE_P2_OC2;
@@ -492,7 +489,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           else skip_blk_dist = area2dist_red(blk_area_after_turn) * ENC_PER_CM - 10;
           if (skip_blk_dist <= 0) skip_blk_dist = 5;
           Serial.println(skip_blk_dist);
-          if (!motor_degree_accel(skip_blk_dist, skip_blk_dist / 2, skip_blk_dist / 2, tar_power, tar_power + 2)) {
+          if (!motor_degree_accel(skip_blk_dist, skip_blk_dist / 2, skip_blk_dist / 2, tar_power, tar_power)) {
             if (clone_blk_xpos - nearestPillarGlobal.xpos < 100 && nearestPillarGlobal.colour != NO_COLOUR) steering_percentage = -(min_xpos_Rcase_skip(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
             else steering_percentage = 0;
           } else {
@@ -505,7 +502,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           skip_blk_dist = area2dist_green(blk_area_after_turn) - 15;
           if (skip_blk_dist <= 0) skip_blk_dist = 5;
           Serial.println(skip_blk_dist);
-          if (!motor_degree_accel(skip_blk_dist, skip_blk_dist / 2, skip_blk_dist / 2, tar_power, tar_power + 2)) {
+          if (!motor_degree_accel(skip_blk_dist, skip_blk_dist / 2, skip_blk_dist / 2, tar_power, tar_power)) {
             if (nearestPillarGlobal.xpos - clone_blk_xpos < 100 && nearestPillarGlobal.colour != NO_COLOUR) steering_percentage = -(min_xpos_Gcase(nearestPillarGlobal.area) - nearestPillarGlobal.xpos) * 0.8;
             else steering_percentage = 0;
           } else {
@@ -594,7 +591,8 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         break;
 
       case INTO_SECTOR_OC2:
-        Serial.println("INTO_SECTOR_OC2");
+        Serial.println(prev_state);
+        Serial.println(" INTO_SECTOR_OC2");
         OC2_text = "INTO_SECTOR_OC2";
         motor_move(tar_power);
         if (dist_t1 > dist_threshold || dist_t2 > dist_threshold) {
@@ -868,6 +866,73 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           motor_stop(BRAKE);
           state = ENDING_STATE_OC2;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case clkw_in_parking_p1:
+        if (abs(MOTOR_ENCODER_COUNT) < 25){
+          steering_percentage = 0;
+          motor_move(-8);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          inner_wall_dist = dist_t2;
+          state = clkw_in_parking_p2;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case clkw_in_parking_p2:
+        if (abs(MOTOR_ENCODER_COUNT) < 25){
+          steering_percentage = 0;
+          motor_move(-8);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = clkw_in_parking_p3;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case clkw_in_parking_p3:
+        if (abs(imu_yaw - tar_ang) < 75){
+          steering_percentage = -100;
+          motor_move(-10);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = clkw_in_parking_p4;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case clkw_in_parking_p4:
+        if (abs(MOTOR_ENCODER_COUNT) < 1.28 * abs(41.5 - inner_wall_dist)){
+          steering_percentage = 0;
+          if (45 - inner_wall_dist > 0) motor_move(-9);
+          else motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = clkw_in_parking_p5;
+          reset_encoder();
+          break;
+        }
+        break;
+
+      case clkw_in_parking_p5:
+        if (abs(imu_yaw - tar_ang) > 9){
+          steering_percentage = 100;
+          motor_move(-9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = anti_in_parking_p6;
           reset_encoder();
           break;
         }

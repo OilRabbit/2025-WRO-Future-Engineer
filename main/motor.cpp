@@ -164,11 +164,24 @@ bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float in
 	static float start_pos;
 	static float acceleration;
   static MOTOR_ACCEL_STATE state;
+  static float accel_distance = 0;
+  static float decel_distance = 0;
+  static float total_distance = 0;
 
   if (init){
-    if ((accel_dist + decel_dist) > dist){
-      accel_dist = dist / 2;
-      decel_dist = dist / 2;
+    if (dist < 0){
+      total_distance = abs(dist);
+      accel_distance = total_distance / 2;
+      decel_distance = total_distance / 2;
+    } else{
+      total_distance = dist;
+      if ((accel_dist + decel_dist) > dist){
+        accel_dist = dist / 2;
+        decel_dist = dist / 2;
+      } else {
+        accel_distance = accel_dist / 2;
+        decel_distance = decel_dist / 2;
+      }
     }
     start_pos = MOTOR_ENCODER_COUNT;
     acceleration = (max_speed * 10 / (accel_dist + 1));
