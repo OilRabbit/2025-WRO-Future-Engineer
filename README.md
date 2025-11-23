@@ -89,6 +89,6 @@ Our sponsors:
 
 | [Peach Creatice Production](https://www.peachcp.com/wp/) | [TURNED-E!](https://www.turned-e.com/) | [Scarlet Racing](https://www.facebook.com/scarlet.racing.hk/?locale=zh_HK) | Electronic Slash |
 | -------- | -------- | -------- | -------- |
-|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/PeachCP_WhiteBackLogo.png" width = "150">|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/w_150/turned-e_logo.jpeg" width = "150">|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/w_150/scarlet_racing_logo.png" width = "150">|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/w_150/ES_Logo.png" width = "150">|
+|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/PeachCP_WhiteBackLogo.png" width = "150">|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/turned-e_logo.jpeg" width = "150">|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/scarlet_racing_logo.png" width = "150">|<img src = "https://github.com/OilRabbit/2025-WRO-Future-Engineer/blob/Gen-6.0_ESP32/picsNveds/ES_Logo.png" width = "150">|
 
 Also thank to our parents, coach and supporter for supporting us to explore the field we love.
