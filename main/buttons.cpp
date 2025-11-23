@@ -6,6 +6,7 @@
 
 static inline uint8_t pinOf(TFT_BTNS b) { return static_cast<uint8_t>(b); }
 
+// Button init function
 void btn_init(){
   // pinMode(pinOf(TFT_JS_BTN), INPUT_PULLUP);
   pinMode(pinOf(TFT_BTN1), INPUT_PULLUP);
@@ -17,10 +18,20 @@ void btn_init(){
   // pinMode(pinOf(TFT_JS_RIGHT), INPUT_PULLUP);
 }
 
+/**
+ * @brief Check if the specific button is being pressed and hold
+ * 
+ * @return bool; true if being pressed and hold
+ */
 bool is_btn_pressed(TFT_BTNS btn){
   return (digitalRead(pinOf(btn)) == LOW);
 }
 
+/**
+ * @brief Check if the specific button is being pressed and released once
+ * 
+ * @return bool; true if being pressed and released once
+ */
 bool is_btn_bumped(TFT_BTNS btn){
   const uint8_t pin = pinOf(btn);
   static uint64_t wasPressedMask = 0;
@@ -34,11 +45,16 @@ bool is_btn_bumped(TFT_BTNS btn){
   return edge;
 }
 
-// For testing only
+/**
+ * @brief A function to put into display thread for showing the button state
+ * 
+ * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
+ * @param line_number; int; The line number where the data should be displaced at (0 ~ 3)
+ * @param size; int; The size of the text being displaced (1 ~ 2)
+ * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
+ */
 void showbtnState(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   String btn_text = String("Bt1:") + (is_btn_pressed(TFT_BTN1) ? "Pre" : "Rel");
-  static bool run = false;
-  static bool finished = false;
   if (is_btn_pressed(TFT_BTN3)){
     imu_resetYaw();
     reset_encoder();

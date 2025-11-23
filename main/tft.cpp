@@ -1,5 +1,4 @@
 #include "tft.h"
-#include "ultra.h"
 #include "tof.h"
 #include "buttons.h"
 #include "imu.h"
@@ -9,6 +8,7 @@
 #include "OC1.h"
 #include "OC2.h"
 
+// Pins connected to the LCD hat
 #define TFT_SCLK 40   // HAT SCLK -> ESP32-S3 GPIO40
 #define TFT_MOSI 41   // HAT MOSI -> ESP32-S3 GPIO41
 #define TFT_CS   21
@@ -24,6 +24,7 @@
 Adafruit_ST7789 tft_raw(TFT_CS, TFT_DC, TFT_RST);
 TFT tft;
 
+// Init function for the LCD
 void TFT::init(){
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, HIGH);          // turn backlight ON
@@ -33,24 +34,29 @@ void TFT::init(){
   tft_raw.setTextSize(2);
 }
 
+// Text configuration when printing on the LCD
 void TFT::textconfig(uint16_t text_colour, int textsize, int xpos, int ypos){
   tft_raw.setTextColor(text_colour);
   tft_raw.setTextSize(textsize);
   tft_raw.setCursor(xpos, ypos);
 }
 
+// Clear the LCD
 void TFT::clear(){
   tft_raw.fillScreen(TFT_BLACK);
 }
 
+// Clear a specific line on the LCD
 void TFT::clearln(TFT_COLUMN column, int line_number){
   tft_raw.fillRect(column * 120, line_number * TEXT_HEIGHT, TFT_WIDTH / 2, TEXT_HEIGHT, TFT_BLACK);
 }
 
+// Set the text colour being printed on the LCD
 void TFT::setTextColour(uint16_t text_colour){
   tft_raw.setTextColor(text_colour);
 }
 
+// Show text on the LCD
 void TFT::display(int xpos, int ypos, int textsize, const char text[], uint16_t text_colour, bool clearDisplay){
   if(clearDisplay) clear();
   tft_raw.setCursor(xpos, ypos);
@@ -59,6 +65,7 @@ void TFT::display(int xpos, int ypos, int textsize, const char text[], uint16_t 
   tft_raw.printf(text);
 }
 
+// Show text on a specific line on the LCD
 void TFT::displayln(int xpos, int line_number, int textsize, const char text[], uint16_t text_colour, bool clearDisplay){
   if(clearDisplay) clear();
   setTextColour(text_colour);
@@ -67,26 +74,31 @@ void TFT::displayln(int xpos, int line_number, int textsize, const char text[], 
   tft_raw.printf(text);
 }
 
+// Show text on the left column of the LCD
 void TFT::displayLeft(int ypos, int textsize, const char text[], uint16_t text_colour, bool clearDisplay){
   if(clearDisplay) clear();
   display(0, ypos, textsize, text, text_colour, clearDisplay);
 }
 
+// Show text on the left column on a specific line of the LCD
 void TFT::displayLeftln(int line_number, int textsize, const char text[], uint16_t text_colour, bool clearDisplay){
   if(clearDisplay) clear();
   displayln(0, line_number, textsize, text, text_colour, clearDisplay);
 }
 
+// Show text on the right column of the LCD
 void TFT::displayRight(int ypos, int textsize, const char text[], uint16_t text_colour, bool clearDisplay){
   if(clearDisplay) clear();
   display(TFT_WIDTH / 2, ypos, textsize, text, text_colour, clearDisplay);
 }
 
+// Show text on the right column on a specific line of the LCD
 void TFT::displayRightln(int line_number, int textsize, const char text[], uint16_t text_colour, bool clearDisplay){
   if(clearDisplay) clear();
   displayln(TFT_WIDTH / 2, line_number, textsize, text, text_colour, clearDisplay);
 }
 
+// A function to display everying from different threads on the LCD
 void displayData(void *parameters){
   while(1){
     int ln = 2;
@@ -94,18 +106,13 @@ void displayData(void *parameters){
     showInternalClock();
     showToF1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showToF2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    // showUltra1Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    // showUltra2Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    // showUltra3Dist(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showIMU(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showbtnState(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showSteering(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showEncoder(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showNearestBlk(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     ln++;
-    // showSecondNearestBlk(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
-    // ln++;
-    // showOC1Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
+    showOC1Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     showOC2Time(TFT_LEFT_CLN, ln++, 2, TFT_WHITE, false);
     vTaskDelay(5 / portTICK_PERIOD_MS);
   }

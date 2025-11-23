@@ -5,6 +5,7 @@
 #include <Pixy2CCC.h>
 #include "calculation.h"
 
+// SDA and SCL pin connected to Pixy2
 #define PIXY2_SDA 8
 #define PIXY2_SCL 9
 
@@ -12,6 +13,7 @@
 #define CAM_MID_XPOS 145
 #define CAM_MID_YPOS 102
 
+// Enum storing the definition of each signiture (block)
 typedef enum {
   RED = 1,
   GREEN = 2,
@@ -19,6 +21,7 @@ typedef enum {
   NO_COLOUR = -1
 } COLOUR_BLOCK;
 
+// Struct for storing block information when being detected
 typedef struct{
   COLOUR_BLOCK colour;
   uint16_t xpos;
@@ -36,6 +39,5 @@ extern Pixy2I2C pixy;
 extern COLOURED_OBJ nearestPillarGlobal;
 
 int pixy2_init();
-COLOURED_OBJ getNearestPillar();
 void getNearestBlkloop(void *);
 void showNearestBlk(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);

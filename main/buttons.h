@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "tft.h"
 
+// Button pins of the LCD monitor
 typedef enum {
   // TFT_JS_BTN = 11,
   TFT_BTN1 = 12,

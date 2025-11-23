@@ -1,12 +1,13 @@
 #include "imu.h"
 
-// --------- Your board wiring ---------
+// Wiring of the IMU 
 #define I2C_SDA   9
 #define I2C_SCL   8
 #define AD0_VAL   1      // 1 => 0x69 (SparkFun default), 0 => 0x68
 #define WIRE_PORT Wire
 #define SERIAL_PORT Serial
 
+// IMU global variable
 ICM_20948_I2C icm;
 
 // Public YPR values
@@ -20,7 +21,7 @@ static volatile double yaw_zero_unwrapped  = 0.0;
 static bool   have_prev_yaw = false;
 static double prev_yaw_deg  = 0.0;
 
-// --------------------------------- helpers ---------------------------------
+// Helper functions
 static inline double clamp01(double v){
   return v < 0.0 ? 0.0 : (v > 1.0 ? 1.0 : v);
 }
@@ -70,7 +71,7 @@ static bool get_yaw_deg_latest(double& yaw_deg){
   return got;
 }
 
-// --------------------------------- API ---------------------------------
+// Init function for the IMU
 void imu_init(){
   WIRE_PORT.begin(I2C_SDA, I2C_SCL, 400000);
   WIRE_PORT.setClock(400000);
@@ -94,17 +95,18 @@ void imu_init(){
   ok &= (icm.resetDMP() == ICM_20948_Stat_Ok);
   ok &= (icm.resetFIFO() == ICM_20948_Stat_Ok);
   if (!ok) {
-    // Hang here if the DMP didn't start correctly
     while (1) { delay(100); }
   }
 
-  // Reset unwrapping state
   have_prev_yaw      = false;
   yaw_unwrapped      = 0.0;
   yaw_zero_unwrapped = 0.0;
   imu_yaw = imu_pitch = imu_roll = 0.0;
 }
 
+/**
+ * @brief The main thread function for refreshing IMU values 
+ */
 void getYPRloop(void *){
   for (;;) {
     double y_deg;
@@ -132,15 +134,27 @@ void getYPRloop(void *){
     // Apply zero offset
     imu_yaw = yaw_unwrapped - yaw_zero_unwrapped;
 
-    // (If you later compute pitch/roll from a full quat, set imu_pitch/imu_roll here.)
     vTaskDelay(pdMS_TO_TICKS(5));
   }
 }
 
+/**
+ * @brief Resetting the IMU yaw angle
+ */
 void imu_resetYaw(){
   yaw_zero_unwrapped = yaw_unwrapped;
 }
 
+/**
+ * @brief Function to print the (yaw) angle from the IMU on the LCD monitor
+ * 
+ * @param column; TFT_COLUMN; the column on the LCD where the info is being printed
+ * @param line_number; int; the line number on the LCD where the info is being printed
+ * @param text_size; int; text size of the info on the LCD (1 or 2)
+ * @param text_colour; uint16_t; text colour printed on the LCD
+ * @param clearDisplay; bool; (UNUSED) whether the display will be cleared before running
+ * 
+ */
 void showIMU(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   String yaw_text = String("Y:") + String(imu_yaw);
   // String pitch_text = String("Pit:") + String(imu_pitch);

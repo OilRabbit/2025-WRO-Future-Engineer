@@ -3,21 +3,23 @@
 
 #include "motor.h"
 #include <math.h>
-#include <driver/pulse_cnt.h>   // PCNT (Arduino-ESP32 3.x)
+#include <driver/pulse_cnt.h> 
 
-// -------------------- Globals --------------------
+// Global variables for the BM50 motor
 volatile long MOTOR_ENCODER_COUNT = 0;
 long          MOTOR_ENCODER_VALUE = 0;
 
-// PWM polarity (true = active-low like your AVR COM0A=11 trick)
+// PWM polarity (true = active-low)
 const bool PWM_ACTIVE_LOW = true;
 
-// -------------------- PCNT handles --------------------
 static pcnt_unit_handle_t    s_pcnt_unit = nullptr;
 static pcnt_channel_handle_t s_chan_a    = nullptr;
 static pcnt_channel_handle_t s_chan_b    = nullptr;
 
-// -------------------- helpers --------------------
+/**
+ * @brief Helper functions to convert percentage to duty cycle
+ * @param p; int; percentage
+ */
 static inline uint32_t duty_from_percent(int p) {
   int mag = abs(p);
   if (mag > 100) mag = 100;
@@ -26,16 +28,22 @@ static inline uint32_t duty_from_percent(int p) {
   return d;
 }
 
+/**
+ * @brief Helper functions to apply motor direction to pwm
+ * @param p; int; motor direction
+ */
 static inline void apply_pwm_dir(int p) {
   digitalWrite(PIN_M_DIR, (p >= 0) ? HIGH : LOW);
   digitalWrite(PIN_M_BRAKE, HIGH);                      // release brake
   ledcWrite(PIN_M_PWM, duty_from_percent(p));
 }
 
-// -------------------- PCNT encoder setup --------------------
+/**
+ * @brief PCNT encoder setup function
+ */
 static void encoder_pcnt_init() {
   pcnt_unit_config_t unit_cfg = {};
-  unit_cfg.low_limit  = INT16_MIN;   // 16-bit hardware counter; read often or extend in SW if needed
+  unit_cfg.low_limit  = INT16_MIN;
   unit_cfg.high_limit = INT16_MAX;
   ESP_ERROR_CHECK(pcnt_new_unit(&unit_cfg, &s_pcnt_unit));
 
@@ -72,12 +80,13 @@ static void encoder_pcnt_init() {
   ESP_ERROR_CHECK(pcnt_unit_start(s_pcnt_unit));
 }
 
-// -------------------- Public API --------------------
+/**
+ * @brief Init function for the motor
+ */
 void motor_init() {
   // Keep brake asserted until PWM ready
   digitalWrite(PIN_M_BRAKE, LOW);
 
-  // LEDC (Arduino-ESP32 3.x pin-based API)
   ledcAttach(PIN_M_PWM, PWM_FREQ_HZ, PWM_BITS);
   ledcWrite(PIN_M_PWM, PWM_ACTIVE_LOW ? PWM_MAX_DUTY : 0); // OFF
 
@@ -85,7 +94,6 @@ void motor_init() {
   digitalWrite(PIN_M_DIR, LOW);
 
   pinMode(PIN_M_BRAKE, OUTPUT);
-  // leave brake asserted until user runs motor_move()
 
   // Encoder pins & PCNT
   pinMode(PIN_ENC_A, INPUT_PULLUP);
@@ -96,6 +104,9 @@ void motor_init() {
   MOTOR_ENCODER_VALUE = 0;
 }
 
+/**
+ * @brief Read the encoder value from the encoder sensor to update the global variable
+ */
 void read_encoder() {
   int hw = 0;
   if (s_pcnt_unit) pcnt_unit_get_count(s_pcnt_unit, &hw);
@@ -103,18 +114,30 @@ void read_encoder() {
   MOTOR_ENCODER_VALUE = (long)hw;
 }
 
+/**
+ * @brief Reset the encoder value 
+ */
 void reset_encoder() {
   if (s_pcnt_unit) pcnt_unit_clear_count(s_pcnt_unit);
   MOTOR_ENCODER_COUNT = 0;
   MOTOR_ENCODER_VALUE = 0;
 }
 
+/**
+ * @brief Move the motor with the input power
+ * @param speed_percentage; int; Speed percentage (-100% ~ 100%) (Negative as moving backward)
+ */
 void motor_move(int speed_percentage) {
   if (speed_percentage > 100)  speed_percentage = 100;
   if (speed_percentage < -100) speed_percentage = -100;
   apply_pwm_dir(speed_percentage);
 }
 
+/**
+ * @brief Stop the motor with the input method
+ * @param brake_method; BRAKE_TYPE; Method to brake the motor. BRAKE: stop the motor by providing a force to it. COAST: stop the motor by without providing
+ * an external force
+ */
 void motor_stop(BRAKE_TYPE brake_method) {
   // PWM off
   ledcWrite(PIN_M_PWM, PWM_ACTIVE_LOW ? PWM_MAX_DUTY : 0);
@@ -122,7 +145,12 @@ void motor_stop(BRAKE_TYPE brake_method) {
   else                       digitalWrite(PIN_M_BRAKE, HIGH);  // coast
 }
 
-// Blocking move by degrees (sign of deg = direction)
+/**
+ * @brief Blocking move by degrees (sign of deg = direction)
+ * @param deg; int; encoder value to be moved
+ * @param speed_percentage; int; Speed percentage (-100% ~ 100%) (Negative as moving backward)
+ * @param brake_method; BRAKE_TYPE; Method to brake the motor. BRAKE: stop the motor by providing a force to it. COAST: stop the motor by without providing
+ */
 void motor_on_degree(int deg, int speed_percentage, BRAKE_TYPE brake_method) {
   if (deg == 0 || speed_percentage == 0) { motor_stop(brake_method); return; }
 
@@ -151,19 +179,20 @@ void motor_on_degree(int deg, int speed_percentage, BRAKE_TYPE brake_method) {
   motor_stop(brake_method);
 }
 
-typedef enum {
-  ACCEL,
-  CONST_SPEED,
-  DECEL,
-  ENDED,
-} MOTOR_ACCEL_STATE;
-
+/**
+ * @brief Move by degree with acceleration and deceleration
+ * @param dist; float; total encoder value to be moved
+ * @param accel_dist; float; encoder value to be moved with acceleration
+ * @param decel_dist; float; encoder value to be moved with deceleration
+ * @param init_speed; float; initial speed before acceleration
+ * @param max_speed; float; maximum speed after acceleration
+ * @return bool; the status of this function
+ */
 bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float init_speed, float max_speed){
   static bool init = true;
   static float curr_speed;
 	static float start_pos;
 	static float acceleration;
-  static MOTOR_ACCEL_STATE state;
   static float accel_distance = 0;
   static float decel_distance = 0;
   static float total_distance = 0;
@@ -186,7 +215,6 @@ bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float in
     start_pos = MOTOR_ENCODER_COUNT;
     acceleration = (max_speed * 10 / (accel_dist + 1));
     curr_speed += acceleration;
-    state = ACCEL;
 		init = false;
 	}
 
@@ -214,6 +242,9 @@ bool motor_degree_accel(float dist, float accel_dist, float decel_dist, float in
   return false;
 }
 
+/**
+ * @brief The main thread function for motor encoder measurement
+ */
 void motor_encloop(void* parameters){
   while(1){
     read_encoder();
@@ -221,6 +252,16 @@ void motor_encloop(void* parameters){
   }
 }
 
+/**
+ * @brief Function to print the encoder value of the motor on the LCD monitor
+ * 
+ * @param column; TFT_COLUMN; the column on the LCD where the info is being printed
+ * @param line_number; int; the line number on the LCD where the info is being printed
+ * @param text_size; int; text size of the info on the LCD (1 or 2)
+ * @param text_colour; uint16_t; text colour printed on the LCD
+ * @param clearDisplay; bool; (UNUSED) whether the display will be cleared before running
+ * 
+ */
 void showEncoder(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   read_encoder();
   String encoder_text = "Enc:" + String(long(MOTOR_ENCODER_COUNT));

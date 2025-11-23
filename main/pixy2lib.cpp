@@ -1,14 +1,19 @@
 #include "pixy2lib.h"
 
+// Global variable for Pixy2 and for storing data from Pixy2
 Pixy2I2C pixy;
 COLOURED_OBJ nearestPillarGlobal;
 
+// Init function for Pixy2
 int pixy2_init() {
   Serial.println("Init Pixy2...");
   pixy.init();
   return 0;
 }
 
+/**
+ * @brief A function for getting the information of the nearest block detected from Pixy2
+ */
 COLOURED_OBJ getNearestPillar() {
   COLOURED_OBJ nearest_pillar;
   int count = pixy.ccc.getBlocks();
@@ -57,6 +62,9 @@ COLOURED_OBJ getNearestPillar() {
   return nearest_pillar;
 }
 
+/**
+ * @brief The main thread function for Pixy2 detection
+ */
 void getNearestBlkloop(void *){
   while(1){
     nearestPillarGlobal = getNearestPillar();
@@ -65,6 +73,16 @@ void getNearestBlkloop(void *){
   }
 }
 
+/**
+ * @brief Function to print the block data detected by Pixy2 on the LCD
+ * 
+ * @param column; TFT_COLUMN; the column on the LCD where the info is being printed
+ * @param line_number; int; the line number on the LCD where the info is being printed
+ * @param text_size; int; text size of the info on the LCD (1 or 2)
+ * @param text_colour; uint16_t; text colour printed on the LCD
+ * @param clearDisplay; bool; (UNUSED) whether the display will be cleared before running
+ * 
+ */
 void showNearestBlk(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   String red_text;
   String green_text;

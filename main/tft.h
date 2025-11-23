@@ -7,6 +7,7 @@
 #include <Adafruit_ST7789.h>
 #include "timestamp.h"
 
+// Colour code for text colour on the LCD
 #define TFT_BLACK 0x0000
 #define TFT_WHITE 0xFFFF
 #define TFT_RED 0xF800
@@ -17,11 +18,13 @@
 #define TFT_YELLOW 0xFFE0
 #define TFT_ORANGE 0xFC00
 
+// Column of the LCD
 typedef enum {
   TFT_LEFT_CLN,
   TFT_RIGHT_CLN
 } TFT_COLUMN;
 
+// Class of the LCD for LCD's functions
 class TFT
 {
   public:

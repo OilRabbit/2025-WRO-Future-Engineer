@@ -15,7 +15,6 @@ extern volatile double imu_pitch;
 extern volatile double imu_roll;
 
 void imu_init();
-bool get_ypr(double& yaw, double& pitch, double& roll);
 void getYPRloop(void *parameters);
 void imu_resetYaw();
 void showIMU(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool clearDisplay);

@@ -1,10 +1,8 @@
 #include "tof.h"
 #include <HardwareSerial.h>
 
-// Map UARTs: ToF1->UART1, ToF2->UART2, ToF3->UART0
 HardwareSerial ToF1(1);
 HardwareSerial ToF2(2);
-// HardwareSerial ToF3(0);…
 
 TOF_STATES tof1_state = SEEK_AA1;
 TOF_STATES tof2_state = SEEK_AA1;
@@ -110,16 +108,13 @@ static void parseLoopOne(HardwareSerial &U,
 }
 
 
-// ====== init all three UARTs ======
+// ====== init all ToFs ======
 void tofInit() {
   ToF1.setRxBufferSize(4096);
   ToF1.begin(230400, SERIAL_8N1, TOF1_RX, TOF1_TX);
 
   ToF2.setRxBufferSize(4096);
   ToF2.begin(230400, SERIAL_8N1, TOF2_RX, TOF2_TX);
-
-  // ToF3.setRxBufferSize(4096);
-  // ToF3.begin(230400, SERIAL_8N1, TOF3_RX, TOF3_TX);
 
   tof1_state = tof2_state = tof3_state = SEEK_AA1;
 
@@ -156,18 +151,14 @@ void getToF2Distloop(void *){
   }
 }
 
-// void getToF3Distloop(void *){
-//   for(;;){
-//     parseLoopOne(ToF3, tof3_state,
-//                  hdr6_t3, hdr_i_t3, len_t3,
-//                  pay_t3,  pay_i_t3, csum_t3,
-//                  dist_t3, noise_t3, peak_t3, conf_t3, intg_t3, reftof_t3,
-//                  have_t3);
-//     vTaskDelay(5 / portTICK_PERIOD_MS);
-//   }
-// }
-
-// ===== Display helpers =====
+/**
+ * @brief A function to put into display thread for showing the ToF values
+ * 
+ * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
+ * @param line_number; int; The line number where the data should be displaced at (0 ~ 3)
+ * @param size; int; The size of the text being displaced (1 ~ 2)
+ * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
+ */
 void showToF1Dist(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool){
   String s = String("T1:") + String(dist_t1) + "cm";
   if (column == TFT_LEFT_CLN){ tft.clearln(TFT_LEFT_CLN, line_number);
@@ -176,16 +167,16 @@ void showToF1Dist(TFT_COLUMN column, int line_number, int text_size, uint16_t te
     tft.displayRightln(line_number, text_size, s.c_str(), text_colour, false); }
 }
 
+/**
+ * @brief A function to put into display thread for showing the ToF values
+ * 
+ * @param column; (enum) COLUMN; A enum defined in oled.h indicating which column the data should be displaced at
+ * @param line_number; int; The line number where the data should be displaced at (0 ~ 3)
+ * @param size; int; The size of the text being displaced (1 ~ 2)
+ * @param clearDisplay; bool; Set true to clear the whole OLED display everytime before displaying the battery percentage
+ */
 void showToF2Dist(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool){
   String s = String("T2:") + String(dist_t2) + "cm";
-  if (column == TFT_LEFT_CLN){ tft.clearln(TFT_LEFT_CLN, line_number);
-    tft.displayLeftln(line_number, text_size, s.c_str(), text_colour, false);
-  } else { tft.clearln(TFT_RIGHT_CLN, line_number);
-    tft.displayRightln(line_number, text_size, s.c_str(), text_colour, false); }
-}
-
-void showToF3Dist(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour, bool){
-  String s = String("T3:") + String(dist_t3) + "cm";
   if (column == TFT_LEFT_CLN){ tft.clearln(TFT_LEFT_CLN, line_number);
     tft.displayLeftln(line_number, text_size, s.c_str(), text_colour, false);
   } else { tft.clearln(TFT_RIGHT_CLN, line_number);

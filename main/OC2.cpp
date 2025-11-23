@@ -6,17 +6,19 @@
 #include "calculation.h"
 using namespace std;
 
+// A global variables for OC2
 bool reset_OC2 = true;
 long OC2_starttime = 0; 
 long OC2_endtime = 0; 
 bool run_OC2 = false;
 
+// Functions for safely suspend and resume threads
 static inline void safeSuspend(TaskHandle_t h){ if (h) vTaskSuspend(h); }
 static inline void safeResume(TaskHandle_t h){ if (h) vTaskResume(h); }
 
 /**
- * @brief Algorithm to calculate the safe xpos of the Red pillar seen according to its area from the huskylens
- * @param area; int; the area of the pillar from the huskylens
+ * @brief Algorithm to calculate the safe xpos of the Red pillar seen according to its area from the Pixy2
+ * @param area; int; the area of the pillar from the Pixy2
  *
  * @return float; the safe xpos of the pillar seen
 */
@@ -24,13 +26,19 @@ float min_xpos_Rcase_detect(int area){
   return -0.0008 * pow(area, 3) + 0.0948 * area * area - 4.6858 * area + 134.52; // - 70 * (1 - 1 / (area + 1))
 }
 
+/**
+ * @brief Algorithm to calculate the safe xpos of the Red pillar seen according to its area from the Pixy2
+ * @param area; int; the area of the pillar from the Pixy2
+ *
+ * @return float; the safe xpos of the pillar seen
+*/
 float min_xpos_Rcase_skip(int area){
   return -0.0008 * pow(area, 3) + 0.0948 * area * area - 4.6858 * area + 134.52 - 70; // - 70
 }
 
 /**
- * @brief Algorithm to calculate the safe xpos of the Green pillar seen according to its area from the huskylens
- * @param area; int; the area of the pillar from the huskylens
+ * @brief Algorithm to calculate the safe xpos of the Green pillar seen according to its area from the Pixy2
+ * @param area; int; the area of the pillar from the Pixy2
  *
  * @return float; the safe xpos of the pillar seen
 */
@@ -38,56 +46,75 @@ float min_xpos_Gcase(int area){
   return 0.0003 * pow(area, 3) - 0.051 * pow(area, 2) + 3.3764 * area + 170.59 + 45;
 }
 
+/**
+ * @brief Algorithm to calculate distance require the car to move such that it can pass through the Red block
+ * @param area; int; the area of the pillar from the Pixy2
+ *
+ * @return float; the encoder value for the car to move
+*/
 float area2dist_red(int area){
   return 169.46 * pow(area, -0.486) - 10 + 25 * (7 / area);
 }
 
+/**
+ * @brief Algorithm to calculate distance require the car to move such that it can pass through the Green block
+ * @param area; int; the area of the pillar from the Pixy2
+ *
+ * @return float; the encoder value for the car to move
+*/
 float area2dist_green(int area){
   return 0.000000007 * pow(area, 6) - 0.000001983 * pow(area, 5) + 0.000239396 * pow(area, 4) - 0.014922766 * pow(area, 3) + 0.512699658 * pow(area, 2) - 9.728327963 * area + 102.428377560 + 15 * (1 - area / 55);
 }
-/**
- * @brief Algorithm to calculate the mirror everything on the Red pillar case to the Green pillar case
- * @param xpos; float; the xpos of Green pillar from the huskylens
- *
- * @return float; the corresponding xpos when translate to Red case
-*/
-float mirror(float xpos){
-  return CAM_MID_XPOS * 2 - xpos;
-}
 
+/**
+ * @brief Algorithm to calculate angle required to turn for the car to do a successful lane changing
+ * @param tof_dist; float; the innerwall distance returned by the ToF 
+ *
+ * @return float; the angle in degree for the car to turn
+*/
 float change_lane_ang(float tof_dist){
   return rad2deg(atan((tof_dist - 15) / 40));
 }
 
+/**
+ * @brief Algorithm to calculate distance required for the car to do a successful lane changing
+ * @param tof_dist; float; the innerwall distance returned by the ToF 
+ * @param init_ang; float; initial yaw angle of the car
+ * @param final_ang; float; yaw angle the car should be facing
+ *
+ * @return float; the distance that the car has to travel
+*/
 float change_lane_dist_algo(float tof_dist, float init_ang, float final_ang){
   return (tof_dist * cos(deg2rad(init_ang)) - 15 - 10 * cos(deg2rad(90 - init_ang))) / sin(deg2rad(final_ang));
   // return (((tof_dist-15)) /cos(deg2rad(final_ang))) - 15 * cos(deg2rad(90 - init_ang));
 }
 
 /**
- * @brief Function for OC2
+ * @brief Function for OC2 using Pixy2 camera over the run
  * 
- * @param right_ang; double; the value of an "right angle" for the IMU (as the value of IMU is not consistent)
- * @param dist_threshold; int; the threshold that the car sees for turning (in mm)
+ * @param right_ang; double; the value of an "right angle" for the IMU (if the value returned by the IMU is not consistent)
+ * @param dist_threshold; int; the threshold that the ToFs consider as a turnable corner (in mm)
  * @param power; int; the power of the driving motor (0 ~ -100)
  * 
  */
 void OC2_pixy2(double right_ang, int dist_threshold, int power){
+  // Disable unecessary threads for efficiency
   safeSuspend(blinkledThread);
   safeSuspend(OC1Thread);
 
+  // Variables required for OC1
   float imu_kp = 4.5;
-  static OC2_STATES state = INIT_STATE_OC2; // A variable storing the current state of OC2 run
+  static OC2_STATES state = INIT_STATE_OC2; 
   static OC2_STATES prev_state = INIT_STATE_OC2;
-  static bool end_game = false;               // A flag determining whether the run has ended
-  vector<BLK_INFO> pillars_array;    // An array storing all the pillars detected
+  static bool end_game = false;             
+  vector<BLK_INFO> pillars_array;    
   BLK_INFO pillar_front_info;
-  static COLOURED_OBJ pillar_front;           // A struct storing all the info of the nearest pillar detected during DETECT_STATE
-  static bool is_anticlockwise = true;          // A boolean storing whether the car is racing in clockwise or anti-clockwise direction
+  static COLOURED_OBJ pillar_front;  
+  static bool is_anticlockwise = true;
   static int tar_power = power;
   static String OC2_text = "INIT_STATE_OC2";
   static bool blk_while_turning = false;
-  static double tar_ang = 0;                  // The target angle which the car should be facing
+  static double tar_ang = 0;          
   static double tar_ang_calibrate = -5;
   static int num_turn = 0;
   static float blk_area_after_turn = 0;
@@ -102,6 +129,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
   static int idk = 0;
   static int idk_color = 0;
 
+  // Initializing variables for this function
   if (reset_OC2){
     tar_ang = 0;
     tar_ang_calibrate = 0;
@@ -131,13 +159,15 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
   if (!end_game){
     OC2_endtime = internalClock.read();
 
+    // Finite State Machine of this funciton
     switch (state) {
+      // Initialize the run. Also detect the direction of the circuit
       case INIT_STATE_OC2:
         Serial.println("INIT_STATE_OC2");
         OC2_text = "INIT_STATE_OC2";
         motor_move(tar_power);
         tar_power = 0;
-        if (dist_t1 > dist_t2) is_anticlockwise = true; //dist_t1
+        if (dist_t1 > dist_t2) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
         state = OUT_PARKING_P1_STATE;
@@ -145,6 +175,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         tar_power = power;
         break;
 
+      // Scan whether there is a block on this sector
       case SCAN_SECTOR_STATE_OC2:
         Serial.println("SCAN_SECTOR_STATE_OC2");
         OC2_text = "SCAN_SECTOR_STATE_OC2";
@@ -221,6 +252,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Feedforward until ToF scans a corner
       case FW2CORNER_OC2:
         Serial.println("FW2CORNER_OC2");
         OC2_text = "FW2CORNER_OC2";
@@ -239,6 +271,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      // Move backward until ToF scans the innerwall, which makes the turning later more accurate
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
         if (num_turn >= 13){
@@ -260,6 +293,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Move forward for a certain encoder value to prevent crashing the innerwall while turning
       case Forward_for_turn:
         Serial.println("Forward_for_turn");
         OC2_text = "Forard_for_turn";
@@ -274,6 +308,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Scan if there is any blocks at the start of the next sector
       case SCAN_CORNER_OC2:
         Serial.println("SCAN_CORNER_OC2");
         OC2_text = "SCAN_CORNER_OC2";
@@ -296,6 +331,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Turn to a certain yaw angle to prepare for a lane changing
       case CHANGE_LANE_P1_OC2:
         Serial.println("CHANGE_LANE_P1_OC2");
         OC2_text = "CHANGE_LANE_P1_OC2";
@@ -318,6 +354,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Move diagonally (after turning in the previos state) to another lane
       case CHANGE_LANE_P2_OC2:
         Serial.println("CHANGE_LANE_P2_OC2");
         OC2_text = "CHANGE_LANE_P2_OC2";
@@ -341,6 +378,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      // Turn back to the target angle
       case CHANGE_LANE_P3_OC2:
         Serial.println("CHANGE_LANE_P3_OC2");
         OC2_text = "CHANGE_LANE_P3_OC2";
@@ -367,6 +405,8 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      // Since a block is being detected at the start of the next sector, the car will first move to an optimal position before turning. This state
+      // is responsible for the turning without doing any block scanning
       case PURE_TURNING_OC2:
         Serial.println("PURE_TURNING_OC2");
         OC2_text = "PURE_TURNING_OC2";
@@ -384,6 +424,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      // Since no block is being detected at the start of the next sector, the car will scan for blocks while turning, in case there is any missing blocks
       case UNKNOWN_TURNING_OC2:
         Serial.println("UNKNOWN_TURNING_OC2");
         OC2_text = "UNKNOWN_TURNING_OC2";
@@ -440,6 +481,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      // If a block is being detected while turning, this state will aid for a block passing turn
       case CURVE_BLK_STATE_OC2:
         Serial.println("CURVE_BLK_STATE_OC2");
         OC2_text = "CURVE_BLK_STATE_OC2";
@@ -478,6 +520,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
+      // Move forward for a certain amount of encoder value to ensure the block is being passed
       case SKIP_BLK_STATE_OC2:
         Serial.println("SKIP_BLK_STATE_OC2");
         OC2_text = "SKIP_BLK_STATE_OC2";
@@ -514,6 +557,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         clone_blk_xpos = nearestPillarGlobal.xpos;
         break;
 
+      // Turn back to the target angle after passing a block
       case TURN_STRAIGHT_STATE_OC2:
         Serial.println("TURN_STRAIGHT_STATE_OC2");
         OC2_text = "TURN_STRAIGHT_STATE_OC2";
@@ -527,6 +571,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Move forward for a certain amount of encoder value for turning with the existance of a block
       case WAIT_TURN_OC2:
         Serial.println("WAIT_TURN_OC2");
         OC2_text = "WAIT_TURN_OC2";
@@ -590,6 +635,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Move forward after turning until the ToFs see the walls to prevent false detection
       case INTO_SECTOR_OC2:
         Serial.println(prev_state);
         Serial.println(" INTO_SECTOR_OC2");
@@ -609,6 +655,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Check if there is any block blocking the ToF detection. If so, move forward until there is no block besides the car
       case CHECK_BLK_BESIDES_OC2:
         Serial.println("CHECK_BLK_BESIDES_OC2");
         OC2_text = "CHECK_BLK_BESIDES_OC2";
@@ -622,7 +669,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
       
-      
+      // End the run by braking the car
       case ENDING_STATE_OC2:
         Serial.println("ENDING_STATE_OC2");
         OC2_text = "ENDING_STATE_OC2";
@@ -641,6 +688,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         // }
         break;
 
+      // Move backward for a preset encoder value to leave the parking lot
       case OUT_PARKING_P1_STATE:
         Serial.println("OUT_P1");
         if (abs(MOTOR_ENCODER_VALUE) < 31){
@@ -654,6 +702,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Turn to a certain degree, while scanning if there is any block in front
       case OUT_PARKING_P2_STATE:
         Serial.println("OUT_P2");
         idk = (is_anticlockwise) ? 97 : 88;
@@ -676,6 +725,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Move forward while avoding any places with blocks
       case OUT_PARKING_P3_STATE:
         Serial.println("OUT_P3");
         if (abs(MOTOR_ENCODER_VALUE) < 45){
@@ -699,6 +749,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Turn to the target angle
       case OUT_PARKING_P4_STATE:
         Serial.println("OUT_P4");
         if (abs(imu_yaw) > 30){
@@ -713,6 +764,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Move backward for more spaces in front of the car
       case OUT_PARKING_P5_STATE:
         Serial.println("OUT_P5");
         inner_wall_dist = (is_anticlockwise) ? 60 : 15;
@@ -729,6 +781,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Turn to pass through the Red block (if any) after leaving the parking lot
       case OUT_PARKING_CLKW_RED_P1:
         Serial.println("OUT_PARKING_CLKW_RED_P1");
         if (abs(imu_yaw) > 75){
@@ -743,6 +796,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Turn to pass through the Red block (if any) after leaving the parking lot
       case OUT_PARKING_CLKW_RED_P2:
         Serial.println("OUT_PARKING_CLKW_RED_P2");
         if (abs(imu_yaw) > 10){
@@ -757,6 +811,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Pass through the Green block (if any) after leaving the parking lot
       case OUT_PARKING_CLKW_GREEN_P1:
         Serial.println("OUT_PARKING_CLKW_GREEN_P1");
         if (abs(imu_yaw) > 10){
@@ -771,6 +826,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Pass through the Green block (if any) after leaving the parking lot
       case OUT_PARKING_CLKW_GREEN_P2:
         Serial.println("OUT_PARKING_CLKW_GREEN_P2");
         if (abs(MOTOR_ENCODER_COUNT) < 30){
@@ -785,12 +841,14 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Debug state for stopping the OC2 run
       case STOP_OC2:
         Serial.println("STOP_OC2");
         steering_percentage = 0;
         motor_stop(BRAKE);
         break;
 
+      // A parking state if the run direction is anti-clockwise. Move backward for a certain encoder value
       case anti_in_parking_p1:
         if (abs(MOTOR_ENCODER_COUNT) < 25){
           steering_percentage = 0;
@@ -805,6 +863,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is anti-clockwise. Move forward for a certain encoder value
       case anti_in_parking_p2:
         if (abs(MOTOR_ENCODER_COUNT) < 30){
           steering_percentage = 0;
@@ -818,6 +877,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking lot
       case anti_in_parking_p3:
         if (abs(imu_yaw - tar_ang) < 76){
           steering_percentage = 100;
@@ -831,6 +891,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking
       case anti_in_parking_p4:
         if (abs(MOTOR_ENCODER_COUNT) < 1.28 * abs(42 - inner_wall_dist)){
           steering_percentage = 0;
@@ -845,6 +906,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking lot for a parallel parking
       case anti_in_parking_p5:
         if (abs(imu_yaw - tar_ang) < 172){
           steering_percentage = 100;
@@ -858,6 +920,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is anti-clockwise. Move forward until the car is fully into the parking lot
       case anti_in_parking_p6:
         if (abs(MOTOR_ENCODER_COUNT) < 20){
           steering_percentage = 0;
@@ -871,6 +934,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is clockwise. Move backward for a certain encoder value
       case clkw_in_parking_p1:
         if (abs(MOTOR_ENCODER_COUNT) < 25){
           steering_percentage = 0;
@@ -885,6 +949,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is clockwise. Move forward for a certain encoder value
       case clkw_in_parking_p2:
         if (abs(MOTOR_ENCODER_COUNT) < 25){
           steering_percentage = 0;
@@ -898,6 +963,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is clockwise. Make a turn to get into the parking lot
       case clkw_in_parking_p3:
         if (abs(imu_yaw - tar_ang) < 73){
           steering_percentage = -100;
@@ -911,6 +977,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is clockwise. Make a turn to get into the parking for a parallel parking
       case clkw_in_parking_p4:
         if (abs(MOTOR_ENCODER_COUNT) < 1.25 * abs(41.5 - inner_wall_dist)){
           steering_percentage = 0;
@@ -925,6 +992,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // A parking state if the run direction is clockwise. Move forward until the car is fully into the parking lot
       case clkw_in_parking_p5:
         if (abs(imu_yaw - tar_ang) > 9){
           steering_percentage = 100;
@@ -943,6 +1011,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
   vTaskDelay(5 / portTICK_PERIOD_MS);
 }
 
+/**
+ * @brief The main thread function for OC1
+ */
 void OC2main(void *){
   while (1){
     if (is_btn_bumped(TFT_BTN2)){
@@ -952,10 +1023,7 @@ void OC2main(void *){
     }
     if (run_OC2){
       OC2_pixy2(90, 100, 10);
-      // OC2_slow(90, 85, 8); //-80
     } else {
-      // safeResume(displayThread);
-      // safeResume(ToF1Thread);
       safeResume(ToF1Thread);
       safeResume(ToF2Thread);
       safeResume(OC1Thread);
@@ -966,6 +1034,16 @@ void OC2main(void *){
   }
 }
 
+/**
+ * @brief Function to print the time and status of OC2 run on the LCD monitor
+ * 
+ * @param column; TFT_COLUMN; the column on the LCD where the info is being printed
+ * @param line_number; int; the line number on the LCD where the info is being printed
+ * @param text_size; int; text size of the info on the LCD (1 or 2)
+ * @param text_colour; uint16_t; text colour printed on the LCD
+ * @param clearDisplay; bool; (UNUSED) whether the display will be cleared before running
+ * 
+ */
 void showOC2Time(TFT_COLUMN column, int line_number, int text_size, uint16_t text_colour = TFT_WHITE, bool clearDisplay = false){
   static long total_ms = 0;
   static long seconds = 0;
