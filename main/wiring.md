@@ -22,8 +22,8 @@
 
 ### Qwiic IMU (ICM-20948, I²C @ 3.3 V), share with Pixy2
 
-* SDA → **GPIO9** (purple)
-* SCL → **GPIO8**
+* SDA → **GPIO8** (purple)
+* SCL → **GPIO9**
 * VCC → 3V3, GND → GND
 
 ### Pixy 2.1 (UART)
