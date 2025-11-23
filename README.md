@@ -89,6 +89,6 @@ Our sponsors:
 
 | [Peach Creatice Production](https://www.peachcp.com/wp/) | [TURNED-E!](https://www.turned-e.com/) | [Scarlet Racing](https://www.facebook.com/scarlet.racing.hk/?locale=zh_HK) | Electronic Slash |
 | -------- | -------- | -------- | -------- |
-|![PeachCP_WhiteBackLogo](picsNveds/PeachCP_WhiteBackLogo.jpg =150x)|![turned-e_logo](picsNveds/turned-e_logo.jpg =150x)|![scarlet_racing_logo](picsNveds/scarlet_racing_logo.jpg =150x)| ![ES_Logo](picsNveds/ES_Logo.jpg =150x)|
+|![PeachCP_WhiteBackLogo](picsNveds/PeachCP_WhiteBackLogo.png =150x)|![turned-e_logo](picsNveds/turned-e_logo.png =150x)|![scarlet_racing_logo](picsNveds/scarlet_racing_logo.png =150x)| ![ES_Logo](picsNveds/ES_Logo.png =150x)|
 
 Also thank to our parents, coach and supporter for supporting us to explore the field we love.
