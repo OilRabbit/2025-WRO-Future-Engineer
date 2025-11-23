@@ -163,8 +163,13 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             if (pillar_front.xpos >= min_xpos_Rcase_detect(pillar_front.area)){
               prev_state = SCAN_SECTOR_STATE_OC2;
               state = CHANGE_LANE_P1_OC2;
-              change_lane_run_ang = change_lane_ang(pillar_front_info.tof2_dist);
-              change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof2_dist, imu_yaw - tar_ang, change_lane_run_ang);
+              if(is_anticlockwise){
+                change_lane_run_ang = change_lane_ang(pillar_front_info.tof1_dist);
+                change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, imu_yaw - tar_ang, change_lane_run_ang);
+              } else {
+                change_lane_run_ang = change_lane_ang(pillar_front_info.tof2_dist);
+                change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof2_dist, imu_yaw - tar_ang, change_lane_run_ang);
+              }
               Serial.println(change_lane_run_ang);
               Serial.println(change_lane_run_dist);
               break;
@@ -177,8 +182,13 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
             if (pillar_front.xpos <= min_xpos_Gcase(pillar_front.area)){
               prev_state = SCAN_SECTOR_STATE_OC2;
               state = CHANGE_LANE_P1_OC2;
-              change_lane_run_ang = change_lane_ang(pillar_front_info.tof2_dist);
-              change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, tar_ang - imu_yaw, change_lane_run_ang);
+              if(is_anticlockwise){
+                change_lane_run_ang = change_lane_ang(pillar_front_info.tof1_dist);
+                change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, tar_ang - imu_yaw, change_lane_run_ang);
+              } else{
+                change_lane_run_ang = change_lane_ang(pillar_front_info.tof2_dist);
+                change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof2_dist, tar_ang - imu_yaw, change_lane_run_ang);
+              }
               Serial.println(change_lane_run_ang);
               Serial.println(change_lane_run_dist);
               break; 
