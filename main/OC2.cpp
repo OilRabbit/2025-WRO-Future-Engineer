@@ -60,8 +60,8 @@ float change_lane_ang(float tof_dist){
 }
 
 float change_lane_dist_algo(float tof_dist, float init_ang, float final_ang){
-  // return (tof_dist * cos(deg2rad(init_ang)) - 15 - 10 * cos(deg2rad(90 - init_ang))) / sin(deg2rad(final_ang));
-  return (((tof_dist-15)) /cos(deg2rad(final_ang))) - 15 * cos(deg2rad(90 - init_ang));
+  return (tof_dist * cos(deg2rad(init_ang)) - 15 - 10 * cos(deg2rad(90 - init_ang))) / sin(deg2rad(final_ang));
+  // return (((tof_dist-15)) /cos(deg2rad(final_ang))) - 15 * cos(deg2rad(90 - init_ang));
 }
 
 /**
@@ -248,7 +248,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         if ((is_anticlockwise && dist_t1 > dist_threshold) || (!is_anticlockwise && dist_t2 > dist_threshold)){
           steering_percentage = 0;
-          motor_move(-8);
+          motor_move(-9);
           break;
         } else {
           prev_state = Backward_until_threshold;
@@ -268,7 +268,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         if(abs(MOTOR_ENCODER_COUNT) < 20){
           steering_percentage = 0;
-          motor_move(8);
+          motor_move(9);
           break;
         } else{
           prev_state = Forward_for_turn;
