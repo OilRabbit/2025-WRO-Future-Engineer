@@ -20,3 +20,13 @@ float deg2rad(float deg){
 float rad2deg(float rad){
   return rad * 180 / M_PI;
 }
+
+float min_val(float v1, float v2){
+  if (v1 < v2) return v1;
+  else return v2;
+}
+
+float max_val(float v1, float v2){
+  if (v1 > v2) return v1;
+  else return v2;
+}
