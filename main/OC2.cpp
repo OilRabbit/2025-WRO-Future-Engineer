@@ -172,7 +172,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, imu_yaw - tar_ang, change_lane_run_ang);
                 Serial.println(pillar_front_info.tof1_dist);
               } else {
-                change_lane_run_ang = change_lane_ang(pillar_front_info.tof2_dist);
+                change_lane_run_ang = change_lane_ang(pillar_front_info.tof2_dist - 14);
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof2_dist, imu_yaw - tar_ang, change_lane_run_ang);
                 Serial.println(pillar_front_info.tof2_dist);
               }
@@ -194,7 +194,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, tar_ang - imu_yaw, change_lane_run_ang);
               } else{
                 if (num_turn % 4 == 0) change_lane_run_ang = min_val(40, change_lane_ang(100 - pillar_front_info.tof2_dist));
-                else change_lane_run_ang = change_lane_ang(100 - pillar_front_info.tof2_dist);
+                else change_lane_run_ang = change_lane_ang(95 - pillar_front_info.tof2_dist);
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof2_dist, tar_ang - imu_yaw, change_lane_run_ang);
               }
               Serial.println(change_lane_run_ang);
@@ -570,7 +570,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
                 break;
               }
             } else {
-              if (!motor_degree_accel(60, 60 / 2, 60 / 2, tar_power, tar_power + 2)) {
+              if (!motor_degree_accel(76, 76 / 2, 76 / 2, tar_power, tar_power + 2)) {
                 steering_percentage = 0;
               } else {
                 prev_state = WAIT_TURN_OC2;
@@ -899,7 +899,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         break;
 
       case clkw_in_parking_p3:
-        if (abs(imu_yaw - tar_ang) < 75){
+        if (abs(imu_yaw - tar_ang) < 73){
           steering_percentage = -100;
           motor_move(-10);
           break;
@@ -912,7 +912,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         break;
 
       case clkw_in_parking_p4:
-        if (abs(MOTOR_ENCODER_COUNT) < 1.28 * abs(41.5 - inner_wall_dist)){
+        if (abs(MOTOR_ENCODER_COUNT) < 1.25 * abs(41.5 - inner_wall_dist)){
           steering_percentage = 0;
           if (45 - inner_wall_dist > 0) motor_move(-9);
           else motor_move(9);

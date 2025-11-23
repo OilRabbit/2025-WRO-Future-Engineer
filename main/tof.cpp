@@ -4,7 +4,7 @@
 // Map UARTs: ToF1->UART1, ToF2->UART2, ToF3->UART0
 HardwareSerial ToF1(1);
 HardwareSerial ToF2(2);
-HardwareSerial ToF3(0);
+// HardwareSerial ToF3(0);…
 
 TOF_STATES tof1_state = SEEK_AA1;
 TOF_STATES tof2_state = SEEK_AA1;
