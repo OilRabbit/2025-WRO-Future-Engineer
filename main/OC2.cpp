@@ -656,12 +656,12 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       case OUT_PARKING_P2_STATE:
         Serial.println("OUT_P2");
-        idk = (is_anticlockwise) ? 98 : 88;
+        idk = (is_anticlockwise) ? 97 : 88;
         if (abs(imu_yaw) < idk){
-          if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 20){
+          if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
             idk_color = 1;
             outpark_hv_blk = true;
-          } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 20){
+          } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
             idk_color = 2;
             outpark_hv_blk = true;
           }
@@ -708,7 +708,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           motor_stop(BRAKE);
           reset_encoder();
-          state = OUT_PARKING_P5_STATE;
+          state = (outpark_hv_blk) ? OUT_PARKING_P5_STATE : FW2CORNER_OC2;
           break;
         }
         break;
@@ -819,7 +819,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         break;
 
       case anti_in_parking_p3:
-        if (abs(imu_yaw - tar_ang) < 75){
+        if (abs(imu_yaw - tar_ang) < 76){
           steering_percentage = 100;
           motor_move(-9);
           break;
@@ -832,9 +832,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         break;
 
       case anti_in_parking_p4:
-        if (abs(MOTOR_ENCODER_COUNT) < 1.28 * abs(41.5 - inner_wall_dist)){
+        if (abs(MOTOR_ENCODER_COUNT) < 1.28 * abs(42 - inner_wall_dist)){
           steering_percentage = 0;
-          if (41.0 - inner_wall_dist > 0) motor_move(-9);
+          if (42.0 - inner_wall_dist > 0) motor_move(-9);
           else motor_move(9);
           break;
         } else {
