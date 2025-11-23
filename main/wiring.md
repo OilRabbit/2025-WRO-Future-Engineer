@@ -33,18 +33,12 @@
 * VCC (1st row, pin 2) → 5V
 * GND (3rd row, pin 2) → GND
 
-### ToF  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
+### ToF  *(power both from 5 V)*
 
-* ToF 1 (Left): **TX → GPIO11**, **RX → GPIO10**
+* ToF 1 (Left): **TX → GPIO10**, **RX → GPIO11**
+* ToF 2 (Left): **TX → GPIO48**, **RX → GPIO47**
 
-### HC-SR04 x2  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
-
-* (UNUSED) Sensor A (Left): **TRIG → GPIO10**, **ECHO → GPIO11** (through resistor divider)
-* Sensor B (Right): **TRIG → GPIO47**, **ECHO → **GPIO48** (through resistor divider)
-* Sensor C (Front): **TRIG → GPIO15**, **ECHO → **GPIO16** (through resistor divider)
-
-### <Motor>
-
+### BM50 brushless motor with encoder
 * Brake (blue) → **GPIO5**
 * PWM (green) → **GPIO6**
 * Dir (brown) → **GPIO7**
@@ -56,6 +50,13 @@
 * Signal (orang) → **GPIO4** (LEDC @ 50 Hz)
 * Power servo (red) from 5–6 V (not 3V3); GND (brown) common
 
+### HC-SR04 x2  *(power both from 5 V; **ECHO must be level-shifted to 3.3 V**)*
+
+* (UNUSED) Sensor A (Left): **TRIG → GPIO10**, **ECHO → GPIO11** (through resistor divider)
+* (UNUSED) Sensor B (Right): **TRIG → GPIO47**, **ECHO → **GPIO48** (through resistor divider)
+* (UNUSED) Sensor C (Front): **TRIG → GPIO15**, **ECHO → **GPIO16** (through resistor divider)
+
 #### Notes / gotchas
 
 * **Do not use**: GPIO0 (BOOT strap), **GPIO19/20** (USB D−/D+), **GPIO45/46** (input-only; avoid for TRIG/PWM).
+
