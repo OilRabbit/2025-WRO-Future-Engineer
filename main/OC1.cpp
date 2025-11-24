@@ -235,21 +235,12 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
           if (dist_t1 > dist_threshold){
             is_anticlockwise = true;
             safeSuspend(ToF2Thread);
-            if (left_init_close_wall) {
-              sector1_length += 5;
-              sector2_length += 0;
-            }
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             break;
           } else if (dist_t2 > dist_threshold){
             is_anticlockwise = false;
-            // safeSuspend(ToF1Thread);
-            safeResume(ToF1Thread);
-            if (right_init_close_wall) {
-              sector1_length += 5;
-              sector2_length += 0;
-            }
+            safeSuspend(ToF1Thread);
             prev_state = DETECT_STATE;
             state = WAIT_TURN_STATE;
             break;
@@ -305,15 +296,30 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
         motor_move(power);
         tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
         num_turn++;
-        if (is_anticlockwise){
-          if (num_turn == 3) sector2_length -= 40;
-          if (num_turn == 4) sector2_length -= 25;
-          if (num_turn == 5) sector1_length -= 35;
-          if (num_turn == 6) sector2_length -= 15;
-          // if (num_turn == 7) sector1_length -= 15;
-        }
+        // if (is_anticlockwise){
+        //   if (num_turn == 3) sector2_length -= 40;
+        //   if (num_turn == 4) sector2_length -= 25;
+        //   if (num_turn == 5) sector1_length -= 35;
+        //   if (num_turn == 6) sector2_length -= 15;
+        //   // if (num_turn == 7) sector1_length -= 15;
+        // }
         prev_state = WAIT_TURN_STATE;
         state = TURNING_STATE;
+        break;
+
+      case INTO_SECTOR:
+        Serial.println(prev_state);
+        Serial.println(" INTO_SECTOR");
+        OC1_text = "INTO_SECTOR";
+        motor_move(power);
+        if (dist_t1 > dist_threshold || dist_t2 > dist_threshold) {
+          steering_percentage = -(imu_yaw - (tar_ang)) * imu_kp;
+          reset_encoder();
+        } else {
+          prev_state = INTO_SECTOR;
+          state = DETECT_STATE;
+          break;
+        }
         break;
       
       // Turn to the target angle 
@@ -333,7 +339,8 @@ void OC1_fixed(double right_ang, int dist_threshold, int power, int hypower){
             state = RUN_SECTOR_STATE;
           } else {
             if (num_turn <= 2) reset_encoder();
-            state = DETECT_STATE;
+            state = INTO_SECTOR;
+            break;
           }
           break;
         }
@@ -379,7 +386,7 @@ void OC1main(void *){
       reset_OC1 = true;
     }
     if (run_OC1){
-      // OC1_fixed(90, 85, 12, 20);
+      OC1_fixed(90, 85, 10, 11);
       // OC1_tof(90, 85, 13);
     } else {
       safeResume(ToF1Thread);
