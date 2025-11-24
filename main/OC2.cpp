@@ -173,10 +173,10 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (dist_t1 > dist_t2) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
-        state = OUT_PARKING_P1_STATE;
-        // idk_color = 1;
-        // outer_wall_dist = dist_t2;
-        // state = anti_in_parking_p1;
+        // state = OUT_PARKING_P1_STATE;
+        idk_color = 2;
+        outer_wall_dist = dist_t2;
+        state = anti_in_parking_p1;
         tar_power = power;
         break;
 
@@ -928,7 +928,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           break;
         } else {
           motor_stop(BRAKE);
-          if (idk_color == 2) inner_wall_dist = dist_t1;
+          if (idk_color == 2) inner_wall_dist = dist_t1; //if (idk_color == 2) 
           Serial.println(inner_wall_dist);
           state = anti_in_parking_p2;
           reset_encoder();
@@ -966,7 +966,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking
       case anti_in_parking_p4:
-        idk = (idk_color == 1) ? 1.0 * outer_wall_dist : 1.27 * abs(42.0 - inner_wall_dist);
+        idk = (idk_color == 1) ? 1.0 * outer_wall_dist : 1.2 * abs(42.0 - inner_wall_dist);
         Serial.println(idk);
         if (abs(MOTOR_ENCODER_COUNT) < idk){
           steering_percentage = 0;
