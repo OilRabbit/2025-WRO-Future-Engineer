@@ -20,7 +20,7 @@
 
 Our team is comprised of five Po Leung Kuk Tang Yuk Tien College alumni, each a former Robotics Team chairperson. Through years of competitions and training, we forged strong friendships and a shared passion for robotics. As avid World Robot Olympiad (WRO) supporters, we were excited to learn that the Future Engineer category age limit increased to 22 in 2025. In January, during a casual meetup, we resolved to reunite and compete together once again.
 
-![team_photo](picsNveds/team_photo.jpg)
+![team_photo](picsNveds/new_team_photo.jpg)
 ### Members' Introductions (from left to right)
 
 #### Rex Sin (Participant) – Age 19

@@ -21,7 +21,8 @@ typedef enum {
   DASH_AFTER_TURNING_STATE,
   RUN_SECTOR_STATE,
   ENDING_STATE,
-  DEBUG_STATE
+  DEBUG_STATE,
+  INTO_SECTOR,
 } OC1_STATES;
 
 void OC1main(void *parameters);
