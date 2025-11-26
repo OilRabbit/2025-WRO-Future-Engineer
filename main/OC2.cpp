@@ -179,7 +179,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (dist_t1 > dist_t2) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
-        state = OUT_PARKING_P1_STATE;
+        state = OUT_PARKING_P2_STATE;
         // idk_color = 2;
         // outer_wall_dist = dist_t2;
         // state = anti_in_parking_p1;
@@ -285,7 +285,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move backward until ToF scans the innerwall, which makes the turning later more accurate
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
-        if (num_turn >= 13){
+        if (num_turn >= 5){
           if (pillar_front.colour == RED) outer_wall_dist = dist_t2;
           prev_state = Backward_until_threshold;
           state = (is_anticlockwise) ? anti_in_parking_p1 : clkw_in_parking_p1;
@@ -744,31 +744,17 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move backward for a preset encoder value to leave the parking lot
       case OUT_PARKING_P1_STATE:
         Serial.println("OUT_P1");
-        if (abs(MOTOR_ENCODER_VALUE) < 28){
-          steering_percentage = 0;
-          motor_move(-10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          state = OUT_PARKING_P2_STATE;
-          break;
-        }
-        break;
-
-      // Turn to a certain degree, while scanning if there is any block in front
-      case OUT_PARKING_P2_STATE:
-        Serial.println("OUT_P2");
-        idk = (is_anticlockwise) ? 97 : 88;
+        idk = (is_anticlockwise) ?  20 : 40;
         if (abs(imu_yaw) < idk){
-          if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
-            idk_color = 1;
-            outpark_hv_blk = true;
-          } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
-            idk_color = 2;
-            outpark_hv_blk = true;
-          }
+          // if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
+          //   idk_color = 1;
+          //   outpark_hv_blk = true;
+          // } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
+          //   idk_color = 2;
+          //   outpark_hv_blk = true;
+          // }
           steering_percentage = (is_anticlockwise) ? -100 : 100;
-          motor_move(10);
+          motor_move(9);
           break;
         } else {
           motor_stop(BRAKE);
@@ -778,6 +764,43 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         }
         break;
 
+      // Turn to a certain degree, while scanning if there is any block in front
+      case OUT_PARKING_P2_STATE:
+        Serial.println("OUT_P2");
+        idk = (is_anticlockwise) ? 50 : 60;
+        if (abs(imu_yaw) < idk){
+          if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
+            idk_color = 1;
+            outpark_hv_blk = true;
+          } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
+            idk_color = 2;
+            outpark_hv_blk = true;
+          }
+          steering_percentage = (is_anticlockwise) ? -100 : 100;
+          motor_move(-9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          reset_encoder();
+          state = OUT_PARKING_P2_5_STATE;
+          break;
+        }
+        break;
+
+      case OUT_PARKING_P2_5_STATE:
+      idk = (is_anticlockwise) ?  97 : 98;
+        if (abs(imu_yaw) < idk){
+          steering_percentage = (is_anticlockwise) ? -100 : 100;
+          motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          reset_encoder();
+          prev_state = OUT_PARKING_P2_5_STATE;
+          state = OUT_PARKING_P3_STATE;
+          break;
+        }
+        break;
       // Move forward while avoding any places with blocks
       case OUT_PARKING_P3_STATE:
         Serial.println("OUT_P3");
@@ -812,7 +835,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           motor_stop(BRAKE);
           reset_encoder();
-          state = (outpark_hv_blk) ? OUT_PARKING_P5_STATE : FW2CORNER_OC2;
+          state = (outpark_hv_blk) ? OUT_PARKING_P5_STATE : STOP_OC2;
           break;
         }
         break;
@@ -828,7 +851,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           motor_stop(BRAKE);
           reset_encoder();
-          state = (outpark_hv_blk && idk_color == 1) ? OUT_PARKING_ANTI_RED_P1 : SCAN_SECTOR_STATE_OC2;
+          state = (outpark_hv_blk && idk_color == 1) ? OUT_PARKING_ANTI_RED_P1 : STOP_OC2;
           break;
         }
         break;
