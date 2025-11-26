@@ -36,6 +36,7 @@ void OC1_tof(double right_ang, int dist_threshold, int power){
   static long dash_timeZero = 0;
   float imu_kp = 2;
   String OC1_text = String("oc1:");
+  float start_sector_dist = 0;
 
   // Initializing variables for this function
   if (reset_OC1){
@@ -48,6 +49,7 @@ void OC1_tof(double right_ang, int dist_threshold, int power){
     steering_percentage = 0;
     dash_time = 0;
     dash_timeZero = 0;
+    start_sector_dist = 0;
     end_game = false;
     OC1_starttime = internalClock.read();
     imu_resetYaw();
@@ -108,6 +110,7 @@ void OC1_tof(double right_ang, int dist_threshold, int power){
         Serial.println("WAIT_TURN_STATE");
         tar_ang += (is_anticlockwise == true) ? -right_ang : right_ang;
         num_turn++;
+        if (num_turn == 5) start_sector_dist = abs(MOTOR_ENCODER_COUNT);
         prev_state = WAIT_TURN_STATE;
         state = TURNING_STATE;
         break;
@@ -115,6 +118,7 @@ void OC1_tof(double right_ang, int dist_threshold, int power){
       // Turn to the target angle
       case TURNING_STATE:
         Serial.println("TURNING_STATE");
+        if (num_turn == 4) reset_encoder();
         if ((abs(tar_ang - imu_yaw) > 16) && (abs(tar_ang) > abs(imu_yaw))){
           steering_percentage = (tar_ang > 0) ? 100 : -100;
           dash_timeZero = internalClock.read();
@@ -161,7 +165,7 @@ void OC1_tof(double right_ang, int dist_threshold, int power){
       // End the run by braking the car
       case ENDING_STATE:
         Serial.println("ENDING_STATE");
-        if (abs(MOTOR_ENCODER_COUNT) < 50){
+        if (abs(MOTOR_ENCODER_COUNT) < start_sector_dist / 2){
           steering_percentage = -(imu_yaw - tar_ang) * imu_kp;
         } else {
           motor_stop(BRAKE);
