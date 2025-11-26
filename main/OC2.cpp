@@ -136,6 +136,8 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
   static int time_count = 0;
   static float idk = 0;
   static int idk_color = 0;
+  static int ha = 0;
+  static int park_dist = 0;
 
   // Initializing variables for this function
   if (reset_OC2){
@@ -179,10 +181,11 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (dist_t1 > dist_t2) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
-        state = OUT_PARKING_P2_STATE;
-        // idk_color = 2;
-        // outer_wall_dist = dist_t2;
-        // state = anti_in_parking_p1;
+        // if (is_anticlockwise) state = ANTI_OUT_PARKING_P1_STATE;
+        // else state = CLK_OUT_PARKING_P1_STATE;
+        idk_color = 2;
+        outer_wall_dist = dist_t1;
+        state = clkw_in_parking_p1;
         tar_power = power;
         break;
 
@@ -285,7 +288,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move backward until ToF scans the innerwall, which makes the turning later more accurate
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
-        if (num_turn >= 5){
+        if (num_turn >= 13){
           if (pillar_front.colour == RED) outer_wall_dist = dist_t2;
           prev_state = Backward_until_threshold;
           state = (is_anticlockwise) ? anti_in_parking_p1 : clkw_in_parking_p1;
@@ -741,109 +744,90 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         // }
         break;
 
-      // Move backward for a preset encoder value to leave the parking lot
-      case OUT_PARKING_P1_STATE:
-        Serial.println("OUT_P1");
-        idk = (is_anticlockwise) ?  20 : 40;
-        if (abs(imu_yaw) < idk){
-          // if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
-          //   idk_color = 1;
-          //   outpark_hv_blk = true;
-          // } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
-          //   idk_color = 2;
-          //   outpark_hv_blk = true;
-          // }
-          steering_percentage = (is_anticlockwise) ? -100 : 100;
+      case ANTI_OUT_PARKING_P1_STATE:
+        Serial.println("ANTI_OUT_PARKING_P1_STATE");
+        if (abs(imu_yaw) < 55){
+          steering_percentage = -100;
           motor_move(9);
           break;
         } else {
           motor_stop(BRAKE);
+          steering_percentage = 0;
           reset_encoder();
-          state = OUT_PARKING_P3_STATE;
+          if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area > 15) outpark_hv_blk = true;
+          prev_state = ANTI_OUT_PARKING_P1_STATE;
+          state = ANTI_OUT_PARKING_P2_STATE;
           break;
         }
         break;
-
-      // Turn to a certain degree, while scanning if there is any block in front
-      case OUT_PARKING_P2_STATE:
-        Serial.println("OUT_P2");
-        idk = (is_anticlockwise) ? 50 : 60;
-        if (abs(imu_yaw) < idk){
-          if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
-            idk_color = 1;
-            outpark_hv_blk = true;
-          } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
-            idk_color = 2;
-            outpark_hv_blk = true;
-          }
-          steering_percentage = (is_anticlockwise) ? -100 : 100;
-          motor_move(-9);
+      
+      case ANTI_OUT_PARKING_P2_STATE:
+        Serial.println("ANTI_OUT_PARKING_P2_STATE");
+        if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 15){
+          prev_state = ANTI_OUT_PARKING_P2_STATE;
+          state = ANTI_OUT_PARKING_RED_P1_STATE;
           break;
         } else {
-          motor_stop(BRAKE);
-          reset_encoder();
-          state = OUT_PARKING_P2_5_STATE;
-          break;
-        }
-        break;
-
-      case OUT_PARKING_P2_5_STATE:
-      idk = (is_anticlockwise) ?  97 : 98;
-        if (abs(imu_yaw) < idk){
-          steering_percentage = (is_anticlockwise) ? -100 : 100;
-          motor_move(9);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          reset_encoder();
-          prev_state = OUT_PARKING_P2_5_STATE;
-          state = OUT_PARKING_P3_STATE;
-          break;
-        }
-        break;
-      // Move forward while avoding any places with blocks
-      case OUT_PARKING_P3_STATE:
-        Serial.println("OUT_P3");
-        if (abs(MOTOR_ENCODER_VALUE) < 43){
-          steering_percentage = (is_anticlockwise) ? 30 : -30;
-          motor_move(10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          reset_encoder();
-          if (is_anticlockwise){
-            state = OUT_PARKING_P4_STATE;
+          if (abs(MOTOR_ENCODER_COUNT) < 18) {
+            motor_move(-10);
+            steering_percentage = 0;
           } else {
-            if (outpark_hv_blk){
-              if (idk_color == 1) state = OUT_PARKING_CLKW_RED_P1;
-              else state = OUT_PARKING_CLKW_GREEN_P1;
-            } else {
-              state = OUT_PARKING_P4_STATE;
-            }
+            motor_stop(BRAKE);
+            prev_state = ANTI_OUT_PARKING_P2_STATE;
+            state = ANTI_OUT_PARKING_P3_STATE;
+            break;
           }
+        }
+        break;
+      
+      case ANTI_OUT_PARKING_P3_STATE:
+        Serial.println("ANTI_OUT_PARKING_P3_STATE");
+        if (abs(imu_yaw) < 97){
+          steering_percentage = -100;
+          motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          steering_percentage = 0;
+          reset_encoder();
+          prev_state = ANTI_OUT_PARKING_P3_STATE;
+          state = ANTI_OUT_PARKING_P4_STATE;
           break;
         }
         break;
-
-      // Turn to the target angle
-      case OUT_PARKING_P4_STATE:
-        Serial.println("OUT_P4");
+      
+      case ANTI_OUT_PARKING_P4_STATE:
+        Serial.println("ANTI_OUT_PARKING_P4_STATE");
+        if (abs(MOTOR_ENCODER_COUNT) < 45){
+          motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          steering_percentage = 0;
+          reset_encoder();
+          prev_state = ANTI_OUT_PARKING_P4_STATE;
+          state = ANTI_OUT_PARKING_P5_STATE;
+          break;
+        }
+        break;
+      
+      case ANTI_OUT_PARKING_P5_STATE:
+        Serial.println("ANTI_OUT_PARKING_P5_STATE");
         if (abs(imu_yaw) > 30){
-          steering_percentage = (is_anticlockwise) ? -100 : 100;
+          steering_percentage = -100;
           motor_move(-10);
           break;
         } else {
           motor_stop(BRAKE);
           reset_encoder();
-          state = (outpark_hv_blk) ? OUT_PARKING_P5_STATE : STOP_OC2;
+          state = (outpark_hv_blk) ? ANTI_OUT_PARKING_P6_STATE : FW2CORNER_OC2;
           break;
         }
         break;
-
-      // Move backward for more spaces in front of the car
-      case OUT_PARKING_P5_STATE:
-        Serial.println("OUT_P5");
-        inner_wall_dist = (is_anticlockwise) ? 60 : 15;
+      
+      case ANTI_OUT_PARKING_P6_STATE:
+        Serial.println("ANTI_OUT_PARKING_P6_STATE");
+        inner_wall_dist = 60 ;
         if (abs(MOTOR_ENCODER_VALUE) < inner_wall_dist){
           steering_percentage = 0;
           motor_move(-10);
@@ -851,98 +835,248 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           motor_stop(BRAKE);
           reset_encoder();
-          state = (outpark_hv_blk && idk_color == 1) ? OUT_PARKING_ANTI_RED_P1 : STOP_OC2;
+          state = SCAN_SECTOR_STATE_OC2;
           break;
         }
         break;
 
-      case OUT_PARKING_ANTI_RED_P1:
-        Serial.println("OUT_PARKING_ANTI_RED_P1");
-        if (abs(imu_yaw) < 25){
+      case ANTI_OUT_PARKING_RED_P1_STATE:
+        Serial.println("ANTI_OUT_PARKING_RED_P1_STATE");
+        motor_move(9);
+        if (abs(tar_ang - imu_yaw) > 5){
           steering_percentage = 100;
-          motor_move(10);
-          break;
-        } else {
-          motor_stop(BRAKE);
+        } else{
           reset_encoder();
-          state = OUT_PARKING_ANTI_RED_P2;
-          break;
-        }
-        break;
-
-      case OUT_PARKING_ANTI_RED_P2:
-        Serial.println("OUT_PARKING_ANTI_RED_P2");
-        if (abs(imu_yaw) > 10){
-          steering_percentage = -100;
-          motor_move(10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          reset_encoder();
+          prev_state = ANTI_OUT_PARKING_RED_P1_STATE;
           state = FW2CORNER_OC2;
           break;
         }
         break;
 
-      // Turn to pass through the Red block (if any) after leaving the parking lot
-      case OUT_PARKING_CLKW_RED_P1:
-        Serial.println("OUT_PARKING_CLKW_RED_P1");
-        if (abs(imu_yaw) > 75){
+      case CLK_OUT_PARKING_P1_STATE:
+        Serial.println("CLK_OUT_PARKING_P1_STATE");
+        if (abs(imu_yaw) < 55){
           steering_percentage = 100;
-          motor_move(-10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          reset_encoder();
-          state = OUT_PARKING_CLKW_RED_P2;
-          break;
-        }
-        break;
-
-      // Turn to pass through the Red block (if any) after leaving the parking lot
-      case OUT_PARKING_CLKW_RED_P2:
-        Serial.println("OUT_PARKING_CLKW_RED_P2");
-        if (abs(imu_yaw) > 10){
-          steering_percentage = -100;
-          motor_move(10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          reset_encoder();
-          state = FW2CORNER_OC2;
-          break;
-        }
-        break;
-
-      // Pass through the Green block (if any) after leaving the parking lot
-      case OUT_PARKING_CLKW_GREEN_P1:
-        Serial.println("OUT_PARKING_CLKW_GREEN_P1");
-        if (abs(imu_yaw) > 10){
-          steering_percentage = 100;
-          motor_move(-10);
-          break;
-        } else {
-          motor_stop(BRAKE);
-          reset_encoder();
-          state = OUT_PARKING_CLKW_GREEN_P2;
-          break;
-        }
-        break;
-
-      // Pass through the Green block (if any) after leaving the parking lot
-      case OUT_PARKING_CLKW_GREEN_P2:
-        Serial.println("OUT_PARKING_CLKW_GREEN_P2");
-        if (abs(MOTOR_ENCODER_COUNT) < 30){
-          steering_percentage = 0;
           motor_move(9);
           break;
         } else {
-          motor_stop(BRAKE);
           reset_encoder();
-          state = FW2CORNER_OC2;
+          prev_state = CLK_OUT_PARKING_P1_STATE;
+          // if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 15) state = CLK_OUT_PARKING_RED_P1_STATE;
+          // else state = CLK_OUT_PARKING_P2_STATE;
+          state = CLK_OUT_PARKING_RED_P1_STATE;
           break;
         }
         break;
+      
+      case CLK_OUT_PARKING_P2_STATE:
+        Serial.println("CLK_OUT_PARKING_P2_STATE");
+        if (abs(imu_yaw) > 5){
+          steering_percentage = -100;
+          motor_move(9);
+          break;
+        } else {
+          reset_encoder();
+          prev_state = CLK_OUT_PARKING_P2_STATE;
+          state = SCAN_SECTOR_STATE_OC2;
+          break;
+        }
+        break;
+
+      case CLK_OUT_PARKING_RED_P1_STATE:
+        Serial.println("CLK_OUT_PARKING_RED_P1_STATE");
+        if (abs(imu_yaw) < 93){
+          steering_percentage = 100;
+          motor_move(9);
+          break;
+        } else {
+          reset_encoder();
+          prev_state = CLK_OUT_PARKING_RED_P1_STATE;
+          state = CLK_OUT_PARKING_P2_STATE;
+          break;
+        }
+        break;
+
+
+      // // Move backward for a preset encoder value to leave the parking lot
+      // case OUT_PARKING_P1_STATE:
+      //   Serial.println("OUT_P1");
+      //   if (abs(MOTOR_ENCODER_VALUE) < 28){
+      //     steering_percentage = 0;
+      //     motor_move(-10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     state = OUT_PARKING_P2_STATE;
+      //     break;
+      //   }
+      //   break;
+
+      // // Turn to a certain degree, while scanning if there is any block in front
+      // case OUT_PARKING_P2_STATE:
+      //   Serial.println("OUT_P2");
+      //   idk = (is_anticlockwise) ? 70 : 88;
+      //   if (abs(imu_yaw) < idk){
+      //     if (nearestPillarGlobal.colour == RED && nearestPillarGlobal.area > 60){
+      //       idk_color = 1;
+      //       outpark_hv_blk = true;
+      //     } else if (nearestPillarGlobal.colour == GREEN && nearestPillarGlobal.area > 40){
+      //       idk_color = 2;
+      //       outpark_hv_blk = true;
+      //     }
+      //     steering_percentage = (is_anticlockwise) ? -100 : 100;
+      //     motor_move(9);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = STOP_OC2;
+      //     break;
+      //   }
+      //   break;
+
+      // // Move forward while avoding any places with blocks
+      // case OUT_PARKING_P3_STATE:
+      //   Serial.println("OUT_P3");
+      //   if (abs(MOTOR_ENCODER_VALUE) < 43){
+      //     steering_percentage = (is_anticlockwise) ? 30 : -30;
+      //     motor_move(10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     if (is_anticlockwise){
+      //       state = OUT_PARKING_P4_STATE;
+      //     } else {
+      //       if (outpark_hv_blk){
+      //         if (idk_color == 1) state = OUT_PARKING_CLKW_RED_P1;
+      //         else state = OUT_PARKING_CLKW_GREEN_P1;
+      //       } else {
+      //         state = OUT_PARKING_P4_STATE;
+      //       }
+      //     }
+      //     break;
+      //   }
+      //   break;
+
+      // // Turn to the target angle
+      // case OUT_PARKING_P4_STATE:
+      //   Serial.println("OUT_P4");
+      //   if (abs(imu_yaw) > 30){
+      //     steering_percentage = (is_anticlockwise) ? -100 : 100;
+      //     motor_move(-10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = (outpark_hv_blk) ? OUT_PARKING_P5_STATE : FW2CORNER_OC2;
+      //     break;
+      //   }
+      //   break;
+
+      // // Move backward for more spaces in front of the car
+      // case OUT_PARKING_P5_STATE:
+      //   Serial.println("OUT_P5");
+      //   inner_wall_dist = (is_anticlockwise) ? 60 : 15;
+      //   if (abs(MOTOR_ENCODER_VALUE) < inner_wall_dist){
+      //     steering_percentage = 0;
+      //     motor_move(-10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = (outpark_hv_blk && idk_color == 1) ? OUT_PARKING_ANTI_RED_P1 : SCAN_SECTOR_STATE_OC2;
+      //     break;
+      //   }
+      //   break;
+
+      // case OUT_PARKING_ANTI_RED_P1:
+      //   Serial.println("OUT_PARKING_ANTI_RED_P1");
+      //   if (abs(imu_yaw) < 25){
+      //     steering_percentage = 100;
+      //     motor_move(10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = OUT_PARKING_ANTI_RED_P2;
+      //     break;
+      //   }
+      //   break;
+
+      // case OUT_PARKING_ANTI_RED_P2:
+      //   Serial.println("OUT_PARKING_ANTI_RED_P2");
+      //   if (abs(imu_yaw) > 10){
+      //     steering_percentage = -100;
+      //     motor_move(10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = FW2CORNER_OC2;
+      //     break;
+      //   }
+      //   break;
+
+      // // Turn to pass through the Red block (if any) after leaving the parking lot
+      // case OUT_PARKING_CLKW_RED_P1:
+      //   Serial.println("OUT_PARKING_CLKW_RED_P1");
+      //   if (abs(imu_yaw) > 75){
+      //     steering_percentage = 100;
+      //     motor_move(-10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = OUT_PARKING_CLKW_RED_P2;
+      //     break;
+      //   }
+      //   break;
+
+      // // Turn to pass through the Red block (if any) after leaving the parking lot
+      // case OUT_PARKING_CLKW_RED_P2:
+      //   Serial.println("OUT_PARKING_CLKW_RED_P2");
+      //   if (abs(imu_yaw) > 10){
+      //     steering_percentage = -100;
+      //     motor_move(10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = FW2CORNER_OC2;
+      //     break;
+      //   }
+      //   break;
+
+      // // Pass through the Green block (if any) after leaving the parking lot
+      // case OUT_PARKING_CLKW_GREEN_P1:
+      //   Serial.println("OUT_PARKING_CLKW_GREEN_P1");
+      //   if (abs(imu_yaw) > 10){
+      //     steering_percentage = 100;
+      //     motor_move(-10);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = OUT_PARKING_CLKW_GREEN_P2;
+      //     break;
+      //   }
+      //   break;
+
+      // // Pass through the Green block (if any) after leaving the parking lot
+      // case OUT_PARKING_CLKW_GREEN_P2:
+      //   Serial.println("OUT_PARKING_CLKW_GREEN_P2");
+      //   if (abs(MOTOR_ENCODER_COUNT) < 30){
+      //     steering_percentage = 0;
+      //     motor_move(9);
+      //     break;
+      //   } else {
+      //     motor_stop(BRAKE);
+      //     reset_encoder();
+      //     state = FW2CORNER_OC2;
+      //     break;
+      //   }
+      //   break;
 
       // Debug state for stopping the OC2 run
       case STOP_OC2:
@@ -953,7 +1087,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Move backward for a certain encoder value
       case anti_in_parking_p1:
-        if (abs(MOTOR_ENCODER_COUNT) < 35){
+        if (abs(MOTOR_ENCODER_COUNT) < 27){
           steering_percentage = 0;
           motor_move(-8);
           break;
@@ -969,7 +1103,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Move forward for a certain encoder value
       case anti_in_parking_p2:
-        if (abs(MOTOR_ENCODER_COUNT) < 38){
+        if (abs(MOTOR_ENCODER_COUNT) < 36){
           steering_percentage = -(imu_yaw - (tar_ang + tar_ang_calibrate)) * imu_kp;
           motor_move(8);
           break;
@@ -997,12 +1131,12 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking
       case anti_in_parking_p4:
-        idk = (pillar_front.colour == RED) ? 1.0 * outer_wall_dist : 1.2 * abs(42.0 - inner_wall_dist);
+        idk = (idk_color == 1 ) ? 1 * abs(66.0 - outer_wall_dist) : 0.8 * abs(42.0 - inner_wall_dist);
         Serial.println(idk);
         if (abs(MOTOR_ENCODER_COUNT) < idk){
           steering_percentage = 0;
-          if (pillar_front.colour == RED) motor_move(9);
-          else motor_move(-9);
+          if (idk_color == 1) motor_move(9);
+          else motor_move(-8);
           break;
         } else {
           motor_stop(BRAKE);
@@ -1014,9 +1148,10 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking lot for a parallel parking
       case anti_in_parking_p5:
-        if (abs(imu_yaw - tar_ang) < 172){
+        ha = (idk_color == 1 ) ? 156 : 173;
+        if (abs(imu_yaw - tar_ang) < ha){
           steering_percentage = 100;
-          motor_move(-9);
+          motor_move(-8);
           break;
         } else {
           motor_stop(BRAKE);
@@ -1028,9 +1163,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Move forward until the car is fully into the parking lot
       case anti_in_parking_p6:
-        if (abs(MOTOR_ENCODER_COUNT) < 20){
-          steering_percentage = 0;
-          motor_move(8);
+        if (abs(MOTOR_ENCODER_COUNT) < 14){
+          steering_percentage = (idk_color == 1 ) ? -100 : 0;
+          motor_move(9);
           break;
         } else {
           motor_stop(BRAKE);
@@ -1071,7 +1206,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is clockwise. Make a turn to get into the parking lot
       case clkw_in_parking_p3:
-        if (abs(imu_yaw - tar_ang) < 73){
+        if (abs(imu_yaw - tar_ang) < 80){
           steering_percentage = -100;
           motor_move(-10);
           break;
@@ -1085,9 +1220,10 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is clockwise. Make a turn to get into the parking for a parallel parking
       case clkw_in_parking_p4:
-        if (abs(MOTOR_ENCODER_COUNT) < 1.25 * abs(41.5 - inner_wall_dist)){
+        park_dist = (idk_color == 1) ? 0.7 * abs(45 - inner_wall_dist) : (50 - outer_wall_dist);
+        if (abs(MOTOR_ENCODER_COUNT) < park_dist){
           steering_percentage = 0;
-          if (45 - inner_wall_dist > 0) motor_move(-9);
+          if (idk == 1) motor_move(-9);
           else motor_move(9);
           break;
         } else {
@@ -1100,18 +1236,31 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is clockwise. Move forward until the car is fully into the parking lot
       case clkw_in_parking_p5:
-        if (abs(imu_yaw - tar_ang) > 9){
+        ha = (idk_color == 1) ? 25 : 27;
+        if (abs(imu_yaw - tar_ang) > ha){
           steering_percentage = 100;
           motor_move(-9);
           break;
         } else {
           motor_stop(BRAKE);
-          state = anti_in_parking_p6;
+          state = clkw_in_parking_p6;
           reset_encoder();
           break;
         }
         break;
 
+      case clkw_in_parking_p6:
+        if (abs(imu_yaw - tar_ang) > 6){
+          steering_percentage = (idk_color == 2) ? -100 : 50;
+          motor_move(9);
+          break;
+        } else {
+          motor_stop(BRAKE);
+          state = STOP_OC2;
+          reset_encoder();
+          break;
+        }
+        break;
     }
   }
   vTaskDelay(5 / portTICK_PERIOD_MS);
