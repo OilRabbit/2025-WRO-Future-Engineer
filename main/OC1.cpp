@@ -386,8 +386,8 @@ void OC1main(void *){
       reset_OC1 = true;
     }
     if (run_OC1){
-      OC1_fixed(90, 85, 10, 11);
-      // OC1_tof(90, 85, 13);
+      // OC1_fixed(90, 85, 10, 11);
+      OC1_tof(90, 85, 13);
     } else {
       safeResume(ToF1Thread);
       safeResume(ToF2Thread);
