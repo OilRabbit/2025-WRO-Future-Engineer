@@ -64,7 +64,11 @@ float area2dist_red(int area){
 */
 float area2dist_green(int area){
   return 173 * pow(area, -0.477447023);
-  // return 0.000000007 * pow(area, 6) - 0.000001983 * pow(area, 5) + 0.000239396 * pow(area, 4) - 0.014922766 * pow(area, 3) + 0.512699658 * pow(area, 2) - 9.728327963 * area + 102.428377560 + 15 * (1 - area / 55);
+  // return 0.000000007 * pow(area, 6) - 0.000001983 * pow(area, 5) + 0.000239396 * pow(area, 4) - 327963 * area + 102.428377560 + 15 * (1 - area / 55);
+}
+
+/**
+327963 * area + 102.428377560 + 15 * (1 - area / 55);
 }
 
 /**
@@ -74,7 +78,9 @@ float area2dist_green(int area){
  * @return float; the angle in degree for the car to turn
 */
 float change_lane_ang(float tof_dist){
-  return rad2deg(atan((tof_dist - 15) / 40));
+  float final_ang = rad2deg(atan((tof_dist - 15) / 40));
+  if (final_ang < 15) final_ang = 15;
+  return final_ang;
 }
 
 /**
@@ -173,10 +179,10 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (dist_t1 > dist_t2) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
-        // state = OUT_PARKING_P1_STATE;
-        idk_color = 2;
-        outer_wall_dist = dist_t2;
-        state = anti_in_parking_p1;
+        state = OUT_PARKING_P1_STATE;
+        // idk_color = 2;
+        // outer_wall_dist = dist_t2;
+        // state = anti_in_parking_p1;
         tar_power = power;
         break;
 
@@ -227,7 +233,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
               state = CHANGE_LANE_P1_OC2;
               if(is_anticlockwise){
                 change_lane_run_ang = change_lane_ang(pillar_front_info.tof1_dist - 10);
-                change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist - 10, tar_ang - imu_yaw, change_lane_run_ang);
+                change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist - 5, tar_ang - imu_yaw, change_lane_run_ang);
               } else {
                 if (num_turn % 4 == 0) change_lane_run_ang = min_val(40, change_lane_ang(100 - pillar_front_info.tof2_dist));
                 else change_lane_run_ang = change_lane_ang(95 - pillar_front_info.tof2_dist);
@@ -279,8 +285,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move backward until ToF scans the innerwall, which makes the turning later more accurate
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
-        if (num_turn >= 5){
+        if (num_turn >= 13){
           if (pillar_front.colour == RED) outer_wall_dist = dist_t2;
+          else inner_wall_dist = dist_t1;
           prev_state = Backward_until_threshold;
           state = (is_anticlockwise) ? anti_in_parking_p1 : clkw_in_parking_p1;
           reset_encoder();
@@ -365,6 +372,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move diagonally (after turning in the previos state) to another lane
       case CHANGE_LANE_P2_OC2:
         Serial.println("CHANGE_LANE_P2_OC2");
+        Serial.println(change_lane_run_dist);
         OC2_text = "CHANGE_LANE_P2_OC2";
         tar_power = power;
         if (pillar_front.colour == RED){
@@ -695,6 +703,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           else {
             state = SCAN_SECTOR_STATE_OC2;
             time_count = internalClock.read();
+            break;
           }
           break;
         }
@@ -736,7 +745,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move backward for a preset encoder value to leave the parking lot
       case OUT_PARKING_P1_STATE:
         Serial.println("OUT_P1");
-        if (abs(MOTOR_ENCODER_VALUE) < 31){
+        if (abs(MOTOR_ENCODER_VALUE) < 28){
           steering_percentage = 0;
           motor_move(-10);
           break;
@@ -928,7 +937,8 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           break;
         } else {
           motor_stop(BRAKE);
-          if (idk_color == 2) inner_wall_dist = dist_t1; //if (idk_color == 2) 
+          if (pillar_front.colour == GREEN) inner_wall_dist = dist_t1;
+          else outer_wall_dist = dist_t2; //if (idk_color == 2) 
           Serial.println(inner_wall_dist);
           state = anti_in_parking_p2;
           reset_encoder();
@@ -966,7 +976,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking
       case anti_in_parking_p4:
-        idk = (idk_color == 1) ? 1.0 * outer_wall_dist : 1.2 * abs(42.0 - inner_wall_dist);
+        idk = (pillar_front.colour == RED) ? 1.0 * outer_wall_dist : 1.2 * abs(42.0 - inner_wall_dist);
         Serial.println(idk);
         if (abs(MOTOR_ENCODER_COUNT) < idk){
           steering_percentage = 0;
