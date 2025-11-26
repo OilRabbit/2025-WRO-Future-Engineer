@@ -210,7 +210,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
               state = CHANGE_LANE_P1_OC2;
               if(is_anticlockwise){
                 if (num_turn % 4 == 0) change_lane_run_ang = min_val(46, change_lane_ang(105 - pillar_front_info.tof1_dist));
-                else change_lane_run_ang = change_lane_ang(112 - pillar_front_info.tof1_dist);
+                else change_lane_run_ang = change_lane_ang(105 - pillar_front_info.tof1_dist);
                 change_lane_run_dist = change_lane_dist_algo(pillar_front_info.tof1_dist, imu_yaw - tar_ang, change_lane_run_ang);
                 Serial.println(pillar_front_info.tof1_dist);
               } else {
@@ -287,7 +287,6 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         Serial.println("Backward_until_threshold");
         if (num_turn >= 13){
           if (pillar_front.colour == RED) outer_wall_dist = dist_t2;
-          else inner_wall_dist = dist_t1;
           prev_state = Backward_until_threshold;
           state = (is_anticlockwise) ? anti_in_parking_p1 : clkw_in_parking_p1;
           reset_encoder();
@@ -455,7 +454,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         tar_power = power;
         motor_move(tar_power);
         reset_encoder();
-        if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 7 && ((is_anticlockwise && nearestPillarGlobal.xpos > 75) || (!is_anticlockwise && nearestPillarGlobal.xpos < 225))){
+        if (nearestPillarGlobal.colour != NO_COLOUR && nearestPillarGlobal.area >= 4 && ((is_anticlockwise && nearestPillarGlobal.xpos > 75) || (!is_anticlockwise && nearestPillarGlobal.xpos < 225))){
           Serial.print(nearestPillarGlobal.colour);
           Serial.print(" ");
           Serial.println(nearestPillarGlobal.xpos);
@@ -937,8 +936,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
           break;
         } else {
           motor_stop(BRAKE);
-          if (pillar_front.colour == GREEN) inner_wall_dist = dist_t1;
-          else outer_wall_dist = dist_t2; //if (idk_color == 2) 
+          if (pillar_front.colour == GREEN) inner_wall_dist = dist_t1; //if (idk_color == 2) 
           Serial.println(inner_wall_dist);
           state = anti_in_parking_p2;
           reset_encoder();
@@ -980,7 +978,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         Serial.println(idk);
         if (abs(MOTOR_ENCODER_COUNT) < idk){
           steering_percentage = 0;
-          if (idk_color == 1) motor_move(9);
+          if (pillar_front.colour == RED) motor_move(9);
           else motor_move(-9);
           break;
         } else {
