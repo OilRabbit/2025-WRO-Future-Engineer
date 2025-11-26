@@ -1,12 +1,12 @@
 <Pixy_parameters>
  <data key="signature1" type="INT8_ARRAY" value="gS8AgSAAAABxLwAAoUQAAAo6AAChBgAABQwAAFQJAABALKQAAAAAAA=="/>
- <data key="Signature 1 range" type="FLOAT32" value="2.2"/>
+ <data key="Signature 1 range" type="FLOAT32" value="2.200000047683716"/>
  <data key="Signature label 1" type="STRING" value="Red"/>
  <data key="signature2" type="INT8_ARRAY" value="gXsAgSAAAAAn4///Z+b//8bk///14f//Eeb//wTk//9Nj1AAAAAAAA=="/>
- <data key="Signature 2 range" type="FLOAT32" value="10.2"/>
+ <data key="Signature 2 range" type="FLOAT32" value="6"/>
  <data key="Signature label 2" type="STRING" value="Green"/>
  <data key="signature3" type="INT8_ARRAY" value="gTAAgSAAAAAdGgAAqSEAAOQdAADDEwAAGxkAAG4WAAB7QY4AAAAAAA=="/>
- <data key="Signature 3 range" type="FLOAT32" value="3.4"/>
+ <data key="Signature 3 range" type="FLOAT32" value="3.4000000953674316"/>
  <data key="Signature label 3" type="STRING" value="Mag"/>
  <data key="signature4" type="INT8_ARRAY" value="gQAAgSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="/>
  <data key="Signature 4 range" type="FLOAT32" value="3.5"/>
