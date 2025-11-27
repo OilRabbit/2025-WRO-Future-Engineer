@@ -181,11 +181,11 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (dist_t1 > dist_t2) is_anticlockwise = true;
         else is_anticlockwise = false;
         prev_state = INIT_STATE_OC2;
-        // if (is_anticlockwise) state = ANTI_OUT_PARKING_P1_STATE;
-        // else state = CLK_OUT_PARKING_P1_STATE;
-        idk_color = 2;
-        outer_wall_dist = dist_t1;
-        state = clkw_in_parking_p1;
+        if (is_anticlockwise) state = ANTI_OUT_PARKING_P1_STATE;
+        else state = CLK_OUT_PARKING_P1_STATE;
+        // idk_color = 2;
+        // outer_wall_dist = dist_t1;
+        // state = clkw_in_parking_p1;
         tar_power = power;
         break;
 
@@ -288,8 +288,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // Move backward until ToF scans the innerwall, which makes the turning later more accurate
       case Backward_until_threshold:
         Serial.println("Backward_until_threshold");
-        if (num_turn >= 13){
-          if (pillar_front.colour == RED) outer_wall_dist = dist_t2;
+        if (num_turn >= 5){
+          if (pillar_front.colour == RED && is_anticlockwise) outer_wall_dist = dist_t2;
+          if (pillar_front.colour == GREEN && !is_anticlockwise) outer_wall_dist = dist_t1;
           prev_state = Backward_until_threshold;
           state = (is_anticlockwise) ? anti_in_parking_p1 : clkw_in_parking_p1;
           reset_encoder();
@@ -620,7 +621,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         if (pillar_front.colour == RED){
           if (is_anticlockwise) {
             if (num_turn % 4 == 0) {
-              if (abs(MOTOR_ENCODER_COUNT) < 60) {
+              if (abs(MOTOR_ENCODER_COUNT) < 55) {
                 steering_percentage = 0;
                 motor_move(tar_power);
               } else {
@@ -782,7 +783,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       
       case ANTI_OUT_PARKING_P3_STATE:
         Serial.println("ANTI_OUT_PARKING_P3_STATE");
-        if (abs(imu_yaw) < 97){
+        if (abs(imu_yaw) < 99){
           steering_percentage = -100;
           motor_move(9);
           break;
@@ -1103,9 +1104,9 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Move forward for a certain encoder value
       case anti_in_parking_p2:
-        if (abs(MOTOR_ENCODER_COUNT) < 36){
+        if (abs(MOTOR_ENCODER_COUNT) < 32){
           steering_percentage = -(imu_yaw - (tar_ang + tar_ang_calibrate)) * imu_kp;
-          motor_move(8);
+          motor_move(9);
           break;
         } else {
           motor_stop(BRAKE);
@@ -1131,7 +1132,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking
       case anti_in_parking_p4:
-        idk = (idk_color == 1 ) ? 1 * abs(66.0 - outer_wall_dist) : 0.8 * abs(42.0 - inner_wall_dist);
+        idk = (pillar_front.colour == RED ) ? 1 * abs(66.0 - outer_wall_dist) : 0.8 * abs(43.0 - inner_wall_dist);
         Serial.println(idk);
         if (abs(MOTOR_ENCODER_COUNT) < idk){
           steering_percentage = 0;
@@ -1148,7 +1149,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is anti-clockwise. Make a turn to get into the parking lot for a parallel parking
       case anti_in_parking_p5:
-        ha = (idk_color == 1 ) ? 156 : 173;
+        ha = (pillar_front.colour == RED ) ? 156 : 173;
         if (abs(imu_yaw - tar_ang) < ha){
           steering_percentage = 100;
           motor_move(-8);
@@ -1164,7 +1165,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
       // A parking state if the run direction is anti-clockwise. Move forward until the car is fully into the parking lot
       case anti_in_parking_p6:
         if (abs(MOTOR_ENCODER_COUNT) < 14){
-          steering_percentage = (idk_color == 1 ) ? -100 : 0;
+          steering_percentage = (pillar_front.colour == RED ) ? -100 : 0;
           motor_move(9);
           break;
         } else {
@@ -1220,10 +1221,10 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is clockwise. Make a turn to get into the parking for a parallel parking
       case clkw_in_parking_p4:
-        park_dist = (idk_color == 1) ? 0.7 * abs(45 - inner_wall_dist) : (50 - outer_wall_dist);
+        park_dist = (pillar_front.colour == RED ) ? 0.7 * abs(45 - inner_wall_dist) : (50 - outer_wall_dist);
         if (abs(MOTOR_ENCODER_COUNT) < park_dist){
           steering_percentage = 0;
-          if (idk == 1) motor_move(-9);
+          if (pillar_front.colour == RED ) motor_move(-9);
           else motor_move(9);
           break;
         } else {
@@ -1236,7 +1237,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       // A parking state if the run direction is clockwise. Move forward until the car is fully into the parking lot
       case clkw_in_parking_p5:
-        ha = (idk_color == 1) ? 25 : 27;
+        ha = (pillar_front.colour == RED ) ? 25 : 27;
         if (abs(imu_yaw - tar_ang) > ha){
           steering_percentage = 100;
           motor_move(-9);
@@ -1251,7 +1252,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
 
       case clkw_in_parking_p6:
         if (abs(imu_yaw - tar_ang) > 6){
-          steering_percentage = (idk_color == 2) ? -100 : 50;
+          steering_percentage = (pillar_front.colour == GREEN ) ? -100 : 50;
           motor_move(9);
           break;
         } else {
