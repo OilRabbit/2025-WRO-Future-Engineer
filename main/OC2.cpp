@@ -412,7 +412,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         tar_power = power;
         motor_move(tar_power);
         if (pillar_front.colour == RED) {
-          if (abs(tar_ang - imu_yaw) > 5 && is_anticlockwise && imu_yaw > tar_ang) steering_percentage = -100;
+          if (abs(tar_ang - imu_yaw) > 8 && is_anticlockwise && imu_yaw > tar_ang) steering_percentage = -100;
           else if (abs(tar_ang - imu_yaw) > 5) steering_percentage = -100;
           else {
             steering_percentage = 0;
@@ -656,7 +656,7 @@ void OC2_pixy2(double right_ang, int dist_threshold, int power){
         } else {
           if (!is_anticlockwise){
             if (num_turn % 4 == 0){
-              if (abs(MOTOR_ENCODER_COUNT) < 35) {
+              if (abs(MOTOR_ENCODER_COUNT) < 40) {
                 steering_percentage = 0;
                 motor_move(tar_power);
               } else {
